@@ -1,0 +1,12 @@
+*.pdb
+*.tlog
+*.iobj
+*.ilk
+*.ipdb
+*.exe
+*.obj
+*.idb
+*.plt
+*.lib
+*.log
+C++/test/.vs/
