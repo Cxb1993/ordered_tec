@@ -110,12 +110,13 @@ namespace ORDERED_TEC
 		size_t size;
 	protected:
 		byte * buf;
+		longint file_pt;
 	public:
 		DATA_P();
 		DATA_P(void * iDataP, TEC_TYPE itype);
 
 		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
-		void write_data(FILE *of, size_t N) const;
+		void write_data(FILE *of, size_t N);
 
 		friend TEC_ZONE;
 	};

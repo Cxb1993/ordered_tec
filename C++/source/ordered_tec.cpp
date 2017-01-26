@@ -121,14 +121,16 @@ void TEC_FILE::write_plt()
 	//II   DATA SECTION
 	write_plt_data(of);
 
+	if (echo.test(4))
+	{
+		double s_f = double(ftell(of)) / 1024 / 1024;
+		printf("     file size: %.1fMB\n", s_f);
+	}
+
 	fclose(of);
 
 	std::ios::sync_with_stdio(true);
 
-//	if (echo.test(4))
-//	{
-//		printf("     file size: %.2fMB\n", s_f);
-//	}
 	if (echo.test(1))
 	{
 		printf("#### save file %s.plt ####\n", FileName.c_str());
@@ -234,7 +236,6 @@ void TEC_FILE::write_plt_data(FILE *of)
 {
 	//II   DATA SECTION
 	//i    For both ordered and fe zones
-	double s_f = 0;
 	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
 		if (i->echo.test(0))
@@ -411,7 +412,7 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 	W_FLOAT64(SolutionTime, of);//Solution time
 	W_INT32(-1, of);//Not used. Set to -1
 	W_INT32(0, of);//ZoneType 0=ORDERED
-	W_INT32(0, of);//Specify Var Location. 0 = Don¡¯t specify, all data is located at the nodes
+	W_INT32(0, of);//Specify Var Location. 0 = Donï¿½ï¿½t specify, all data is located at the nodes
 	W_INT32(0, of);//Are raw local 1-to-1 face neighbors supplied? (0=FALSE 1=TRUE) ORDERED and FELINESEG zones must specify 0
 	W_INT32(0, of);//Number of miscellaneous user-defined face neighbor connections (value >= 0)
 	W_INT32(Real_IMax, of);//IMax
@@ -429,16 +430,12 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 
 void TEC_ZONE::write_plt_zonedata(FILE *of)
 {
+	longint pos = ftell(of);
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
-	double s_z = 0;
 	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		W_INT32(j->type, of);//Variable data format
-		s_z += j->size;
 	}
-	s_z *= Real_IMax*Real_JMax*Real_KMax;
-	s_z /= 1024 * 1024;
-//	s_f += s_z;
 	W_INT32(0, of);//Has passive variables: 0 = no
 	W_INT32(0, of);//Has variable sharing 0 = no
 	W_INT32(-1, of);//Zero based zone number to share connectivity list with (-1 = no sharing)
@@ -504,7 +501,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of)
 	{
 		printf("..   write variables: ");
 	}
-	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
+	for (std::vector<DATA_P>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		if (echo.test(2))
 		{
@@ -519,10 +516,11 @@ void TEC_ZONE::write_plt_zonedata(FILE *of)
 
 	realise_buf();
 
-//	if (echo > 4)
-//	{
-//		printf("     zone size: %.2fMB\n", s_z);
-//	}
+	if (echo.test(8))
+	{
+		double s_z = double(ftell(of) - pos) / 1024 / 1024;
+		printf("     zone size: %.1fMB\n", s_z);
+	}
 }
 
 void TEC_ZONE::make_buf()
@@ -753,211 +751,8 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 	return ans;
 }
 
-void DATA_P::write_data(FILE *of, size_t N) const
+void DATA_P::write_data(FILE *of, size_t N)
 {
-	fwrite(buf, size, N, of);
+	file_pt = ftell(of);
+	fwrite((const byte*)buf, size, N, of);
 }
-
-//namespace ORDERED_TEC
-//{
-//	void ORDERED_TEC(TEC_FILE tec_file, std::vector<TEC_ZONE> tec_zone, unsigned int echo)
-//	{
-//		if (tec_file.Variables.size() == 0)
-//		{
-//			throw std::runtime_error("tec_file.Variables is empty");
-//		}
-//		if (tec_zone.size() == 0)
-//		{
-//			throw std::runtime_error("tec_zone(vector<TEC_ZONE>) is empty");
-//		}
-//		for (std::vector<TEC_ZONE>::iterator i = tec_zone.begin(); i != tec_zone.end(); ++i)
-//		{
-//			i->gather_real_size();
-//			if (i->Data.size() == 0)
-//			{
-//				throw std::runtime_error("one of zone.Data is empty");
-//			}
-//			if (i->Data.size() != tec_file.Variables.size())
-//			{
-//				throw std::runtime_error("the size of zone.Data is not equal to the size of tec_file.Variables");
-//			}
-//			for (std::vector<DATA_P>::const_iterator j = i->Data.begin(); j != i->Data.end(); ++j)
-//			{
-//				if (j->DataP == NULL || j->type == 0 || j->size == 0)
-//				{
-//					throw std::runtime_error("one of Data is unset");
-//				}
-//			}
-//		}
-//
-//		if (echo > 1)
-//		{
-//			printf("#### creat file %s.plt ####\n", tec_file.FileName.c_str());
-//		}
-//		std::ios::sync_with_stdio(false);
-//		FILE *of = fopen((tec_file.FileName + ".plt").c_str(), "wb");
-//		if (of == NULL)
-//		{
-//			throw std::runtime_error(std::string("cannot open file ") + (tec_file.FileName + ".plt"));
-//		}
-//		//I    HEADER SECTION
-//		//i    Magic number, Version number
-//		fwrite("#!TDV112", sizeof(char), 8, of);//8 Bytes, exact characters "#!TDV112". Version number follows the "V" and consumes the next 3 characters (for example: "V75", "V101")
-//		//ii   Integer value of 1
-//		W_INT32(1, of);//This is used to determine the byte order of the reader, relative to the writer
-//		//iii  Title and variable names
-//		W_INT32(tec_file.FileType, of);//FileType 0 = FULL, 1 = GRID, 2 = SOLUTION
-//		W_STRING(tec_file.Title, of);//The TITLE
-//		W_INT32(tec_file.Variables.size(), of);//Number of variables (NumVar) in the datafile
-//		for (std::vector<std::string>::const_iterator i = tec_file.Variables.begin(); i != tec_file.Variables.end(); ++i)
-//		{
-//			W_STRING(*i, of);//Variable names
-//		}
-//		//iv   Zones
-//		for (std::vector<TEC_ZONE>::const_iterator i = tec_zone.begin(); i != tec_zone.end(); ++i)
-//		{
-//			W_FLOAT32(299.0f, of);//Zone marker. Value = 299.0
-//			W_STRING(i->ZoneName, of);//Zone name
-//			W_INT32(-1, of);//ParentZone
-//			W_INT32(i->StrandId, of);//StrandID
-//			W_FLOAT64(i->SolutionTime, of);//Solution time
-//			W_INT32(-1, of);//Not used. Set to -1
-//			W_INT32(0, of);//ZoneType 0=ORDERED
-//			W_INT32(0, of);//Specify Var Location. 0 = Don¡¯t specify, all data is located at the nodes
-//			W_INT32(0, of);//Are raw local 1-to-1 face neighbors supplied? (0=FALSE 1=TRUE) ORDERED and FELINESEG zones must specify 0
-//			W_INT32(0, of);//Number of miscellaneous user-defined face neighbor connections (value >= 0)
-//			W_INT32(i->Real_IMax, of);//IMax
-//			W_INT32(i->Real_JMax, of);//JMax
-//			W_INT32(i->Real_KMax, of);//KMax
-//			for (std::map<std::string, std::string>::const_iterator j = i->Auxiliary.begin(); j != i->Auxiliary.end(); ++j)
-//			{
-//				W_INT32(1, of);//Auxiliary name/value pair to follow
-//				W_STRING(j->first, of);//name string
-//				W_INT32(0, of);//Auxiliary Value Format (Currently only allow 0=AuxDataType_String)
-//				W_STRING(j->second, of);//Value string
-//			}
-//			W_INT32(0, of);//No more Auxiliary name/value pairs
-//		}
-//		//ix Dataset Auxiliary data
-//		for (std::map<std::string, std::string>::const_iterator i = tec_file.Auxiliary.begin(); i != tec_file.Auxiliary.end(); ++i)
-//		{
-//			W_FLOAT32(799.0f, of);//DataSetAux Marker
-//			W_STRING(i->first, of);//Text for Auxiliary "Name"
-//			W_INT32(0, of);//Auxiliary Value Format (Currently only allow 0=AuxDataType_String)
-//			W_STRING(i->second, of);//Text for Auxiliary "Value"
-//		}
-//		//EOHMARKER, value=357.0
-//		W_FLOAT32(357.0f, of);
-//		if (echo > 1)
-//		{
-//			printf("--   write head section   --\n");
-//		}
-//		//II   DATA SECTION
-//		//i    For both ordered and fe zones
-//		double s_f = 0;
-//		for (std::vector<TEC_ZONE>::iterator i = tec_zone.begin(); i != tec_zone.end(); ++i)
-//		{
-//			W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
-//			if (echo > 2)
-//			{
-//				printf("--   write zone %i: %s   --\n", int(i - tec_zone.begin() + 1), tec_zone[i - tec_zone.begin()].ZoneName.c_str());
-//			}
-//			double s_z = 0;
-//			for (std::vector<DATA_P>::const_iterator j = i->Data.begin(); j != i->Data.end(); ++j)
-//			{
-//				W_INT32(j->type, of);//Variable data format
-//				s_z += j->size;
-//			}
-//			s_z *= i->Real_IMax*i->Real_JMax*i->Real_KMax;
-//			s_z /= 1024 * 1024;
-//			s_f += s_z;
-//			W_INT32(0, of);//Has passive variables: 0 = no
-//			W_INT32(0, of);//Has variable sharing 0 = no
-//			W_INT32(-1, of);//Zero based zone number to share connectivity list with (-1 = no sharing)
-//			i->make_buf();
-//			for (std::vector<DATA_P>::const_iterator j = i->Data.begin(); j != i->Data.end(); ++j)
-//			{
-//				std::pair<FLOAT64, FLOAT64> mm = j->minmax((i->Real_IMax)*(i->Real_JMax)*(i->Real_KMax));
-//				W_FLOAT64(mm.first, of);//Min value
-//				W_FLOAT64(mm.second, of);//Max value
-//			}
-//			if (echo > 2)
-//			{
-//				printf("..   write variables: ");
-//			}
-//			for (std::vector<DATA_P>::const_iterator j = i->Data.begin(); j != i->Data.end(); ++j)
-//			{
-//				if (echo > 2)
-//				{
-//					printf("%s ", tec_file.Variables[j - i->Data.begin()].c_str());
-//				}
-//				j->write_data(of, i->Real_IMax*i->Real_JMax*i->Real_KMax);//Zone Data. Each variable is in data format as specified above
-//			}
-//			if (echo > 2)
-//			{
-//				printf("  ..\n");
-//			}
-//			i->realise_buf();
-//			if (echo > 4)
-//			{
-//				printf("     zone size: %.2fMB\n", s_z);
-//			}
-//			if (echo > 3)
-//			{
-//				printf("     IMax=%i", i->Real_IMax);
-//				if (i->Real_IMax != 1)
-//				{
-//					printf(" JMax=%i", i->Real_JMax);
-//					if (i->Real_KMax != 1)
-//					{
-//						printf(" KMax=%i", i->Real_KMax);
-//					}
-//				}
-//				printf("\n");
-//			}
-//			if (echo > 5)
-//			{
-//				printf("     ISkip=%i", int(i->ISkip));
-//				if (i->Real_IMax != 1)
-//				{
-//					printf(" JSkip=%i", int(i->JSkip));
-//					if (i->Real_KMax != 1)
-//					{
-//						printf(" KSkip=%i", int(i->KSkip));
-//					}
-//				}
-//				printf("\n");
-//			}
-//			if (echo > 6)
-//			{
-//				printf("     IBegin=%i IEnd=%i\n", int(i->IBegin), int(i->IEnd));
-//				if (i->Real_IMax != 1)
-//				{
-//					printf("     JBegin=%i JEnd=%i\n", int(i->JBegin), int(i->JEnd));
-//					if (i->Real_KMax != 1)
-//					{
-//						printf("     KBegin=%i KEnd=%i\n", int(i->KBegin), int(i->KEnd));
-//					}
-//				}
-//			}
-//			if (echo > 3 && i->StrandId != -1)
-//			{
-//				printf("     StrandId=%i SolutionTime=%f\n", i->StrandId, i->SolutionTime);
-//			}
-//			if (echo > 1)
-//			{
-//				printf("--   write zone %i: %s   --\n", int(i - tec_zone.begin() + 1), tec_zone[i - tec_zone.begin()].ZoneName.c_str());
-//			}
-//		}
-//		fclose(of);
-//		std::ios::sync_with_stdio(true);
-//		if (echo > 4)
-//		{
-//			printf("     file size: %.2fMB\n", s_f);
-//		}
-//		if (echo > 0)
-//		{
-//			printf("#### save file %s.plt ####\n", tec_file.FileName.c_str());
-//		}
-//	}
-//}
