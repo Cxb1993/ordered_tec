@@ -50,6 +50,7 @@ TEC_FILE::TEC_FILE()
 	FileName = "untitled_file";
 	FileType = 0;
 	Title = "untitled";
+	echo_mode();
 }
 
 bool TEC_FILE::add_auxiliary_data(std::string name,std::string value)
@@ -67,45 +68,92 @@ bool TEC_FILE::add_auxiliary_data(std::string name,double value)
 	return add_auxiliary_data(name,ss.str());
 }
 
-void TEC_FILE::write_plt(unsigned int echo)
+void TEC_FILE::set_echo_mode(std::string file, std::string zone)
+{
+	try
+	{
+		if (file.compare("leave") != 0)
+		{
+			echo_mode(file);
+		}
+		if (zone.compare("leave") != 0)
+		{
+			for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
+			{
+				i->echo_mode(zone);
+			}
+		}
+	}
+	catch (...)
+	{
+		throw std::runtime_error("echo code wrong");
+	}
+}
+
+void TEC_FILE::write_plt()
 {
 	wrtie_plt_pre();
 
-	if (echo > 1)
-	{
-		printf("#### creat file %s.plt ####\n", FileName.c_str());
-	}
 	std::ios::sync_with_stdio(false);
+
 	FILE *of = fopen((FileName + ".plt").c_str(), "wb");
 	if (of == NULL)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
 	}
 
+	if (echo.test(0))
+	{
+		printf("#### creat file %s.plt ####\n", FileName.c_str());
+	}
+
 	//I    HEADER SECTION
-	write_plt_filehead(of, echo);
+	write_plt_filehead(of);
 
 	//EOHMARKER, value=357.0
 	W_FLOAT32(357.0f, of);
 
-	//II   DATA SECTION
-	//i    For both ordered and fe zones
-	double s_f = 0;
-	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
+	if (echo.test(3))
 	{
-		i->write_plt_zonedata(of, echo);
+		printf("-------------------------------------\n");
 	}
 
+	//II   DATA SECTION
+	write_plt_data(of);
+
 	fclose(of);
+
 	std::ios::sync_with_stdio(true);
-	if (echo > 4)
-	{
-		printf("     file size: %.2fMB\n", s_f);
-	}
-	if (echo > 0)
+
+//	if (echo.test(4))
+//	{
+//		printf("     file size: %.2fMB\n", s_f);
+//	}
+	if (echo.test(1))
 	{
 		printf("#### save file %s.plt ####\n", FileName.c_str());
 	}
+}
+
+void TEC_FILE::echo_mode(std::string iecho)
+{
+	if (iecho.compare("default")==0)
+	{
+		iecho = "00111";
+	}
+	else if (iecho.compare("full")==0)
+	{
+		iecho = "11111";
+	}
+	else if (iecho.compare("simple")==0)
+	{
+		iecho = "00001";
+	}
+	else if (iecho.compare("none")==0)
+	{
+		iecho = "00000";
+	}
+	echo = std::bitset<5>(iecho);
 }
 
 void TEC_FILE::wrtie_plt_pre()
@@ -139,7 +187,7 @@ void TEC_FILE::wrtie_plt_pre()
 	}
 }
 
-void TEC_FILE::write_plt_filehead(FILE *of, unsigned int echo)
+void TEC_FILE::write_plt_filehead(FILE *of)
 {
 	//I    HEADER SECTION
 	//i    Magic number, Version number
@@ -150,14 +198,27 @@ void TEC_FILE::write_plt_filehead(FILE *of, unsigned int echo)
 	W_INT32(FileType, of);//FileType 0 = FULL, 1 = GRID, 2 = SOLUTION
 	W_STRING(Title, of);//The TITLE
 	W_INT32(Variables.size(), of);//Number of variables (NumVar) in the datafile
+	if (echo.test(2))
+	{
+		printf("     VAR: ");
+	}
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
 		W_STRING(*i, of);//Variable names
+
+		if (echo.test(2))
+		{
+			printf("<%s> ", i->c_str());
+		}
+	}
+	if (echo.test(2))
+	{
+		printf("\n");
 	}
 	//iv   Zones
 	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
-		i->write_plt_zonehead(of, echo);
+		i->write_plt_zonehead(of);
 	}
 	//ix Dataset Auxiliary data
 	for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
@@ -167,9 +228,26 @@ void TEC_FILE::write_plt_filehead(FILE *of, unsigned int echo)
 		W_INT32(0, of);//Auxiliary Value Format (Currently only allow 0=AuxDataType_String)
 		W_STRING(i->second, of);//Text for Auxiliary "Value"
 	}
-	if (echo > 1)
+}
+
+void TEC_FILE::write_plt_data(FILE *of)
+{
+	//II   DATA SECTION
+	//i    For both ordered and fe zones
+	double s_f = 0;
+	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
-		printf("--   write head section   --\n");
+		if (i->echo.test(0))
+		{
+			printf("--   write zone %i: %s   --\n", int(i - Zones.begin() + 1), i->ZoneName.c_str());
+		}
+
+		i->write_plt_zonedata(of);
+
+		if (i->echo.test(1))
+		{
+			printf("--   write zone %i: %s   --\n", int(i - Zones.begin() + 1), i->ZoneName.c_str());
+		}
 	}
 }
 
@@ -193,71 +271,78 @@ TEC_ZONE::TEC_ZONE()
 	noskip = true;
 	noexc = true;
 	needreal = false;
+	echo_mode();
 }
 
 INT32 TEC_ZONE::get_real_size(short o)
 {
-	INT32 ans = -1;
+	gather_real_size();
 	if (o == 0)
 	{
-		if (IMax == 0)
-		{
-			throw std::runtime_error("zone.IMax connot be zeor");
-		}
-		if (IMax == 1 && (ISkip != 1 || IBegin != 0 || IEnd != 0))
-		{
-			throw std::runtime_error("zone.ISkip(or zone.IBegin or zone.IEnd) donnot need to set");
-		}
-		ans = (IMax - IBegin - IEnd) / ISkip;
-		if ((IMax - IBegin - IEnd) % ISkip)
-		{
-			++ans;
-		}
+		return Real_IMax;
 	}
 	else if (o == 1)
 	{
-		if (JMax == 0)
-		{
-			throw std::runtime_error("zone.JMax connot be zeor");
-		}
-		if (JMax == 1 && (JSkip != 1 || JBegin != 0 || JEnd != 0))
-		{
-			throw std::runtime_error("zone.JSkip(or zone.JBegin or zone.JEnd) donnot need to set");
-		}
-		ans = (JMax - JBegin - JEnd) / JSkip;
-		if ((JMax - JBegin - JEnd) % JSkip)
-		{
-			++ans;
-		}
+		return Real_JMax;
 	}
 	else if (o == 2)
 	{
-		if (KMax == 0)
-		{
-			throw std::runtime_error("zone.KMax connot be zeor");
-		}
-		if (KMax == 1 && (KSkip != 1 || KBegin != 0 || KEnd != 0))
-		{
-			throw std::runtime_error("zone.KSkip(or zone.KBegin or zone.KEnd) donnot need to set");
-		}
-		ans = (KMax - KBegin - KEnd) / KSkip;
-		if ((KMax - KBegin - KEnd) % KSkip)
-		{
-			++ans;
-		}
+		return Real_KMax;
+	}
+	else if (o == 3)
+	{
+		return Real_Dim;
 	}
 	else
 	{
 		throw std::runtime_error("out of range");
 	}
-	return ans;
 }
 
 void TEC_ZONE::gather_real_size()
 {
-	Real_IMax= get_real_size(0);
-	Real_JMax= get_real_size(1);
-	Real_KMax= get_real_size(2);
+	if (IMax == 0)
+	{
+		throw std::runtime_error("zone.IMax connot be zeor");
+	}
+	if (IMax == 1 && (ISkip != 1 || IBegin != 0 || IEnd != 0))
+	{
+		throw std::runtime_error("zone.ISkip(or zone.IBegin or zone.IEnd) donnot need to set");
+	}
+	Real_IMax = (IMax - IBegin - IEnd) / ISkip;
+	if ((IMax - IBegin - IEnd) % ISkip)
+	{
+		++Real_IMax;
+	}
+
+	if (JMax == 0)
+	{
+		throw std::runtime_error("zone.JMax connot be zeor");
+	}
+	if (JMax == 1 && (JSkip != 1 || JBegin != 0 || JEnd != 0))
+	{
+		throw std::runtime_error("zone.JSkip(or zone.JBegin or zone.JEnd) donnot need to set");
+	}
+	Real_JMax = (JMax - JBegin - JEnd) / JSkip;
+	if ((JMax - JBegin - JEnd) % JSkip)
+	{
+		++Real_JMax;
+	}
+
+	if (KMax == 0)
+	{
+		throw std::runtime_error("zone.KMax connot be zeor");
+	}
+	if (KMax == 1 && (KSkip != 1 || KBegin != 0 || KEnd != 0))
+	{
+		throw std::runtime_error("zone.KSkip(or zone.KBegin or zone.KEnd) donnot need to set");
+	}
+	Real_KMax = (KMax - KBegin - KEnd) / KSkip;
+	if ((KMax - KBegin - KEnd) % KSkip)
+	{
+		++Real_KMax;
+	}
+
 	if(Real_IMax==0||Real_JMax==0||Real_KMax==0)
 	{
 		throw std::runtime_error("zone.Real_IMax(or zone.Real_JMax or zone.Real_KMax) is zero due to unreasonable set of Skip, Being or End");
@@ -296,7 +381,28 @@ bool TEC_ZONE::add_auxiliary_data(std::string name,double value)
 	return add_auxiliary_data(name,ss.str());
 }
 
-void TEC_ZONE::write_plt_zonehead(FILE *of, unsigned int echo) const
+void TEC_ZONE::echo_mode(std::string iecho)
+{
+	if (iecho.compare("default")==0)
+	{
+		iecho = "000001001";
+	}
+	else if (iecho.compare("full")==0)
+	{
+		iecho = "111111111";
+	}
+	else if (iecho.compare("simple")==0)
+	{
+		iecho = "000000001";
+	}
+	else if (iecho.compare("none")==0)
+	{
+		iecho = "000000000";
+	}
+	echo = std::bitset<9>(iecho);
+}
+
+void TEC_ZONE::write_plt_zonehead(FILE *of) const
 {
 	W_FLOAT32(299.0f, of);//Zone marker. Value = 299.0
 	W_STRING(ZoneName, of);//Zone name
@@ -321,13 +427,9 @@ void TEC_ZONE::write_plt_zonehead(FILE *of, unsigned int echo) const
 	W_INT32(0, of);//No more Auxiliary name/value pairs
 }
 
-void TEC_ZONE::write_plt_zonedata(FILE *of, unsigned int echo)
+void TEC_ZONE::write_plt_zonedata(FILE *of)
 {
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
-//	if (echo > 2)
-//	{
-//		printf("--   write zone %i: %s   --\n", int(i - tec_zone.begin() + 1), tec_zone[i - tec_zone.begin()].ZoneName.c_str());
-//	}
 	double s_z = 0;
 	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
@@ -340,79 +442,86 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, unsigned int echo)
 	W_INT32(0, of);//Has passive variables: 0 = no
 	W_INT32(0, of);//Has variable sharing 0 = no
 	W_INT32(-1, of);//Zero based zone number to share connectivity list with (-1 = no sharing)
+
 	make_buf();
+
 	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		std::pair<FLOAT64, FLOAT64> mm = j->minmax(Real_IMax*Real_JMax*Real_KMax);
 		W_FLOAT64(mm.first, of);//Min value
 		W_FLOAT64(mm.second, of);//Max value
 	}
-//	if (echo > 2)
-//	{
-//		printf("..   write variables: ");
-//	}
+
+	if (echo.test(3))
+	{
+		printf("     IMax=%i", Real_IMax);
+		if (Real_JMax != 1)
+		{
+			printf(" JMax=%i", Real_JMax);
+			if (Real_KMax != 1)
+			{
+				printf(" KMax=%i", Real_KMax);
+			}
+		}
+		printf(" Dim=%i", Real_Dim);
+		printf("\n");
+	}
+	if (echo.test(4))
+	{
+		printf("     IMax_Org=%i JMax_Org=%i KMax_Org=%i\n", IMax, JMax, KMax);
+	}
+	if (echo.test(5))
+	{
+		printf("     ISkip=%i", int(ISkip));
+		if (Real_JMax != 1)
+		{
+			printf(" JSkip=%i", int(JSkip));
+			if (Real_KMax != 1)
+			{
+				printf(" KSkip=%i", int(KSkip));
+			}
+		}
+		printf("\n");
+	}
+	if (echo.test(6))
+	{
+		printf("     IBegin=%i IEnd=%i\n", int(IBegin), int(IEnd));
+		if (Real_JMax != 1)
+		{
+			printf("     JBegin=%i JEnd=%i\n", int(JBegin), int(JEnd));
+			if (Real_KMax != 1)
+			{
+				printf("     KBegin=%i KEnd=%i\n", int(KBegin), int(KEnd));
+			}
+		}
+	}
+	if (echo.test(7) && StrandId != -1)
+	{
+		printf("     StrandId=%i SolutionTime=%f\n", StrandId, SolutionTime);
+	}
+
+	if (echo.test(2))
+	{
+		printf("..   write variables: ");
+	}
 	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
-//		if (echo > 2)
-//		{
-//			printf("%s ", tec_file.Variables[j - i->Data.begin()].c_str());
-//		}
+		if (echo.test(2))
+		{
+			printf("<%i> ", int(j - Data.begin() + 1));
+		}
 		j->write_data(of, Real_IMax*Real_JMax*Real_KMax);//Zone Data. Each variable is in data format as specified above
 	}
-//	if (echo > 2)
-//	{
-//		printf("  ..\n");
-//	}
+	if (echo.test(2))
+	{
+		printf("  ..\n");
+	}
+
 	realise_buf();
+
 //	if (echo > 4)
 //	{
 //		printf("     zone size: %.2fMB\n", s_z);
-//	}
-//	if (echo > 3)
-//	{
-//		printf("     IMax=%i", i->Real_IMax);
-//		if (i->Real_IMax != 1)
-//		{
-//			printf(" JMax=%i", i->Real_JMax);
-//			if (i->Real_KMax != 1)
-//			{
-//				printf(" KMax=%i", i->Real_KMax);
-//			}
-//		}
-//		printf("\n");
-//	}
-//	if (echo > 5)
-//	{
-//		printf("     ISkip=%i", int(i->ISkip));
-//		if (i->Real_IMax != 1)
-//		{
-//			printf(" JSkip=%i", int(i->JSkip));
-//			if (i->Real_KMax != 1)
-//			{
-//				printf(" KSkip=%i", int(i->KSkip));
-//			}
-//		}
-//		printf("\n");
-//	}
-//	if (echo > 6)
-//	{
-//		printf("     IBegin=%i IEnd=%i\n", int(i->IBegin), int(i->IEnd));
-//		if (i->Real_IMax != 1)
-//		{
-//			printf("     JBegin=%i JEnd=%i\n", int(i->JBegin), int(i->JEnd));
-//			if (i->Real_KMax != 1)
-//			{
-//				printf("     KBegin=%i KEnd=%i\n", int(i->KBegin), int(i->KEnd));
-//			}
-//		}
-//	}
-//	if (echo > 3 && i->StrandId != -1)
-//	{
-//		printf("     StrandId=%i SolutionTime=%f\n", i->StrandId, i->SolutionTime);
-//	}
-//	if (echo > 1)
-//	{
-//		printf("--   write zone %i: %s   --\n", int(i - tec_zone.begin() + 1), tec_zone[i - tec_zone.begin()].ZoneName.c_str());
 //	}
 }
 

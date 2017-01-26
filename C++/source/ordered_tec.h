@@ -5,6 +5,7 @@
 # include <vector>
 # include <map>
 # include <stdexcept>
+# include <bitset>
 
 namespace ORDERED_TEC
 {
@@ -32,17 +33,23 @@ namespace ORDERED_TEC
 
 		std::map<std::string, std::string> Auxiliary;
 
+		//size, section, variable, file_end, file_head
+		std::bitset<5> echo;
 	public:
 		TEC_FILE();
 
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
 
-		void write_plt(unsigned int echo);
+		void set_echo_mode(std::string file, std::string zone);
 
+		void write_plt();
 	protected:
+		void echo_mode(std::string echo = "default");
+
 		void wrtie_plt_pre();
-		void write_plt_filehead(FILE *of, unsigned int echo);
+		void write_plt_filehead(FILE *of);
+		void write_plt_data(FILE *of);
 	};
 
 	class TEC_ZONE
@@ -59,25 +66,29 @@ namespace ORDERED_TEC
 		size_t IBegin, IEnd, JBegin, JEnd, KBegin, KEnd;
 
 		std::map<std::string, std::string> Auxiliary;
+
+		//size, stdid & soltime, begin & end, skip, max_org, max_real, variable, zone_end, zone_head
+		std::bitset<9> echo;
 	protected:
 		INT32 Real_IMax, Real_JMax, Real_KMax;
 		INT32 Real_Dim;
 		bool noskip, noexc;
 		bool needreal;
-
 	public:
 		TEC_ZONE();
 		INT32 get_real_size(short o);
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
-
 	protected:
+		void echo_mode(std::string echo = "default");
+
 		void gather_real_size();
 		void make_buf();
-		void realise_buf();
 
-		void write_plt_zonehead(FILE *of, unsigned int echo) const;
-		void write_plt_zonedata(FILE *of, unsigned int echo);
+		void write_plt_zonehead(FILE *of) const;
+		void write_plt_zonedata(FILE *of);
+
+		void realise_buf();
 
 		friend TEC_FILE;
 	};
@@ -99,7 +110,6 @@ namespace ORDERED_TEC
 		size_t size;
 	protected:
 		byte * buf;
-
 	public:
 		DATA_P();
 		DATA_P(void * iDataP, TEC_TYPE itype);

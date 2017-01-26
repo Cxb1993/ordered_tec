@@ -22,10 +22,12 @@ int main(int argc,char **argv)
 			w[i + j*NI] = i + j;
 		}
 	}
-	unsigned int echo = 11;
 
-	cout<<"please input echo leval (a number such as 1,2,3 ...): "<<endl;
-	cin>>echo;
+	string echo_file, echo_zone;
+	cout << "please input file echo leval (default/full/simple/none): " << endl;
+	cin >> echo_file;
+	cout << "please input zone echo leval (default/full/simple/none): " << endl;
+	cin >> echo_zone;
 
 	tecfile_grid.FileName="test_03_g";
 	tecfile_grid.Title="test_03_grid";
@@ -44,9 +46,19 @@ int main(int argc,char **argv)
 	teczone.JBegin=10;
 	teczone.JEnd=10;
 	tecfile_grid.Zones.push_back(teczone);
+
 	try
 	{
-		tecfile_grid.write_plt(echo);
+		tecfile_grid.set_echo_mode(echo_file, echo_zone);
+	}
+	catch (std::runtime_error err)
+	{
+		cerr << "runtime_error: " << err.what() << endl;
+	}
+
+	try
+	{
+		tecfile_grid.write_plt();
 	}
 	catch(std::runtime_error err)
 	{
@@ -63,9 +75,19 @@ int main(int argc,char **argv)
 	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	teczone.Data.push_back(ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile_solution.Zones.push_back(teczone);
+
 	try
 	{
-		tecfile_solution.write_plt(echo);
+		tecfile_solution.set_echo_mode(echo_file, echo_zone);
+	}
+	catch (std::runtime_error err)
+	{
+		cerr << "runtime_error: " << err.what() << endl;
+	}
+
+	try
+	{
+		tecfile_solution.write_plt();
 	}
 	catch(std::runtime_error err)
 	{

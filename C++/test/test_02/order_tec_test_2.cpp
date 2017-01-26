@@ -22,7 +22,6 @@ int main(int argc,char **argv)
 			w[i + j*NI] = i + j;
 		}
 	}
-	unsigned int echo = 7;
 
 	tecfile.FileName="test_02";
 	tecfile.Title="test_02";
@@ -55,9 +54,11 @@ int main(int argc,char **argv)
 	teczone.add_auxiliary_data("Auxiliary4",3.1415);
 	tecfile.Zones.push_back(teczone);
 
+	tecfile.set_echo_mode("full", "full");
+
 	try
 	{
-		tecfile.write_plt(echo);
+		tecfile.write_plt();
 	}
 	catch(std::runtime_error err)
 	{

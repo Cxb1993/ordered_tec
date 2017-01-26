@@ -20,7 +20,6 @@ int main(int argc,char **argv)
 			z[i + j*NI] = 1 + i / 2 + j;
 		}
 	}
-	unsigned int echo = 7;
 
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
@@ -34,7 +33,7 @@ int main(int argc,char **argv)
 
 	try
 	{
-		tecfile.write_plt(echo);
+		tecfile.write_plt();
 	}
 	catch(std::runtime_error err)
 	{

@@ -14,7 +14,6 @@ int main(int argc,char **argv)
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
 	DATATYPE *z=new DATATYPE[NI*NJ];
-	unsigned int echo = 1;
 	
 # ifdef __linux__
 	cout<<"os: Linus"<<endl;
@@ -48,9 +47,12 @@ int main(int argc,char **argv)
 	teczone.JSkip=10;
 	teczone.StrandId=-1;
 	tecfile.Zones.push_back(teczone);
+
+	tecfile.set_echo_mode("00001", "none");
+
 	try
 	{
-		tecfile.write_plt(echo);
+		tecfile.write_plt();
 	}
 	catch(std::runtime_error err)
 	{
@@ -64,6 +66,9 @@ int main(int argc,char **argv)
 	teczone.Data.clear();
 	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	teczone.StrandId=0;
+	tecfile.Zones.clear();
+	tecfile.Zones.push_back(teczone);
+	tecfile.set_echo_mode("00001", "none");
 	for(int n=0;n!=30;++n)
 	{
 		for (int j = 0; j != NJ; ++j)
@@ -76,14 +81,12 @@ int main(int argc,char **argv)
 		stringstream ss;
 		ss<<n;
 		tecfile.FileName=string("./test_04/file_s_")+ss.str();
-		teczone.ZoneName=string("s_")+ss.str();
+		tecfile.Zones[0].ZoneName = string("s_") + ss.str();
 		ss.str("");
-		teczone.SolutionTime=n;
-		tecfile.Zones.clear();
-		tecfile.Zones.push_back(teczone);
+		tecfile.Zones[0].SolutionTime = n;
 		try
 		{
-			tecfile.write_plt(echo);
+			tecfile.write_plt();
 		}
 		catch(std::runtime_error err)
 		{
