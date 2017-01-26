@@ -8,8 +8,8 @@ using namespace std;
 # define DATATYPE double
 int main(int argc,char **argv)
 {
-	odt::TEC_FILE tecfile;
-	odt::TEC_ZONE teczone;
+	ORDERED_TEC::TEC_FILE tecfile;
+	ORDERED_TEC::TEC_ZONE teczone;
 	size_t NI=1000,NJ=2000;
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
@@ -42,14 +42,15 @@ int main(int argc,char **argv)
 	teczone.ZoneName="grid";
 	teczone.IMax=NI;
 	teczone.JMax=NJ;
-	teczone.Data.push_back(odt::DATA_P(x, odt::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(odt::DATA_P(y, odt::DATA_P::TEC_DOUBLE));
+	teczone.Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	teczone.Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	teczone.ISkip=10;
 	teczone.JSkip=10;
 	teczone.StrandId=-1;
+	tecfile.Zones.push_back(teczone);
 	try
 	{
-		ORDERED_TEC(tecfile,teczone,echo);
+		tecfile.write_plt(echo);
 	}
 	catch(std::runtime_error err)
 	{
@@ -61,7 +62,7 @@ int main(int argc,char **argv)
 	tecfile.Variables.clear();
 	tecfile.Variables.push_back("z");
 	teczone.Data.clear();
-	teczone.Data.push_back(odt::DATA_P(z, odt::DATA_P::TEC_DOUBLE));
+	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	teczone.StrandId=0;
 	for(int n=0;n!=30;++n)
 	{
@@ -78,9 +79,11 @@ int main(int argc,char **argv)
 		teczone.ZoneName=string("s_")+ss.str();
 		ss.str("");
 		teczone.SolutionTime=n;
+		tecfile.Zones.clear();
+		tecfile.Zones.push_back(teczone);
 		try
 		{
-			ORDERED_TEC(tecfile,teczone,echo);
+			tecfile.write_plt(echo);
 		}
 		catch(std::runtime_error err)
 		{

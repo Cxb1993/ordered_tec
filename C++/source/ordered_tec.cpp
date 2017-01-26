@@ -70,6 +70,7 @@ bool TEC_FILE::add_auxiliary_data(std::string name,double value)
 void TEC_FILE::write_plt(unsigned int echo)
 {
 	wrtie_plt_pre();
+
 	if (echo > 1)
 	{
 		printf("#### creat file %s.plt ####\n", FileName.c_str());
@@ -80,7 +81,13 @@ void TEC_FILE::write_plt(unsigned int echo)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
 	}
+
+	//I    HEADER SECTION
 	write_plt_filehead(of, echo);
+
+	//EOHMARKER, value=357.0
+	W_FLOAT32(357.0f, of);
+
 	//II   DATA SECTION
 	//i    For both ordered and fe zones
 	double s_f = 0;
@@ -88,6 +95,7 @@ void TEC_FILE::write_plt(unsigned int echo)
 	{
 		i->write_plt_zonedata(of, echo);
 	}
+
 	fclose(of);
 	std::ios::sync_with_stdio(true);
 	if (echo > 4)
@@ -108,7 +116,7 @@ void TEC_FILE::wrtie_plt_pre()
 	}
 	if (Zones.size() == 0)
 	{
-		throw std::runtime_error("tec_zone(vector<TEC_ZONE>) is empty");
+		throw std::runtime_error("tec_file.Zones is empty");
 	}
 	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
@@ -159,8 +167,6 @@ void TEC_FILE::write_plt_filehead(FILE *of, unsigned int echo)
 		W_INT32(0, of);//Auxiliary Value Format (Currently only allow 0=AuxDataType_String)
 		W_STRING(i->second, of);//Text for Auxiliary "Value"
 	}
-	//EOHMARKER, value=357.0
-	W_FLOAT32(357.0f, of);
 	if (echo > 1)
 	{
 		printf("--   write head section   --\n");
@@ -314,6 +320,7 @@ void TEC_ZONE::write_plt_zonehead(FILE *of, unsigned int echo) const
 	}
 	W_INT32(0, of);//No more Auxiliary name/value pairs
 }
+
 void TEC_ZONE::write_plt_zonedata(FILE *of, unsigned int echo)
 {
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0

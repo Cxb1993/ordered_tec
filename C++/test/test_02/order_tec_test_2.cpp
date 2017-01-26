@@ -5,8 +5,8 @@ using namespace std;
 # define DATATYPE double
 int main(int argc,char **argv)
 {
-	odt::TEC_FILE tecfile;
-	odt::TEC_ZONE teczone;
+	ORDERED_TEC::TEC_FILE tecfile;
+	ORDERED_TEC::TEC_ZONE teczone;
 	size_t NI=1000,NJ=2000;
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
@@ -32,14 +32,12 @@ int main(int argc,char **argv)
 	tecfile.add_auxiliary_data("Auxiliary1","Auxiliary_test_1_ds");
 	tecfile.add_auxiliary_data("Auxiliary2",3.14);
 
-	vector<odt::TEC_ZONE> tecz;
-
 	teczone.ZoneName="A";
 	teczone.IMax=NI;
 	teczone.JMax=NJ;
-	teczone.Data.push_back(odt::DATA_P(x, odt::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(odt::DATA_P(y, odt::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(odt::DATA_P(z, odt::DATA_P::TEC_DOUBLE));
+	teczone.Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	teczone.Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	teczone.ISkip=2;
 	teczone.JSkip=3;
 	teczone.IBegin=50;
@@ -48,18 +46,18 @@ int main(int argc,char **argv)
 	teczone.JEnd=10;
 	teczone.add_auxiliary_data("Auxiliary1","Auxiliary_test_1");
 	teczone.add_auxiliary_data("Auxiliary2",3.14);
-	tecz.push_back(teczone);
+	tecfile.Zones.push_back(teczone);
 
 	teczone.ZoneName="B";
-	teczone.Data[2]= odt::DATA_P(w, odt::DATA_P::TEC_DOUBLE);
+	teczone.Data[2]= ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
 	teczone.Auxiliary.clear();
 	teczone.add_auxiliary_data("Auxiliary3","Auxiliary_test_1_2");
 	teczone.add_auxiliary_data("Auxiliary4",3.1415);
-	tecz.push_back(teczone);
+	tecfile.Zones.push_back(teczone);
 
 	try
 	{
-		ORDERED_TEC(tecfile,tecz, echo);
+		tecfile.write_plt(echo);
 	}
 	catch(std::runtime_error err)
 	{

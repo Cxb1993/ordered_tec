@@ -11,3 +11,4 @@
 *.log
 C++/test/.vs/
 C++/test/test.VC.db
+*.opendb

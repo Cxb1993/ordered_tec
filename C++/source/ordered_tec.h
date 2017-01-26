@@ -34,6 +34,7 @@ namespace ORDERED_TEC
 
 	public:
 		TEC_FILE();
+
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
 
