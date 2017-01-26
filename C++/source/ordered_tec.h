@@ -6,7 +6,7 @@
 # include <map>
 # include <stdexcept>
 
-namespace odt
+namespace ORDERED_TEC
 {
 	typedef int INT32;
 	typedef float FLOAT32;
@@ -19,9 +19,6 @@ namespace odt
 	class TEC_FILE;
 	class DATA_P;
 	class TEC_ZONE;
-	void ORDERED_TEC(TEC_FILE tec_file, std::vector<TEC_ZONE> tec_zone, unsigned int echo);
-	void ORDERED_TEC(TEC_FILE tec_file, TEC_ZONE tec_zone, unsigned int echo);
-	std::pair<FLOAT64, FLOAT64> minmax(DATA_P datap, size_t N);
 
 	class TEC_FILE
 	{
@@ -30,6 +27,9 @@ namespace odt
 		std::string Title;
 		std::vector<std::string> Variables;
 		INT32 FileType;
+
+		std::vector<TEC_ZONE> Zones;
+
 		std::map<std::string, std::string> Auxiliary;
 
 	public:
@@ -37,7 +37,48 @@ namespace odt
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
 
-		friend void ORDERED_TEC(TEC_FILE tec_file, std::vector<TEC_ZONE> tec_zone, unsigned int echo);
+		void write_plt(unsigned int echo);
+
+	protected:
+		void wrtie_plt_pre();
+		void write_plt_filehead(FILE *of, unsigned int echo);
+	};
+
+	class TEC_ZONE
+	{
+	public:
+		std::string ZoneName;
+
+		INT32 StrandId;
+		FLOAT64 SolutionTime;
+
+		size_t IMax, JMax, KMax;
+		std::vector<DATA_P> Data;
+		size_t ISkip, JSkip, KSkip;
+		size_t IBegin, IEnd, JBegin, JEnd, KBegin, KEnd;
+
+		std::map<std::string, std::string> Auxiliary;
+	protected:
+		INT32 Real_IMax, Real_JMax, Real_KMax;
+		INT32 Real_Dim;
+		bool noskip, noexc;
+		bool needreal;
+
+	public:
+		TEC_ZONE();
+		INT32 get_real_size(short o);
+		bool add_auxiliary_data(std::string name, std::string value);
+		bool add_auxiliary_data(std::string name, double value);
+
+	protected:
+		void gather_real_size();
+		void make_buf();
+		void realise_buf();
+
+		void write_plt_zonehead(FILE *of, unsigned int echo) const;
+		void write_plt_zonedata(FILE *of, unsigned int echo);
+
+		friend TEC_FILE;
 	};
 
 	class DATA_P
@@ -62,38 +103,10 @@ namespace odt
 		DATA_P();
 		DATA_P(void * iDataP, TEC_TYPE itype);
 
-		friend class TEC_ZONE;
-		friend std::pair<FLOAT64, FLOAT64> minmax(DATA_P datap, size_t N);
-	};
+		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
+		void write_data(FILE *of, size_t N) const;
 
-	class TEC_ZONE
-	{
-	public:
-		std::string ZoneName;
-		INT32 StrandId;
-		FLOAT64 SolutionTime;
-		size_t IMax, JMax, KMax;
-		std::vector<DATA_P> Data;
-		size_t ISkip, JSkip, KSkip;
-		size_t IBegin, IEnd, JBegin, JEnd, KBegin, KEnd;
-		std::map<std::string, std::string> Auxiliary;
-	protected:
-		INT32 Real_IMax, Real_JMax, Real_KMax;
-		bool noskip, noexc;
-		bool needreal;
-
-	public:
-		TEC_ZONE();
-		INT32 get_realijk(short o);
-		void real_ijk();
-		bool add_auxiliary_data(std::string name, std::string value);
-		bool add_auxiliary_data(std::string name, double value);
-	protected:
-		void make_buf();
-		void realise_buf();
-		void write_data(const DATA_P &data, FILE *of) const;
-
-		friend void ORDERED_TEC(TEC_FILE tec_file, std::vector<TEC_ZONE> tec_zone, unsigned int echo);
+		friend TEC_ZONE;
 	};
 }
 # endif
