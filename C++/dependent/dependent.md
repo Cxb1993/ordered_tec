@@ -1,0 +1,1 @@
+This project provides the option depending on tinyxml2, in which case this folder should contain the file `tinyxml2.h` and `tinyxml2.cpp`.
