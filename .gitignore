@@ -12,3 +12,4 @@
 C++/test/.vs/
 C++/test/test.VC.db
 *.opendb
+C++/test/test_01/test_01.vcxproj.user

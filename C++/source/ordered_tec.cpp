@@ -194,9 +194,9 @@ void TEC_FILE::write_plt_filehead(FILE *of)
 	//I    HEADER SECTION
 	//i    Magic number, Version number
 	fwrite("#!TDV112", sizeof(char), 8, of);//8 Bytes, exact characters "#!TDV112". Version number follows the "V" and consumes the next 3 characters (for example: "V75", "V101")
-											//ii   Integer value of 1
+	//ii   Integer value of 1
 	W_INT32(1, of);//This is used to determine the byte order of the reader, relative to the writer
-				   //iii  Title and variable names
+	//iii  Title and variable names
 	W_INT32(FileType, of);//FileType 0 = FULL, 1 = GRID, 2 = SOLUTION
 	W_STRING(Title, of);//The TITLE
 	W_INT32(Variables.size(), of);//Number of variables (NumVar) in the datafile
@@ -412,7 +412,7 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 	W_FLOAT64(SolutionTime, of);//Solution time
 	W_INT32(-1, of);//Not used. Set to -1
 	W_INT32(0, of);//ZoneType 0=ORDERED
-	W_INT32(0, of);//Specify Var Location. 0 = Don��t specify, all data is located at the nodes
+	W_INT32(0, of);//Specify Var Location. 0 = Do not specify, all data is located at the nodes
 	W_INT32(0, of);//Are raw local 1-to-1 face neighbors supplied? (0=FALSE 1=TRUE) ORDERED and FELINESEG zones must specify 0
 	W_INT32(0, of);//Number of miscellaneous user-defined face neighbor connections (value >= 0)
 	W_INT32(Real_IMax, of);//IMax
