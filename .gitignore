@@ -15,3 +15,4 @@ C++/test/test.VC.db
 C++/test/test_01/test_01.vcxproj.user
 C++/dependent/tinyxml2.h
 C++/dependent/tinyxml2.cpp
+*.json

@@ -87,6 +87,7 @@ int main(int argc,char **argv)
 		try
 		{
 			tecfile.write_plt();
+			tecfile.write_log_json();
 		}
 		catch(std::runtime_error err)
 		{

@@ -34,12 +34,13 @@ int main(int argc,char **argv)
 	try
 	{
 		tecfile.write_plt();
+		tecfile.write_log_json();
 	}
 	catch(std::runtime_error err)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}
-	
+
 	delete [] x;
 	delete [] y;
 	delete [] z;

@@ -7,6 +7,8 @@
 # include <stdexcept>
 # include <bitset>
 
+# define LOG_JSON
+
 namespace ORDERED_TEC
 {
 	typedef int INT32;
@@ -44,6 +46,9 @@ namespace ORDERED_TEC
 		void set_echo_mode(std::string file, std::string zone);
 
 		void write_plt();
+
+		void write_log_json(FILE *of);
+		void write_log_json();
 	protected:
 		void echo_mode(std::string echo = "default");
 
@@ -87,6 +92,8 @@ namespace ORDERED_TEC
 
 		void write_plt_zonehead(FILE *of) const;
 		void write_plt_zonedata(FILE *of);
+
+		void write_log_json_zone(FILE *of);
 
 		void realise_buf();
 

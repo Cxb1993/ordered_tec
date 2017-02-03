@@ -96,8 +96,9 @@ void TEC_FILE::write_plt()
 
 	std::ios::sync_with_stdio(false);
 
-	FILE *of = fopen((FileName + ".plt").c_str(), "wb");
-	if (of == NULL)
+	FILE *of;
+	errno_t err = fopen_s(&of, (FileName + ".plt").c_str(), "wb");
+	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
 	}
@@ -250,6 +251,69 @@ void TEC_FILE::write_plt_data(FILE *of)
 			printf("--   write zone %i: %s   --\n", int(i - Zones.begin() + 1), i->ZoneName.c_str());
 		}
 	}
+}
+
+void TEC_FILE::write_log_json(FILE *of)
+{
+	fprintf(of, "{\n");
+
+	fprintf(of, "\t\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str());
+	fprintf(of, "\t\"Title\" : \"%s\" ,\n", Title.c_str());
+	fprintf(of, "\t\"FileType\" : %i ,\n", FileType);
+
+	fprintf(of, "\t\"Variables\" : [ ");
+	for (std::vector<std::string>::iterator i = Variables.begin(); i != Variables.end(); ++i)
+	{
+		fprintf(of, "\"%s\"",i->c_str());
+		if (Variables.end() - i != 1)
+		{
+			fprintf(of, ", ");
+		}
+	}
+	fprintf(of, " ] ,\n");
+
+	if (Auxiliary.size() != 0)
+	{
+		fprintf(of, "\t\"Auxiliary\" : {\n");
+		int j = 0;
+		for (std::map<std::string, std::string>::iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		{
+			fprintf(of, "\t\t\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
+			if (j != Auxiliary.size() - 1)
+			{
+				fprintf(of, ",\n");
+			}
+			++j;
+		}
+		fprintf(of, "\n\t} ,\n");
+	}
+
+	fprintf(of, "\t\"Zones\" : [\n");
+	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
+	{
+		i->write_log_json_zone(of);
+		if (Zones.end() - i != 1)
+		{
+			fprintf(of, " ,\n");
+		}
+	}
+	fprintf(of, "\n\t]\n");
+
+	fprintf(of, "}");
+}
+
+void TEC_FILE::write_log_json()
+{
+	FILE *of;
+	errno_t err = fopen_s(&of, (FileName + ".json").c_str(), "wb");
+	if (err != 0)
+	{
+		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
+	}
+
+	write_log_json(of);
+
+	fclose(of);
 }
 
 TEC_ZONE::TEC_ZONE()
@@ -599,6 +663,52 @@ void TEC_ZONE::realise_buf()
 			i->buf = NULL;
 		}
 	}
+}
+
+void TEC_ZONE::write_log_json_zone(FILE *of)
+{
+	fprintf(of, "\t\t{\n");
+
+	fprintf(of, "\t\t\"ZoneName\" : \"%s\" ,\n", ZoneName.c_str());
+	fprintf(of, "\t\t\"StrandId\" : %i ,\n", StrandId);
+	if (StrandId != -1)
+	{
+		fprintf(of, "\t\t\"SolutionTime\" : %lf ,\n", SolutionTime);
+	}
+	fprintf(of, "\t\t\"Max\" : [ %zi, %zi, %zi ] ,\n", IMax, JMax, KMax);
+	fprintf(of, "\t\t\"Skip\" : [ %zi, %zi, %zi ] ,\n", ISkip, JSkip, KSkip);
+	fprintf(of, "\t\t\"Begin\" : [ %zi, %zi, %zi ] ,\n", IBegin, JBegin, KBegin);
+	fprintf(of, "\t\t\"End\" : [ %zi, %zi, %zi ] ,\n", IEnd, JEnd, KEnd);
+	fprintf(of, "\t\t\"Real_Max\" : [ %zi, %zi, %zi ] ,\n", Real_IMax, Real_JMax, Real_KMax);
+
+	if (Auxiliary.size() != 0)
+	{
+		fprintf(of, "\t\t\"Auxiliary\" : {\n");
+		int j = 0;
+		for (std::map<std::string, std::string>::iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		{
+			fprintf(of, "\t\t\t\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
+			if (j != Auxiliary.size() - 1)
+			{
+				fprintf(of, ",\n");
+			}
+			++j;
+		}
+		fprintf(of, "\n\t\t} ,\n");
+	}
+
+	fprintf(of, "\t\t\"Data\" : [\n");
+	for (std::vector<DATA_P>::iterator i = Data.begin(); i != Data.end(); ++i)
+	{
+		fprintf(of, "\t\t\t{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li }", i->type, i->size, i->file_pt);
+		if (Data.end() - i != 1)
+		{
+			fprintf(of, ",\n");
+		}
+	}
+	fprintf(of, "\n\t\t]\n");
+
+	fprintf(of, "\t\t}");
 }
 
 DATA_P::DATA_P()
