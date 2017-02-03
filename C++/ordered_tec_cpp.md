@@ -3,6 +3,7 @@
 - [x] reconstruct the data structure
 - [x] refine the function
 - [x] modify the echo mode
-- [ ] add some log file in case of reading the raw data
+- [x] add some log file in case of reading the raw data
 - [ ] combine with the xml file
+- [x] combine with the json file
 - [ ] complete comment and document
