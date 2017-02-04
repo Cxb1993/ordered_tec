@@ -47,8 +47,11 @@ namespace ORDERED_TEC
 
 		void write_plt();
 
-		void write_log_json(FILE *of);
-		void write_log_json();
+		void write_log_json(FILE *of, int depth = 0) const;
+		void write_log_json() const;
+
+		void write_log_xml(FILE *of, int depth = 0) const;
+		void write_log_xml() const;
 	protected:
 		void echo_mode(std::string echo = "default");
 
@@ -93,7 +96,8 @@ namespace ORDERED_TEC
 		void write_plt_zonehead(FILE *of) const;
 		void write_plt_zonedata(FILE *of);
 
-		void write_log_json_zone(FILE *of);
+		void write_log_json_zone(FILE *of, int depth = 0) const;
+		void write_log_xml_zone(FILE *of, int depth = 0) const;
 
 		void realise_buf();
 

@@ -35,6 +35,7 @@ int main(int argc,char **argv)
 	{
 		tecfile.write_plt();
 		tecfile.write_log_json();
+		tecfile.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{

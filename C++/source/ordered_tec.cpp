@@ -253,16 +253,23 @@ void TEC_FILE::write_plt_data(FILE *of)
 	}
 }
 
-void TEC_FILE::write_log_json(FILE *of)
+void TEC_FILE::write_log_json(FILE *of, int depth) const
 {
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "{\n");
 
-	fprintf(of, "\t\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str());
-	fprintf(of, "\t\"Title\" : \"%s\" ,\n", Title.c_str());
-	fprintf(of, "\t\"FileType\" : %i ,\n", FileType);
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Title\" : \"%s\" ,\n", Title.c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FileType_comment\" : \"%s\" ,\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FileType\" : %i ,\n", FileType);
 
-	fprintf(of, "\t\"Variables\" : [ ");
-	for (std::vector<std::string>::iterator i = Variables.begin(); i != Variables.end(); ++i)
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Variables\" : [ ");
+	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
 		fprintf(of, "\"%s\"",i->c_str());
 		if (Variables.end() - i != 1)
@@ -274,35 +281,43 @@ void TEC_FILE::write_log_json(FILE *of)
 
 	if (Auxiliary.size() != 0)
 	{
-		fprintf(of, "\t\"Auxiliary\" : {\n");
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "\"Auxiliary\" : {\n");
 		int j = 0;
-		for (std::map<std::string, std::string>::iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			fprintf(of, "\t\t\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
+			for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+			fprintf(of, "\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
 			if (j != Auxiliary.size() - 1)
 			{
 				fprintf(of, ",\n");
 			}
 			++j;
 		}
-		fprintf(of, "\n\t} ,\n");
+		fprintf(of, "\n");
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "} ,\n");
 	}
 
-	fprintf(of, "\t\"Zones\" : [\n");
-	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Zones\" : [\n");
+	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
-		i->write_log_json_zone(of);
+		i->write_log_json_zone(of,depth);
 		if (Zones.end() - i != 1)
 		{
 			fprintf(of, " ,\n");
 		}
 	}
-	fprintf(of, "\n\t]\n");
+	fprintf(of, "\n");
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "]\n");
 
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "}");
 }
 
-void TEC_FILE::write_log_json()
+void TEC_FILE::write_log_json() const
 {
 	FILE *of;
 	errno_t err = fopen_s(&of, (FileName + ".json").c_str(), "wb");
@@ -312,6 +327,68 @@ void TEC_FILE::write_log_json()
 	}
 
 	write_log_json(of);
+
+	fclose(of);
+}
+
+void TEC_FILE::write_log_xml(FILE *of, int depth) const
+{
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<File FileName=\"%s\">\n", (FileName + ".plt").c_str());
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Title>%s</Title>\n", Title.c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<!--%s-->\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<FileType>%i</FileType>\n", FileType);
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Variables");
+	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
+	{
+		fprintf(of, " V%i=\"%s\"",i - Variables.begin() + 1, i->c_str());
+	}
+	fprintf(of, "/>\n");
+
+	if (Auxiliary.size() != 0)
+	{
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "<Auxiliary>\n");
+		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		{
+			for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+			fprintf(of, "<%s>%s</%s>\n", i->first.c_str(), i->second.c_str(), i->first.c_str());
+		}
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "</Auxiliary>\n");
+	}
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Zones>\n");
+	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
+	{
+		i->write_log_xml_zone(of,depth);
+		fprintf(of, "\n");
+	}
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "</Zones>\n");
+
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "</File>");
+}
+
+void TEC_FILE::write_log_xml() const
+{
+	FILE *of;
+	errno_t err = fopen_s(&of, (FileName + ".xml").c_str(), "wb");
+	if (err != 0)
+	{
+		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));
+	}
+
+	fprintf(of, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	write_log_xml(of);
 
 	fclose(of);
 }
@@ -665,50 +742,124 @@ void TEC_ZONE::realise_buf()
 	}
 }
 
-void TEC_ZONE::write_log_json_zone(FILE *of)
+void TEC_ZONE::write_log_json_zone(FILE *of, int depth) const
 {
-	fprintf(of, "\t\t{\n");
+	for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "{\n");
 
-	fprintf(of, "\t\t\"ZoneName\" : \"%s\" ,\n", ZoneName.c_str());
-	fprintf(of, "\t\t\"StrandId\" : %i ,\n", StrandId);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"ZoneName\" : \"%s\" ,\n", ZoneName.c_str());
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"StrandId\" : %i ,\n", StrandId);
 	if (StrandId != -1)
 	{
-		fprintf(of, "\t\t\"SolutionTime\" : %lf ,\n", SolutionTime);
+		for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "\"SolutionTime\" : %lf ,\n", SolutionTime);
 	}
-	fprintf(of, "\t\t\"Max\" : [ %zi, %zi, %zi ] ,\n", IMax, JMax, KMax);
-	fprintf(of, "\t\t\"Skip\" : [ %zi, %zi, %zi ] ,\n", ISkip, JSkip, KSkip);
-	fprintf(of, "\t\t\"Begin\" : [ %zi, %zi, %zi ] ,\n", IBegin, JBegin, KBegin);
-	fprintf(of, "\t\t\"End\" : [ %zi, %zi, %zi ] ,\n", IEnd, JEnd, KEnd);
-	fprintf(of, "\t\t\"Real_Max\" : [ %zi, %zi, %zi ] ,\n", Real_IMax, Real_JMax, Real_KMax);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Max\" : [ %zi, %zi, %zi ] ,\n", IMax, JMax, KMax);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Skip\" : [ %zi, %zi, %zi ] ,\n", ISkip, JSkip, KSkip);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Begin\" : [ %zi, %zi, %zi ] ,\n", IBegin, JBegin, KBegin);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"End\" : [ %zi, %zi, %zi ] ,\n", IEnd, JEnd, KEnd);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Real_Max\" : [ %zi, %zi, %zi ] ,\n", Real_IMax, Real_JMax, Real_KMax);
 
 	if (Auxiliary.size() != 0)
 	{
-		fprintf(of, "\t\t\"Auxiliary\" : {\n");
+		for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "\"Auxiliary\" : {\n");
 		int j = 0;
-		for (std::map<std::string, std::string>::iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			fprintf(of, "\t\t\t\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
+			for (int i = 0; i != depth + 4; ++i) { fprintf(of, "\t"); }
+			fprintf(of, "\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
 			if (j != Auxiliary.size() - 1)
 			{
 				fprintf(of, ",\n");
 			}
 			++j;
 		}
-		fprintf(of, "\n\t\t} ,\n");
+		fprintf(of, "\n");
+		for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "} ,\n");
 	}
 
-	fprintf(of, "\t\t\"Data\" : [\n");
-	for (std::vector<DATA_P>::iterator i = Data.begin(); i != Data.end(); ++i)
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Data_type_comment\" : \"%s\" ,\n", "1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit");
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Data\" : [\n");
+	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
-		fprintf(of, "\t\t\t{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li }", i->type, i->size, i->file_pt);
+		for (int i = 0; i != depth + 4; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li }", i->type, i->size, i->file_pt);
 		if (Data.end() - i != 1)
 		{
 			fprintf(of, ",\n");
 		}
 	}
-	fprintf(of, "\n\t\t]\n");
+	fprintf(of, "\n");
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "]\n");
 
-	fprintf(of, "\t\t}");
+	for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "}");
+}
+
+void TEC_ZONE::write_log_xml_zone(FILE *of, int depth) const
+{
+	for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Zone>\n");
+
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<ZoneName>%s</ZoneName>\n", ZoneName.c_str());
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<StrandId>%i</StrandId>\n", StrandId);
+	if (StrandId != -1)
+	{
+		for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "<SolutionTime>%lf</SolutionTime>\n", SolutionTime);
+	}
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Max IMax=\"%zi\" JMax=\"%zi\" KMax=\"%zi\"/>\n", IMax, JMax, KMax);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Skip ISkip=\"%zi\" JSkip=\"%zi\" KSkip=\"%zi\"/>\n", ISkip, JSkip, KSkip);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Begin IBegin=\"%zi\" JBegin=\"%zi\" KBegin=\"%zi\"/>\n", IBegin, JBegin, KBegin);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<End IEnd=\"%zi\" JEnd=\"%zi\" KEnd=\"%zi\"/>\n", IEnd, JEnd, KEnd);
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Real_Max Real_IMax=\"%zi\" Real_JMax=\"%zi\" Real_KMax=\"%zi\"/>\n", Real_IMax, Real_JMax, Real_KMax);
+
+	if (Auxiliary.size() != 0)
+	{
+		for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "<Auxiliary>\n");
+		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		{
+			for (int i = 0; i != depth + 4; ++i) { fprintf(of, "\t"); }
+			fprintf(of, "<%s>%s</%s>\n", i->first.c_str(), i->second.c_str(), i->first.c_str());
+		}
+		for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "</Auxiliary>\n");
+	}
+
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<!--%s-->\n", "1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit");
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Data>\n");
+	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
+	{
+		for (int i = 0; i != depth + 4; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "<data_%i type=\"%i\" size_i=\"%zi\" file_pt=\"%li\"/>\n", i - Data.begin() + 1, i->type, i->size, i->file_pt);
+	}
+	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "</Data>\n");
+
+	for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "</Zone>");
 }
 
 DATA_P::DATA_P()

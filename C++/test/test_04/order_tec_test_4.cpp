@@ -2,7 +2,6 @@
 # include <cmath>
 # include <sstream>
 # include <stdlib.h>
-using namespace std;
 # include "ordered_tec.h"
 
 # define DATATYPE double
@@ -20,7 +19,7 @@ int main(int argc,char **argv)
 	system("rm -r test_04");
 	system("mkdir test_04");
 # else
-	cout<<"os: Windows"<<endl;
+	std::cout<<"os: Windows"<< std::endl;
 	system("rmdir /s /q test_04");
 	system("mkdir test_04");
 # endif
@@ -53,10 +52,12 @@ int main(int argc,char **argv)
 	try
 	{
 		tecfile.write_plt();
+		tecfile.write_log_json();
+		tecfile.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{
-		cerr<<"runtime_error: "<<err.what()<<endl;
+		std::cerr<<"runtime_error: "<<err.what()<< std::endl;
 	}
 
 	tecfile.Title="test_04_solution";
@@ -69,6 +70,21 @@ int main(int argc,char **argv)
 	tecfile.Zones.clear();
 	tecfile.Zones.push_back(teczone);
 	tecfile.set_echo_mode("00001", "none");
+	FILE *of_json, *of_xml;
+	errno_t err;
+	err = fopen_s(&of_json, "test_04.json", "wb");
+	if (err != 0)
+	{
+		std::cerr << "cannot open file test_04.json" << std::endl;;
+	}
+	err = fopen_s(&of_xml, "test_04.xml", "wb");
+	if (err != 0)
+	{
+		std::cerr << "cannot open file test_04.xml" << std::endl;;
+	}
+	fprintf(of_json, "[\n");
+	fprintf(of_xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	fprintf(of_xml, "<Files>\n");
 	for(int n=0;n!=30;++n)
 	{
 		for (int j = 0; j != NJ; ++j)
@@ -78,23 +94,33 @@ int main(int argc,char **argv)
 				z[i + j*NI] = sin(x[i + j*NI]/2+n/5.0)+cos(y[i + j*NI]/2+n/5.0);
 			}
 		}
-		stringstream ss;
+		std::stringstream ss;
 		ss<<n;
-		tecfile.FileName=string("./test_04/file_s_")+ss.str();
-		tecfile.Zones[0].ZoneName = string("s_") + ss.str();
+		tecfile.FileName= std::string("./test_04/file_s_")+ss.str();
+		tecfile.Zones[0].ZoneName = std::string("s_") + ss.str();
 		ss.str("");
 		tecfile.Zones[0].SolutionTime = n;
 		try
 		{
 			tecfile.write_plt();
-			tecfile.write_log_json();
 		}
 		catch(std::runtime_error err)
 		{
-			cerr<<"runtime_error: "<<err.what()<<endl;
+			std::cerr<<"runtime_error: "<<err.what()<< std::endl;
 		}
+		tecfile.write_log_json(of_json, 1);
+		if (n != 30 - 1)
+		{
+			fprintf(of_json, ",");
+		}
+		fprintf(of_json, "\n");
+		tecfile.write_log_xml(of_xml, 1);
+		fprintf(of_xml, "\n");
 	}
-	
+	fprintf(of_json, "]");
+	fprintf(of_xml, "</Files>");
+	fclose(of_json);
+	fclose(of_xml);
 
 	delete [] x;
 	delete [] y;

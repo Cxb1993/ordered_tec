@@ -60,6 +60,7 @@ int main(int argc,char **argv)
 	{
 		tecfile_grid.write_plt();
 		tecfile_grid.write_log_json();
+		tecfile_grid.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{
@@ -90,6 +91,7 @@ int main(int argc,char **argv)
 	{
 		tecfile_solution.write_plt();
 		tecfile_solution.write_log_json();
+		tecfile_solution.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{
