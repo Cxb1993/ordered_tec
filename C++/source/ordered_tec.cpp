@@ -25,11 +25,13 @@ void W_INT32(const INT32 &a, FILE *f)
 	INT32 t = a;
 	fwrite(&t, S_INT32, 1, f);
 }
+
 void W_FLOAT32(const FLOAT32 &a, FILE *f)
 {
 	FLOAT32 t = a;
 	fwrite(&t, S_FLOAT32, 1, f);
 }
+
 void W_FLOAT64(const FLOAT64 &a, FILE *f)
 {
 	FLOAT64 t = a;
@@ -136,6 +138,146 @@ void TEC_FILE::write_plt()
 	{
 		printf("#### save file %s.plt ####\n", FileName.c_str());
 	}
+}
+
+void TEC_FILE::write_log_json(FILE *of, int depth) const
+{
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "{\n");
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Title\" : \"%s\" ,\n", Title.c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FileType_comment\" : \"%s\" ,\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FileType\" : %i ,\n", FileType);
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Variables\" : [ ");
+	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
+	{
+		fprintf(of, "\"%s\"", i->c_str());
+		if (Variables.end() - i != 1)
+		{
+			fprintf(of, ", ");
+		}
+	}
+	fprintf(of, " ] ,\n");
+
+	if (Auxiliary.size() != 0)
+	{
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "\"Auxiliary\" : {\n");
+		int j = 0;
+		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		{
+			for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+			fprintf(of, "\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
+			if (j != Auxiliary.size() - 1)
+			{
+				fprintf(of, ",\n");
+			}
+			++j;
+		}
+		fprintf(of, "\n");
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "} ,\n");
+	}
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"Zones\" : [\n");
+	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
+	{
+		i->write_log_json_zone(of, depth);
+		if (Zones.end() - i != 1)
+		{
+			fprintf(of, " ,\n");
+		}
+	}
+	fprintf(of, "\n");
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "]\n");
+
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "}");
+}
+
+void TEC_FILE::write_log_json() const
+{
+	FILE *of;
+	errno_t err = fopen_s(&of, (FileName + ".json").c_str(), "wb");
+	if (err != 0)
+	{
+		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
+	}
+
+	write_log_json(of);
+
+	fclose(of);
+}
+
+void TEC_FILE::write_log_xml(FILE *of, int depth) const
+{
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<File FileName=\"%s\">\n", (FileName + ".plt").c_str());
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Title>%s</Title>\n", Title.c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<!--%s-->\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<FileType>%i</FileType>\n", FileType);
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Variables");
+	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
+	{
+		fprintf(of, " V%i=\"%s\"", i - Variables.begin() + 1, i->c_str());
+	}
+	fprintf(of, "/>\n");
+
+	if (Auxiliary.size() != 0)
+	{
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "<Auxiliary>\n");
+		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
+		{
+			for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
+			fprintf(of, "<%s>%s</%s>\n", i->first.c_str(), i->second.c_str(), i->first.c_str());
+		}
+		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+		fprintf(of, "</Auxiliary>\n");
+	}
+
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<Zones>\n");
+	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
+	{
+		i->write_log_xml_zone(of, depth);
+		fprintf(of, "\n");
+	}
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "</Zones>\n");
+
+	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "</File>");
+}
+
+void TEC_FILE::write_log_xml() const
+{
+	FILE *of;
+	errno_t err = fopen_s(&of, (FileName + ".xml").c_str(), "wb");
+	if (err != 0)
+	{
+		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));
+	}
+
+	fprintf(of, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	write_log_xml(of);
+
+	fclose(of);
 }
 
 void TEC_FILE::echo_mode(std::string iecho)
@@ -253,146 +395,6 @@ void TEC_FILE::write_plt_data(FILE *of)
 	}
 }
 
-void TEC_FILE::write_log_json(FILE *of, int depth) const
-{
-	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "{\n");
-
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str());
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "\"Title\" : \"%s\" ,\n", Title.c_str());
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "\"FileType_comment\" : \"%s\" ,\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "\"FileType\" : %i ,\n", FileType);
-
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "\"Variables\" : [ ");
-	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
-	{
-		fprintf(of, "\"%s\"",i->c_str());
-		if (Variables.end() - i != 1)
-		{
-			fprintf(of, ", ");
-		}
-	}
-	fprintf(of, " ] ,\n");
-
-	if (Auxiliary.size() != 0)
-	{
-		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-		fprintf(of, "\"Auxiliary\" : {\n");
-		int j = 0;
-		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
-		{
-			for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
-			fprintf(of, "\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str());
-			if (j != Auxiliary.size() - 1)
-			{
-				fprintf(of, ",\n");
-			}
-			++j;
-		}
-		fprintf(of, "\n");
-		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-		fprintf(of, "} ,\n");
-	}
-
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "\"Zones\" : [\n");
-	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
-	{
-		i->write_log_json_zone(of,depth);
-		if (Zones.end() - i != 1)
-		{
-			fprintf(of, " ,\n");
-		}
-	}
-	fprintf(of, "\n");
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "]\n");
-
-	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "}");
-}
-
-void TEC_FILE::write_log_json() const
-{
-	FILE *of;
-	errno_t err = fopen_s(&of, (FileName + ".json").c_str(), "wb");
-	if (err != 0)
-	{
-		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
-	}
-
-	write_log_json(of);
-
-	fclose(of);
-}
-
-void TEC_FILE::write_log_xml(FILE *of, int depth) const
-{
-	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<File FileName=\"%s\">\n", (FileName + ".plt").c_str());
-
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<Title>%s</Title>\n", Title.c_str());
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<!--%s-->\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<FileType>%i</FileType>\n", FileType);
-
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<Variables");
-	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
-	{
-		fprintf(of, " V%i=\"%s\"",i - Variables.begin() + 1, i->c_str());
-	}
-	fprintf(of, "/>\n");
-
-	if (Auxiliary.size() != 0)
-	{
-		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-		fprintf(of, "<Auxiliary>\n");
-		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
-		{
-			for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
-			fprintf(of, "<%s>%s</%s>\n", i->first.c_str(), i->second.c_str(), i->first.c_str());
-		}
-		for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-		fprintf(of, "</Auxiliary>\n");
-	}
-
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<Zones>\n");
-	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
-	{
-		i->write_log_xml_zone(of,depth);
-		fprintf(of, "\n");
-	}
-	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "</Zones>\n");
-
-	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "</File>");
-}
-
-void TEC_FILE::write_log_xml() const
-{
-	FILE *of;
-	errno_t err = fopen_s(&of, (FileName + ".xml").c_str(), "wb");
-	if (err != 0)
-	{
-		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));
-	}
-
-	fprintf(of, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	write_log_xml(of);
-
-	fclose(of);
-}
-
 TEC_ZONE::TEC_ZONE()
 {
 	ZoneName = "untitled_zone";
@@ -441,6 +443,42 @@ INT32 TEC_ZONE::get_real_size(short o)
 	}
 }
 
+bool TEC_ZONE::add_auxiliary_data(std::string name,std::string value)
+{
+	std::pair<std::map<std::string,std::string>::iterator,bool> ans;
+	std::pair<std::string,std::string> temp(name,value);
+	ans=Auxiliary.insert(temp);
+	return ans.second;
+}
+
+bool TEC_ZONE::add_auxiliary_data(std::string name,double value)
+{
+	std::stringstream ss;
+	ss<<value;
+	return add_auxiliary_data(name,ss.str());
+}
+
+void TEC_ZONE::echo_mode(std::string iecho)
+{
+	if (iecho.compare("default")==0)
+	{
+		iecho = "000001001";
+	}
+	else if (iecho.compare("full")==0)
+	{
+		iecho = "111111111";
+	}
+	else if (iecho.compare("simple")==0)
+	{
+		iecho = "000000001";
+	}
+	else if (iecho.compare("none")==0)
+	{
+		iecho = "000000000";
+	}
+	echo = std::bitset<9>(iecho);
+}
+
 void TEC_ZONE::gather_real_size()
 {
 	if (IMax == 0)
@@ -485,7 +523,7 @@ void TEC_ZONE::gather_real_size()
 		++Real_KMax;
 	}
 
-	if(Real_IMax==0||Real_JMax==0||Real_KMax==0)
+	if (Real_IMax == 0 || Real_JMax == 0 || Real_KMax == 0)
 	{
 		throw std::runtime_error("zone.Real_IMax(or zone.Real_JMax or zone.Real_KMax) is zero due to unreasonable set of Skip, Being or End");
 	}
@@ -504,44 +542,86 @@ void TEC_ZONE::gather_real_size()
 		}
 	}
 
-	noskip = ISkip==1 && JSkip==1 && KSkip==1 ;
-	noexc = IBegin==0 && IEnd==0 && JBegin==0 && JEnd==0 && KBegin==0 && KEnd==0 ;
+	noskip = ISkip == 1 && JSkip == 1 && KSkip == 1;
+	noexc = IBegin == 0 && IEnd == 0 && JBegin == 0 && JEnd == 0 && KBegin == 0 && KEnd == 0;
 }
 
-bool TEC_ZONE::add_auxiliary_data(std::string name,std::string value)
+void TEC_ZONE::make_buf()
 {
-	std::pair<std::map<std::string,std::string>::iterator,bool> ans;
-	std::pair<std::string,std::string> temp(name,value);
-	ans=Auxiliary.insert(temp);
-	return ans.second;
+	if(noskip && noexc)
+	{
+		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
+		{
+			i->buf=(byte *)i->DataP;
+		}
+		needreal = false;
+	}
+	else if(noskip)
+	{
+		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
+		{
+			size_t size=i->size;
+			byte * datap=(byte *)i->DataP;
+			i->buf=new byte[Real_IMax*Real_JMax*Real_KMax*size];
+			if(i->buf==NULL)
+			{
+				throw std::runtime_error("out of memory");
+			}
+			for(size_t sk=KBegin;sk<KMax-KEnd;sk+=KSkip)
+			{
+				for(size_t sj=JBegin;sj<JMax-JEnd;sj+=JSkip)
+				{
+					std::memcpy(i->buf+(Real_IMax*(sj-JBegin)/JSkip+Real_IMax*Real_JMax*(sk-KBegin)/KSkip)*size,
+						        datap+(IBegin+IMax*sj+IMax*JMax*sk)*size, Real_IMax*size);
+				}
+			}
+		}
+		needreal = true;
+	}
+	else
+	{
+		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
+		{
+			size_t size=i->size;
+			byte * datap=(byte *)i->DataP;
+			i->buf=new byte[Real_IMax*Real_JMax*Real_KMax*size];
+			if(i->buf==NULL)
+			{
+				throw std::runtime_error("out of memory");
+			}
+			for(size_t sk=KBegin;sk<KMax-KEnd;sk+=KSkip)
+			{
+				for(size_t sj=JBegin;sj<JMax-JEnd;sj+=JSkip)
+				{
+					for(size_t si=IBegin;si<IMax-IEnd;si+=ISkip)
+					{
+						std::memcpy(i->buf+((si-IBegin)/ISkip+Real_IMax*(sj-JBegin)/JSkip+Real_IMax*Real_JMax*(sk-KBegin)/KSkip)*size,
+							        datap+(si+IMax*sj+IMax*JMax*sk)*size, size);
+					}
+				}
+			}
+		}
+		needreal = true;
+	}
 }
 
-bool TEC_ZONE::add_auxiliary_data(std::string name,double value)
+void TEC_ZONE::realise_buf()
 {
-	std::stringstream ss;
-	ss<<value;
-	return add_auxiliary_data(name,ss.str());
-}
-
-void TEC_ZONE::echo_mode(std::string iecho)
-{
-	if (iecho.compare("default")==0)
+	if (needreal)
 	{
-		iecho = "000001001";
+		for (std::vector<DATA_P>::iterator i = Data.begin(); i != Data.end(); ++i)
+		{
+			delete[] i->buf;
+		}
+		needreal = false;
 	}
-	else if (iecho.compare("full")==0)
+	else
 	{
-		iecho = "111111111";
+		for (std::vector<DATA_P>::iterator i = Data.begin(); i != Data.end(); ++i)
+		{
+			i->buf = NULL;
+		}
 	}
-	else if (iecho.compare("simple")==0)
-	{
-		iecho = "000000001";
-	}
-	else if (iecho.compare("none")==0)
-	{
-		iecho = "000000000";
-	}
-	echo = std::bitset<9>(iecho);
 }
 
 void TEC_ZONE::write_plt_zonehead(FILE *of) const
@@ -661,84 +741,6 @@ void TEC_ZONE::write_plt_zonedata(FILE *of)
 	{
 		double s_z = double(ftell(of) - pos) / 1024 / 1024;
 		printf("     zone size: %.1fMB\n", s_z);
-	}
-}
-
-void TEC_ZONE::make_buf()
-{
-	if(noskip && noexc)
-	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
-		{
-			i->buf=(byte *)i->DataP;
-		}
-		needreal = false;
-	}
-	else if(noskip)
-	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
-		{
-			size_t size=i->size;
-			byte * datap=(byte *)i->DataP;
-			i->buf=new byte[Real_IMax*Real_JMax*Real_KMax*size];
-			if(i->buf==NULL)
-			{
-				throw std::runtime_error("out of memory");
-			}
-			for(size_t sk=KBegin;sk<KMax-KEnd;sk+=KSkip)
-			{
-				for(size_t sj=JBegin;sj<JMax-JEnd;sj+=JSkip)
-				{
-					std::memcpy(i->buf+(Real_IMax*(sj-JBegin)/JSkip+Real_IMax*Real_JMax*(sk-KBegin)/KSkip)*size,
-						        datap+(IBegin+IMax*sj+IMax*JMax*sk)*size, Real_IMax*size);
-				}
-			}
-		}
-		needreal = true;
-	}
-	else
-	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
-		{
-			size_t size=i->size;
-			byte * datap=(byte *)i->DataP;
-			i->buf=new byte[Real_IMax*Real_JMax*Real_KMax*size];
-			if(i->buf==NULL)
-			{
-				throw std::runtime_error("out of memory");
-			}
-			for(size_t sk=KBegin;sk<KMax-KEnd;sk+=KSkip)
-			{
-				for(size_t sj=JBegin;sj<JMax-JEnd;sj+=JSkip)
-				{
-					for(size_t si=IBegin;si<IMax-IEnd;si+=ISkip)
-					{
-						std::memcpy(i->buf+((si-IBegin)/ISkip+Real_IMax*(sj-JBegin)/JSkip+Real_IMax*Real_JMax*(sk-KBegin)/KSkip)*size,
-							        datap+(si+IMax*sj+IMax*JMax*sk)*size, size);
-					}
-				}
-			}
-		}
-		needreal = true;
-	}
-}
-
-void TEC_ZONE::realise_buf()
-{
-	if(needreal)
-	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
-		{
-			delete [] i->buf;
-		}
-		needreal = false;
-	}
-	else
-	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
-		{
-			i->buf = NULL;
-		}
 	}
 }
 

@@ -92,14 +92,13 @@ namespace ORDERED_TEC
 
 		void gather_real_size();
 		void make_buf();
+		void realise_buf();
 
 		void write_plt_zonehead(FILE *of) const;
 		void write_plt_zonedata(FILE *of);
 
 		void write_log_json_zone(FILE *of, int depth = 0) const;
 		void write_log_xml_zone(FILE *of, int depth = 0) const;
-
-		void realise_buf();
 
 		friend TEC_FILE;
 	};
