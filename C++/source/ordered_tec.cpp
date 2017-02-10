@@ -208,7 +208,7 @@ void TEC_FILE::write_log_json(FILE *of, int depth) const
 void TEC_FILE::write_log_json() const
 {
 	FILE *of;
-	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".json").c_str(), "wb");
+	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".json").c_str(), "w");
 	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
@@ -269,7 +269,7 @@ void TEC_FILE::write_log_xml(FILE *of, int depth) const
 void TEC_FILE::write_log_xml() const
 {
 	FILE *of;
-	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".xml").c_str(), "wb");
+	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".xml").c_str(), "w");
 	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));
