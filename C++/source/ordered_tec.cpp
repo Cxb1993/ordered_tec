@@ -57,6 +57,13 @@ TEC_FILE::TEC_FILE()
 	echo_mode();
 }
 
+void TEC_FILE::new_zone(std::string name)
+{
+	TEC_ZONE nz;
+	nz.ZoneName = name;
+	Zones.push_back(nz);
+}
+
 bool TEC_FILE::add_auxiliary_data(std::string name,std::string value)
 {
 	std::pair<std::map<std::string,std::string>::iterator,bool> ans;

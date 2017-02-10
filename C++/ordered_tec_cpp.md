@@ -8,4 +8,5 @@
 - [x] combine with the json file
 - [x] add `FilePath` property in `TEC_FILE` class
 - [x] change log stream
+- [x] add `new_zone` function
 - [ ] complete comment and document

@@ -5,8 +5,6 @@ using namespace std;
 # define DATATYPE double
 int main(int argc,char **argv)
 {
-	ORDERED_TEC::TEC_FILE tecfile;
-	ORDERED_TEC::TEC_ZONE teczone;
 	size_t NI=1000,NJ=2000;
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
@@ -21,21 +19,19 @@ int main(int argc,char **argv)
 		}
 	}
 
+	ORDERED_TEC::TEC_FILE tecfile;
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
-	teczone.IMax=NI;
-	teczone.JMax=NJ;
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones.push_back(teczone);
-
+	tecfile.new_zone();
+	tecfile.Zones[0].IMax=NI;
+	tecfile.Zones[0].JMax=NJ;
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	try
 	{
 		tecfile.write_plt();
-		tecfile.write_log_json();
-		tecfile.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{

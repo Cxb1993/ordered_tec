@@ -42,6 +42,8 @@ namespace ORDERED_TEC
 	public:
 		TEC_FILE();
 
+		void new_zone(std::string name = "untitled_zone");
+
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
 
