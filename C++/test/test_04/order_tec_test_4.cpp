@@ -48,7 +48,7 @@ int main(int argc,char **argv)
 	teczone.StrandId=-1;
 	tecfile.Zones.push_back(teczone);
 
-	tecfile.set_echo_mode("00001", "none");
+	tecfile.set_echo_mode("simple", "none");
 
 	try
 	{
@@ -70,7 +70,7 @@ int main(int argc,char **argv)
 	teczone.StrandId=0;
 	tecfile.Zones.clear();
 	tecfile.Zones.push_back(teczone);
-	tecfile.set_echo_mode("00001", "none");
+	tecfile.set_echo_mode("simple", "none");
 	FILE *of_json, *of_xml;
 	errno_t err;
 	err = fopen_s(&of_json, "test_04.json", "wb");

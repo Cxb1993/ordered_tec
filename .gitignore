@@ -17,3 +17,4 @@ C++/dependent/tinyxml2.h
 C++/dependent/tinyxml2.cpp
 *.json
 *.xml
+C++/test/test_03/log.txt

@@ -5,6 +5,7 @@
 # include <map>
 # include <cstring>
 # include <stdexcept>
+# include <iostream>
 # include <sstream>
 # include <stdio.h>
 
@@ -49,7 +50,7 @@ void W_STRING(const std::string &a, FILE *f)
 
 TEC_FILE::TEC_FILE()
 {
-	FilePath = "";
+	FilePath = ".";
 	FileName = "untitled_file";
 	FileType = 0;
 	Title = "untitled";
@@ -93,7 +94,7 @@ void TEC_FILE::set_echo_mode(std::string file, std::string zone)
 	}
 }
 
-void TEC_FILE::write_plt()
+void TEC_FILE::write_plt(std::ostream &echo)
 {
 	wrtie_plt_pre();
 
@@ -106,39 +107,41 @@ void TEC_FILE::write_plt()
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
 	}
 
-	if (echo.test(0))
+	if (Echo_Mode.test(0))
 	{
-		printf("#### creat file %s.plt ####\n", FileName.c_str());
+		echo << "#### creat file " << FilePath + "/" + FileName << ".plt ####" << std::endl;
 	}
 
 	//I    HEADER SECTION
-	write_plt_filehead(of);
+	write_plt_filehead(of, echo);
 
 	//EOHMARKER, value=357.0
 	W_FLOAT32(357.0f, of);
 
-	if (echo.test(3))
+	if (Echo_Mode.test(3))
 	{
-		printf("-------------------------------------\n");
+		echo << "-------------------------------------" << std::endl;
 	}
 
 	//II   DATA SECTION
-	write_plt_data(of);
+	write_plt_data(of, echo);
 
-	if (echo.test(4))
+	if (Echo_Mode.test(4))
 	{
 		double s_f = double(ftell(of)) / 1024 / 1024;
-		printf("     file size: %.1fMB\n", s_f);
+		char buf[100];
+		sprintf(buf, "     file size: %.1fMB", s_f);
+		echo << buf << std::endl;
 	}
 
 	fclose(of);
 
-	std::ios::sync_with_stdio(true);
-
-	if (echo.test(1))
+	if (Echo_Mode.test(1))
 	{
-		printf("#### save file %s.plt ####\n", FileName.c_str());
+		echo << "#### creat file " << FilePath + "/" + FileName << ".plt ####" << std::endl;
 	}
+
+	std::ios::sync_with_stdio(true);
 }
 
 void TEC_FILE::write_log_json(FILE *of, int depth) const
@@ -299,7 +302,7 @@ void TEC_FILE::echo_mode(std::string iecho)
 	{
 		iecho = "00000";
 	}
-	echo = std::bitset<5>(iecho);
+	Echo_Mode = std::bitset<5>(iecho);
 }
 
 void TEC_FILE::wrtie_plt_pre()
@@ -333,7 +336,7 @@ void TEC_FILE::wrtie_plt_pre()
 	}
 }
 
-void TEC_FILE::write_plt_filehead(FILE *of)
+void TEC_FILE::write_plt_filehead(FILE *of, std::ostream &echo)
 {
 	//I    HEADER SECTION
 	//i    Magic number, Version number
@@ -344,22 +347,22 @@ void TEC_FILE::write_plt_filehead(FILE *of)
 	W_INT32(FileType, of);//FileType 0 = FULL, 1 = GRID, 2 = SOLUTION
 	W_STRING(Title, of);//The TITLE
 	W_INT32(Variables.size(), of);//Number of variables (NumVar) in the datafile
-	if (echo.test(2))
+	if (Echo_Mode.test(2))
 	{
-		printf("     VAR: ");
+		echo << "     VAR: ";
 	}
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
 		W_STRING(*i, of);//Variable names
 
-		if (echo.test(2))
+		if (Echo_Mode.test(2))
 		{
-			printf("<%s> ", i->c_str());
+			echo << "<" << *i << "> ";
 		}
 	}
-	if (echo.test(2))
+	if (Echo_Mode.test(2))
 	{
-		printf("\n");
+		echo << std::endl;
 	}
 	//iv   Zones
 	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
@@ -376,22 +379,26 @@ void TEC_FILE::write_plt_filehead(FILE *of)
 	}
 }
 
-void TEC_FILE::write_plt_data(FILE *of)
+void TEC_FILE::write_plt_data(FILE *of, std::ostream &echo)
 {
 	//II   DATA SECTION
 	//i    For both ordered and fe zones
 	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
-		if (i->echo.test(0))
+		if (i->Echo_Mode.test(0))
 		{
-			printf("--   write zone %i: %s   --\n", int(i - Zones.begin() + 1), i->ZoneName.c_str());
+			char buf[100];
+			sprintf(buf, "--   write zone %i: %s   --", int(i - Zones.begin() + 1), i->ZoneName.c_str());
+			echo << buf << std::endl;
 		}
 
-		i->write_plt_zonedata(of);
+		i->write_plt_zonedata(of, echo);
 
-		if (i->echo.test(1))
+		if (i->Echo_Mode.test(1))
 		{
-			printf("--   write zone %i: %s   --\n", int(i - Zones.begin() + 1), i->ZoneName.c_str());
+			char buf[100];
+			sprintf(buf, "--   write zone %i: %s   --", int(i - Zones.begin() + 1), i->ZoneName.c_str());
+			echo << buf << std::endl;
 		}
 	}
 }
@@ -477,7 +484,7 @@ void TEC_ZONE::echo_mode(std::string iecho)
 	{
 		iecho = "000000000";
 	}
-	echo = std::bitset<9>(iecho);
+	Echo_Mode = std::bitset<9>(iecho);
 }
 
 void TEC_ZONE::gather_real_size()
@@ -650,7 +657,7 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 	W_INT32(0, of);//No more Auxiliary name/value pairs
 }
 
-void TEC_ZONE::write_plt_zonedata(FILE *of)
+void TEC_ZONE::write_plt_zonedata(FILE *of, std::ostream &echo)
 {
 	longint pos = ftell(of);
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
@@ -671,77 +678,101 @@ void TEC_ZONE::write_plt_zonedata(FILE *of)
 		W_FLOAT64(mm.second, of);//Max value
 	}
 
-	if (echo.test(3))
+	if (Echo_Mode.test(3))
 	{
-		printf("     IMax=%i", Real_IMax);
+		char buf[100];
+		sprintf(buf, "     IMax=%i", Real_IMax);
+		echo << buf;
 		if (Real_JMax != 1)
 		{
-			printf(" JMax=%i", Real_JMax);
+			char buf[100];
+			sprintf(buf, " JMax=%i", Real_JMax);
+			echo << buf;
 			if (Real_KMax != 1)
 			{
-				printf(" KMax=%i", Real_KMax);
+				char buf[100];
+				sprintf(buf, " KMax=%i", Real_KMax);
+				echo << buf;
 			}
 		}
-		printf(" Dim=%i", Real_Dim);
-		printf("\n");
+		sprintf(buf, " Dim=%i", Real_Dim);
+		echo << buf << std::endl;
 	}
-	if (echo.test(4))
+	if (Echo_Mode.test(4))
 	{
-		printf("     IMax_Org=%i JMax_Org=%i KMax_Org=%i\n", IMax, JMax, KMax);
+		char buf[100];
+		sprintf(buf, "     IMax_Org=%i JMax_Org=%i KMax_Org=%i", IMax, JMax, KMax);
+		echo << buf << std::endl;
 	}
-	if (echo.test(5))
+	if (Echo_Mode.test(5))
 	{
-		printf("     ISkip=%i", int(ISkip));
+		char buf[100];
+		sprintf(buf, "     ISkip=%i", int(ISkip));
+		echo << buf;
 		if (Real_JMax != 1)
 		{
-			printf(" JSkip=%i", int(JSkip));
+			char buf[100];
+			sprintf(buf, " JSkip=%i", int(JSkip));
+			echo << buf;
 			if (Real_KMax != 1)
 			{
-				printf(" KSkip=%i", int(KSkip));
+				char buf[100];
+				sprintf(buf, " KSkip=%i", int(KSkip));
+				echo << buf;
 			}
 		}
-		printf("\n");
+		echo << std::endl;
 	}
-	if (echo.test(6))
+	if (Echo_Mode.test(6))
 	{
-		printf("     IBegin=%i IEnd=%i\n", int(IBegin), int(IEnd));
+		char buf[100];
+		sprintf(buf, "     IBegin=%i IEnd=%i", int(IBegin), int(IEnd));
+		echo << buf << std::endl;
 		if (Real_JMax != 1)
 		{
-			printf("     JBegin=%i JEnd=%i\n", int(JBegin), int(JEnd));
+			char buf[100];
+			sprintf(buf, "     JBegin=%i JEnd=%i", int(JBegin), int(JEnd));
+			echo << buf << std::endl;
 			if (Real_KMax != 1)
 			{
-				printf("     KBegin=%i KEnd=%i\n", int(KBegin), int(KEnd));
+				char buf[100];
+				sprintf(buf, "     KBegin=%i KEnd=%i", int(KBegin), int(KEnd));
+				echo << buf << std::endl;
 			}
 		}
 	}
-	if (echo.test(7) && StrandId != -1)
+	if (Echo_Mode.test(7) && StrandId != -1)
 	{
-		printf("     StrandId=%i SolutionTime=%f\n", StrandId, SolutionTime);
+		char buf[100];
+		sprintf(buf, "     StrandId=%i SolutionTime=%f", StrandId, SolutionTime);
+		echo << buf << std::endl;
 	}
 
-	if (echo.test(2))
+	if (Echo_Mode.test(2))
 	{
-		printf("..   write variables: ");
+		echo << "..   write variables: ";
 	}
 	for (std::vector<DATA_P>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
-		if (echo.test(2))
+		if (Echo_Mode.test(2))
 		{
-			printf("<%i> ", int(j - Data.begin() + 1));
+			echo << "<" << int(j - Data.begin() + 1) << "> ";
 		}
 		j->write_data(of, Real_IMax*Real_JMax*Real_KMax);//Zone Data. Each variable is in data format as specified above
 	}
-	if (echo.test(2))
+	if (Echo_Mode.test(2))
 	{
-		printf("  ..\n");
+		echo << " .." << std::endl;
 	}
 
 	realise_buf();
 
-	if (echo.test(8))
+	if (Echo_Mode.test(8))
 	{
 		double s_z = double(ftell(of) - pos) / 1024 / 1024;
-		printf("     zone size: %.1fMB\n", s_z);
+		char buf[100];
+		sprintf(buf, "     zone size: %.1fMB", s_z);
+		echo << buf << std::endl;
 	}
 }
 

@@ -6,6 +6,7 @@
 # include <map>
 # include <stdexcept>
 # include <bitset>
+# include <iostream>
 
 # define LOG_JSON
 
@@ -37,7 +38,7 @@ namespace ORDERED_TEC
 		std::map<std::string, std::string> Auxiliary;
 
 		//size, section, variable, file_end, file_head
-		std::bitset<5> echo;
+		std::bitset<5> Echo_Mode;
 	public:
 		TEC_FILE();
 
@@ -46,7 +47,7 @@ namespace ORDERED_TEC
 
 		void set_echo_mode(std::string file, std::string zone);
 
-		void write_plt();
+		void write_plt(std::ostream &echo = std::cout);
 
 		void write_log_json(FILE *of, int depth = 0) const;
 		void write_log_json() const;
@@ -57,8 +58,8 @@ namespace ORDERED_TEC
 		void echo_mode(std::string echo = "default");
 
 		void wrtie_plt_pre();
-		void write_plt_filehead(FILE *of);
-		void write_plt_data(FILE *of);
+		void write_plt_filehead(FILE *of, std::ostream &echo = std::cout);
+		void write_plt_data(FILE *of, std::ostream &echo = std::cout);
 	};
 
 	class TEC_ZONE
@@ -77,7 +78,7 @@ namespace ORDERED_TEC
 		std::map<std::string, std::string> Auxiliary;
 
 		//size, stdid & soltime, begin & end, skip, max_org, max_real, variable, zone_end, zone_head
-		std::bitset<9> echo;
+		std::bitset<9> Echo_Mode;
 	protected:
 		INT32 Real_IMax, Real_JMax, Real_KMax;
 		INT32 Real_Dim;
@@ -96,7 +97,7 @@ namespace ORDERED_TEC
 		void realise_buf();
 
 		void write_plt_zonehead(FILE *of) const;
-		void write_plt_zonedata(FILE *of);
+		void write_plt_zonedata(FILE *of, std::ostream &echo = std::cout);
 
 		void write_log_json_zone(FILE *of, int depth = 0) const;
 		void write_log_xml_zone(FILE *of, int depth = 0) const;

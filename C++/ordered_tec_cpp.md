@@ -7,5 +7,5 @@
 - [x] combine with the xml file
 - [x] combine with the json file
 - [x] add `FilePath` property in `TEC_FILE` class
-- [ ] change log stream to string
+- [x] change log stream
 - [ ] complete comment and document

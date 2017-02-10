@@ -1,4 +1,6 @@
 # include <iostream>
+# include <fstream>
+# include <sstream>
 using namespace std;
 # include "ordered_tec.h"
 
@@ -58,7 +60,9 @@ int main(int argc,char **argv)
 
 	try
 	{
-		tecfile_grid.write_plt();
+		ofstream log("log.txt");
+		tecfile_grid.write_plt(log);
+		log.close();
 		tecfile_grid.write_log_json();
 		tecfile_grid.write_log_xml();
 	}
@@ -89,7 +93,10 @@ int main(int argc,char **argv)
 
 	try
 	{
-		tecfile_solution.write_plt();
+		ostringstream log;
+		tecfile_solution.write_plt(log);
+		cout << log.str();
+
 		tecfile_solution.write_log_json();
 		tecfile_solution.write_log_xml();
 	}
