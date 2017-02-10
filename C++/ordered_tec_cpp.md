@@ -6,6 +6,6 @@
 - [x] add some log file in case of reading the raw data
 - [x] combine with the xml file
 - [x] combine with the json file
-- [ ] add `FilePath` property in `TEC_FILE` class
+- [x] add `FilePath` property in `TEC_FILE` class
 - [ ] change log stream to string
 - [ ] complete comment and document

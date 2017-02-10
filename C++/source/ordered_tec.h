@@ -26,6 +26,7 @@ namespace ORDERED_TEC
 	class TEC_FILE
 	{
 	public:
+		std::string FilePath;
 		std::string FileName;
 		std::string Title;
 		std::vector<std::string> Variables;

@@ -49,6 +49,7 @@ void W_STRING(const std::string &a, FILE *f)
 
 TEC_FILE::TEC_FILE()
 {
+	FilePath = "";
 	FileName = "untitled_file";
 	FileType = 0;
 	Title = "untitled";
@@ -99,7 +100,7 @@ void TEC_FILE::write_plt()
 	std::ios::sync_with_stdio(false);
 
 	FILE *of;
-	errno_t err = fopen_s(&of, (FileName + ".plt").c_str(), "wb");
+	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".plt").c_str(), "wb");
 	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
@@ -207,7 +208,7 @@ void TEC_FILE::write_log_json(FILE *of, int depth) const
 void TEC_FILE::write_log_json() const
 {
 	FILE *of;
-	errno_t err = fopen_s(&of, (FileName + ".json").c_str(), "wb");
+	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".json").c_str(), "wb");
 	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
@@ -268,7 +269,7 @@ void TEC_FILE::write_log_xml(FILE *of, int depth) const
 void TEC_FILE::write_log_xml() const
 {
 	FILE *of;
-	errno_t err = fopen_s(&of, (FileName + ".xml").c_str(), "wb");
+	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".xml").c_str(), "wb");
 	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));

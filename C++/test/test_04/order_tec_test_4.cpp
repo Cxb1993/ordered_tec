@@ -32,7 +32,8 @@ int main(int argc,char **argv)
 			y[i + j*NI] = i*0.01;
 		}
 	}
-	tecfile.FileName="./test_04/file_g";
+	tecfile.FilePath = "./test_04";
+	tecfile.FileName="file_g";
 	tecfile.Title="test_04_grid";
 	tecfile.FileType=1;
 	tecfile.Variables.push_back("x");
@@ -96,7 +97,7 @@ int main(int argc,char **argv)
 		}
 		std::stringstream ss;
 		ss<<n;
-		tecfile.FileName= std::string("./test_04/file_s_")+ss.str();
+		tecfile.FileName= std::string("file_s_")+ss.str();
 		tecfile.Zones[0].ZoneName = std::string("s_") + ss.str();
 		ss.str("");
 		tecfile.Zones[0].SolutionTime = n;
