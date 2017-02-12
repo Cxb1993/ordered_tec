@@ -3,10 +3,10 @@
 - [x] reconstruct the data structure
 - [x] refine the function
 - [x] modify the echo mode
-- [x] add some log file in case of reading the raw data
-- [x] combine with the xml file
-- [x] combine with the json file
+- [x] add some log file combining with the xml file
+- [x] add some log file combining with the json file
 - [x] add `FilePath` property in `TEC_FILE` class
 - [x] change log stream
-- [x] add `new_zone` function
+- [ ] profile interface
+- [ ] more test
 - [ ] complete comment and document
