@@ -159,6 +159,8 @@ void TEC_FILE::write_log_json(FILE *of, int depth) const
 	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str());
 	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "\"FilePath\" : \"%s\" ,\n", FilePath.c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "\"Title\" : \"%s\" ,\n", Title.c_str());
 	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "\"FileType_comment\" : \"%s\" ,\n", "0 = FULL, 1 = GRID, 2 = SOLUTION");
@@ -232,8 +234,12 @@ void TEC_FILE::write_log_json() const
 void TEC_FILE::write_log_xml(FILE *of, int depth) const
 {
 	for (int i = 0; i != depth; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<File FileName=\"%s\">\n", (FileName + ".plt").c_str());
+	fprintf(of, "<File FileName=\"%s\">\n", FileName.c_str());
 
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<FileName>%s</FileName>\n", (FileName + ".plt").c_str());
+	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
+	fprintf(of, "<FilePath>%s</FilePath>\n", FilePath.c_str());
 	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "<Title>%s</Title>\n", Title.c_str());
 	for (int i = 0; i != depth + 1; ++i) { fprintf(of, "\t"); }
@@ -852,7 +858,7 @@ void TEC_ZONE::write_log_json_zone(FILE *of, int depth) const
 void TEC_ZONE::write_log_xml_zone(FILE *of, int depth) const
 {
 	for (int i = 0; i != depth + 2; ++i) { fprintf(of, "\t"); }
-	fprintf(of, "<Zone>\n");
+	fprintf(of, "<Zone ZoneName=\"%s\">\n", ZoneName.c_str());
 
 	for (int i = 0; i != depth + 3; ++i) { fprintf(of, "\t"); }
 	fprintf(of, "<ZoneName>%s</ZoneName>\n", ZoneName.c_str());
