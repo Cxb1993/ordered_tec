@@ -8,6 +8,7 @@
 # include <iostream>
 # include <sstream>
 # include <stdio.h>
+# include <ctime>
 
 # define S_INT32 4
 # define S_FLOAT32 4
@@ -105,6 +106,14 @@ void TEC_FILE::set_echo_mode(std::string file, std::string zone)
 
 void TEC_FILE::write_plt(std::ostream &echo)
 {
+	time_t time_begin = time(NULL);
+	struct tm *tm_begin = localtime(&time_begin);
+	char buf[100];
+	strftime(buf, 100, "%Y%m%dT%H%M%S", tm_begin);
+	Time = buf;
+
+	clock_t clock_begin = clock();
+
 	wrtie_plt_pre();
 
 	std::ios::sync_with_stdio(false);
@@ -125,6 +134,10 @@ void TEC_FILE::write_plt(std::ostream &echo)
 # endif
 	if (Echo_Mode.test(0))
 	{
+		if (Echo_Mode.test(5))
+		{
+			echo << "[" << Time << "] ";
+		}
 		echo << "#### creat file " << FilePath + "/" + FileName << ".plt ####" << std::endl;
 	}
 
@@ -146,14 +159,27 @@ void TEC_FILE::write_plt(std::ostream &echo)
 	{
 		double s_f = double(ftell(of)) / 1024 / 1024;
 		char buf[100];
-		sprintf(buf, "     file size: %.1fMB", s_f);
+		sprintf(buf, "     file size: %.1lfMB", s_f);
 		echo << buf << std::endl;
 	}
 
 	fclose(of);
 
+	UsingTime = double(clock() - clock_begin) / CLOCKS_PER_SEC;
+
+	if (Echo_Mode.test(6))
+	{
+		char buf[100];
+		sprintf(buf, "     using time : %.5lf s", UsingTime);
+		echo << buf << std::endl;
+	}
+	
 	if (Echo_Mode.test(1))
 	{
+		if (Echo_Mode.test(5))
+		{
+			echo << "[" << Time << "] ";
+		}
 		echo << "#### creat file " << FilePath + "/" + FileName << ".plt ####" << std::endl;
 	}
 
@@ -186,21 +212,21 @@ void TEC_FILE::echo_mode(std::string iecho)
 {
 	if (iecho.compare("default")==0)
 	{
-		iecho = "00111";
+		iecho = "0100111";
 	}
 	else if (iecho.compare("full")==0)
 	{
-		iecho = "11111";
+		iecho = "1111111";
 	}
 	else if (iecho.compare("simple")==0)
 	{
-		iecho = "00001";
+		iecho = "0100001";
 	}
 	else if (iecho.compare("none")==0)
 	{
-		iecho = "00000";
+		iecho = "0000000";
 	}
-	Echo_Mode = std::bitset<5>(iecho);
+	Echo_Mode = std::bitset<7>(iecho);
 }
 
 void TEC_FILE::wrtie_plt_pre()
@@ -313,6 +339,10 @@ void TEC_FILE::log_json()
 	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"FilePath\" : \"%s\" ,\n", FilePath.c_str()); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
+	sprintf(buf, "\"Time\" : \"%s\" ,\n", Time.c_str()); Json_Text += buf;
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
+	sprintf(buf, "\"UsingTime\" : \"%.5lf\" ,\n", UsingTime); Json_Text += buf;
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Title\" : \"%s\" ,\n", Title.c_str()); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"FileType_comment\" : \"0 = FULL, 1 = GRID, 2 = SOLUTION\" ,\n";
@@ -380,6 +410,10 @@ void TEC_FILE::log_xml()
 	sprintf(buf, "<FileName>%s</FileName>\n", (FileName + ".plt").c_str()); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<FilePath>%s</FilePath>\n", FilePath.c_str()); Xml_Text += buf;
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
+	sprintf(buf, "<Time>%s</Time>\n", Time.c_str()); Xml_Text += buf;
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
+	sprintf(buf, "<UsingTime>%.5lf</UsingTime>\n", UsingTime); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Title>%s</Title>\n", Title.c_str()); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
@@ -848,7 +882,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, std::ostream &echo)
 	{
 		double s_z = double(ftell(of) - pos) / 1024 / 1024;
 		char buf[100];
-		sprintf(buf, "     zone size: %.1fMB", s_z);
+		sprintf(buf, "     zone size: %.1lfMB", s_z);
 		echo << buf << std::endl;
 	}
 }

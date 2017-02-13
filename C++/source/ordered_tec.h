@@ -35,8 +35,8 @@ namespace ORDERED_TEC
 
 		std::map<std::string, std::string> Auxiliary;
 
-		//size, section, variable, file_end, file_head
-		std::bitset<5> Echo_Mode;
+		//usingtime, time, size, section, variable, file_end, file_head
+		std::bitset<7> Echo_Mode;
 
 		int Json_Depth;
 		bool Json_WriteFile;
@@ -48,6 +48,9 @@ namespace ORDERED_TEC
 	protected:
 		std::string Json_Text;
 		std::string Xml_Text;
+
+		std::string Time;
+		double UsingTime;
 	public:
 		TEC_FILE(std::string name = "untitled_file", std::string path = ".", std::string title = "untitled");
 

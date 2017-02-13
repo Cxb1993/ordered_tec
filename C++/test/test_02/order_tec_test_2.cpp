@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc,char **argv)
 {
 	ORDERED_TEC::TEC_FILE tecfile;
-	size_t NI=1000,NJ=2000;
+	size_t NI=2000,NJ=4000;
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
 	DATATYPE *z=new DATATYPE[NI*NJ];

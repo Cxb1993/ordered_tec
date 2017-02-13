@@ -8,5 +8,6 @@
 - [x] add `FilePath` property in `TEC_FILE` class
 - [x] change log stream
 - [x] profile interface
+- [x] append time information
 - [ ] more test
 - [ ] complete comment and document
