@@ -8,7 +8,6 @@ using namespace std;
 int main(int argc,char **argv)
 {
 	ORDERED_TEC::TEC_FILE tecfile_grid, tecfile_solution;
-	ORDERED_TEC::TEC_ZONE teczone;
 	size_t NI=1000,NJ=2000;
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
@@ -36,18 +35,19 @@ int main(int argc,char **argv)
 	tecfile_grid.FileType=1;
 	tecfile_grid.Variables.push_back("x");
 	tecfile_grid.Variables.push_back("y");
-	teczone.ZoneName="grid";
-	teczone.IMax=NI;
-	teczone.JMax=NJ;
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.ISkip=2;
-	teczone.JSkip=3;
-	teczone.IBegin=50;
-	teczone.IEnd=50;
-	teczone.JBegin=10;
-	teczone.JEnd=10;
-	tecfile_grid.Zones.push_back(teczone);
+	tecfile_grid.Zones.push_back(ORDERED_TEC::TEC_ZONE("grid"));
+	tecfile_grid.Zones[0].IMax=NI;
+	tecfile_grid.Zones[0].JMax=NJ;
+	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile_grid.Zones[0].ISkip=2;
+	tecfile_grid.Zones[0].JSkip=3;
+	tecfile_grid.Zones[0].IBegin=50;
+	tecfile_grid.Zones[0].IEnd=50;
+	tecfile_grid.Zones[0].JBegin=10;
+	tecfile_grid.Zones[0].JEnd=10;
+	tecfile_grid.Json_WriteFile = true;
+	tecfile_grid.Xml_WriteFile = true;
 
 	try
 	{
@@ -63,8 +63,6 @@ int main(int argc,char **argv)
 		ofstream log("log.txt");
 		tecfile_grid.write_plt(log);
 		log.close();
-		tecfile_grid.write_log_json();
-		tecfile_grid.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{
@@ -76,11 +74,13 @@ int main(int argc,char **argv)
 	tecfile_solution.FileType=2;
 	tecfile_solution.Variables.push_back("z");
 	tecfile_solution.Variables.push_back("w");
-	teczone.ZoneName="solution";
-	teczone.Data.clear();
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile_solution.Zones.push_back(teczone);
+	tecfile_solution.Zones.push_back(tecfile_grid.Zones[0]);
+	tecfile_solution.Zones[0].ZoneName="solution";
+	tecfile_solution.Zones[0].Data.clear();
+	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile_solution.Json_WriteFile = true;
+	tecfile_solution.Xml_WriteFile = true;
 
 	try
 	{
@@ -96,9 +96,6 @@ int main(int argc,char **argv)
 		ostringstream log;
 		tecfile_solution.write_plt(log);
 		cout << log.str();
-
-		tecfile_solution.write_log_json();
-		tecfile_solution.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{

@@ -6,7 +6,6 @@ using namespace std;
 int main(int argc,char **argv)
 {
 	ORDERED_TEC::TEC_FILE tecfile;
-	ORDERED_TEC::TEC_ZONE teczone;
 	size_t NI=1000,NJ=2000;
 	DATATYPE *x=new DATATYPE[NI*NJ];
 	DATATYPE *y=new DATATYPE[NI*NJ];
@@ -31,36 +30,35 @@ int main(int argc,char **argv)
 	tecfile.add_auxiliary_data("Auxiliary1","Auxiliary_test_1_ds");
 	tecfile.add_auxiliary_data("Auxiliary2",3.14);
 
-	teczone.ZoneName="A";
-	teczone.IMax=NI;
-	teczone.JMax=NJ;
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	teczone.ISkip=2;
-	teczone.JSkip=3;
-	teczone.IBegin=50;
-	teczone.IEnd=50;
-	teczone.JBegin=10;
-	teczone.JEnd=10;
-	teczone.add_auxiliary_data("Auxiliary1","Auxiliary_test_1");
-	teczone.add_auxiliary_data("Auxiliary2",3.14);
-	tecfile.Zones.push_back(teczone);
+	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("A"));
+	tecfile.Zones[0].IMax=NI;
+	tecfile.Zones[0].JMax=NJ;
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].ISkip=2;
+	tecfile.Zones[0].JSkip=3;
+	tecfile.Zones[0].IBegin=50;
+	tecfile.Zones[0].IEnd=50;
+	tecfile.Zones[0].JBegin=10;
+	tecfile.Zones[0].JEnd=10;
+	tecfile.Zones[0].add_auxiliary_data("Auxiliary1","Auxiliary_test_1");
+	tecfile.Zones[0].add_auxiliary_data("Auxiliary2",3.14);
 
-	teczone.ZoneName="B";
-	teczone.Data[2]= ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
-	teczone.Auxiliary.clear();
-	teczone.add_auxiliary_data("Auxiliary3","Auxiliary_test_1_2");
-	teczone.add_auxiliary_data("Auxiliary4",3.1415);
-	tecfile.Zones.push_back(teczone);
+	tecfile.Zones.push_back(tecfile.Zones[0]);
+	tecfile.Zones[1].ZoneName="B";
+	tecfile.Zones[1].Data[2]= ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
+	tecfile.Zones[1].Auxiliary.clear();
+	tecfile.Zones[1].add_auxiliary_data("Auxiliary3","Auxiliary_test_1_2");
+	tecfile.Zones[1].add_auxiliary_data("Auxiliary4",3.1415);
 
 	tecfile.set_echo_mode("full", "full");
+	tecfile.Json_WriteFile = true;
+	tecfile.Xml_WriteFile = true;
 
 	try
 	{
 		tecfile.write_plt();
-		tecfile.write_log_json();
-		tecfile.write_log_xml();
 	}
 	catch(std::runtime_error err)
 	{

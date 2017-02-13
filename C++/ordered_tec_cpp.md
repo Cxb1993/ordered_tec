@@ -7,6 +7,6 @@
 - [x] add some log file combining with the json file
 - [x] add `FilePath` property in `TEC_FILE` class
 - [x] change log stream
-- [ ] profile interface
+- [x] profile interface
 - [ ] more test
 - [ ] complete comment and document

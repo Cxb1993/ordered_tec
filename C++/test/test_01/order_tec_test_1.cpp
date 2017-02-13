@@ -23,17 +23,17 @@ int main(int argc,char **argv)
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
-	tecfile.new_zone();
+	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE());
 	tecfile.Zones[0].IMax=NI;
 	tecfile.Zones[0].JMax=NJ;
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Json_WriteFile = true;
+	tecfile.Xml_WriteFile = true;
 	try
 	{
 		tecfile.write_plt();
-		tecfile.write_log_xml();
-		tecfile.write_log_json();
 	}
 	catch(std::runtime_error err)
 	{

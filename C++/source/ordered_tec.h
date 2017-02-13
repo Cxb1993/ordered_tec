@@ -8,8 +8,6 @@
 # include <bitset>
 # include <iostream>
 
-# define LOG_JSON
-
 namespace ORDERED_TEC
 {
 	typedef int INT32;
@@ -39,10 +37,19 @@ namespace ORDERED_TEC
 
 		//size, section, variable, file_end, file_head
 		std::bitset<5> Echo_Mode;
-	public:
-		TEC_FILE();
 
-		void new_zone(std::string name = "untitled_zone");
+		int Json_Depth;
+		bool Json_WriteFile;
+		FILE * Json_File;
+
+		int Xml_Depth;
+		bool Xml_WriteFile;
+		FILE * Xml_File;
+	protected:
+		std::string Json_Text;
+		std::string Xml_Text;
+	public:
+		TEC_FILE(std::string name = "untitled_file", std::string path = ".", std::string title = "untitled");
 
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
@@ -51,17 +58,17 @@ namespace ORDERED_TEC
 
 		void write_plt(std::ostream &echo = std::cout);
 
-		void write_log_json(FILE *of, int depth = 0) const;
-		void write_log_json() const;
-
-		void write_log_xml(FILE *of, int depth = 0) const;
-		void write_log_xml() const;
+		std::string get_log(std::string type) const;
 	protected:
 		void echo_mode(std::string echo = "default");
 
 		void wrtie_plt_pre();
 		void write_plt_filehead(FILE *of, std::ostream &echo = std::cout);
 		void write_plt_data(FILE *of, std::ostream &echo = std::cout);
+
+		void log_json();
+		void log_xml();
+		void write_log();
 	};
 
 	class TEC_ZONE
@@ -87,7 +94,7 @@ namespace ORDERED_TEC
 		bool noskip, noexc;
 		bool needreal;
 	public:
-		TEC_ZONE();
+		TEC_ZONE(std::string name = "untitled_zone");
 		INT32 get_real_size(short o);
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
@@ -101,8 +108,8 @@ namespace ORDERED_TEC
 		void write_plt_zonehead(FILE *of) const;
 		void write_plt_zonedata(FILE *of, std::ostream &echo = std::cout);
 
-		void write_log_json_zone(FILE *of, int depth = 0) const;
-		void write_log_xml_zone(FILE *of, int depth = 0) const;
+		void log_json_zone(std::string &Json_Text, int Json_Depth) const;
+		void log_xml_zone(std::string &Xml_Text, int Xml_Depth) const;
 
 		friend TEC_FILE;
 	};
