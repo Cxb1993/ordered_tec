@@ -110,12 +110,19 @@ void TEC_FILE::write_plt(std::ostream &echo)
 	std::ios::sync_with_stdio(false);
 
 	FILE *of;
+# ifdef __linux__
+	of = fopen((FilePath + "/" + FileName + ".plt").c_str(), "wb");
+	if (of == NULL)
+	{
+		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
+	}
+# else
 	errno_t err = fopen_s(&of, (FilePath + "/" + FileName + ".plt").c_str(), "wb");
 	if (err != 0)
 	{
 		throw std::runtime_error(std::string("cannot open file ") + (FileName + ".plt"));
 	}
-
+# endif
 	if (Echo_Mode.test(0))
 	{
 		echo << "#### creat file " << FilePath + "/" + FileName << ".plt ####" << std::endl;
@@ -298,21 +305,21 @@ void TEC_FILE::log_json()
 {
 	char buf[200];
 
-	for (int i = 0; i != Json_Depth; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth; ++ii) { Json_Text += '\t'; }
 	Json_Text += "{\n";
 
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"FileName\" : \"%s\" ,\n", (FileName + ".plt").c_str()); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"FilePath\" : \"%s\" ,\n", FilePath.c_str()); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Title\" : \"%s\" ,\n", Title.c_str()); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"FileType_comment\" : \"0 = FULL, 1 = GRID, 2 = SOLUTION\" ,\n";
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"FileType\" : %i ,\n", FileType); Json_Text += buf;
 
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"Variables\" : [ ";
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
@@ -326,12 +333,12 @@ void TEC_FILE::log_json()
 
 	if (Auxiliary.size() != 0)
 	{
-		for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+		for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 		Json_Text += "\"Auxiliary\" : {\n";
 		int j = 0;
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			for (int i = 0; i != Json_Depth + 2; ++i) { Json_Text += '\t'; }
+			for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 			sprintf(buf, "\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str()); Json_Text += buf;
 			if (j != Auxiliary.size() - 1)
 			{
@@ -340,11 +347,11 @@ void TEC_FILE::log_json()
 			++j;
 		}
 		Json_Text += "\n";
-		for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+		for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 		Json_Text += "} ,\n";
 	}
 
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"Zones\" : [\n";
 	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
@@ -355,10 +362,10 @@ void TEC_FILE::log_json()
 		}
 	}
 	Json_Text += "\n";
-	for (int i = 0; i != Json_Depth + 1; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "]\n";
 
-	for (int i = 0; i != Json_Depth; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth; ++ii) { Json_Text += '\t'; }
 	Json_Text += "}";
 }
 
@@ -366,21 +373,21 @@ void TEC_FILE::log_xml()
 {
 	char buf[200];
 
-	for (int i = 0; i != Xml_Depth; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<File FileName=\"%s\">\n", FileName.c_str()); Xml_Text += buf;
 
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<FileName>%s</FileName>\n", (FileName + ".plt").c_str()); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<FilePath>%s</FilePath>\n", FilePath.c_str()); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Title>%s</Title>\n", Title.c_str()); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<!--%s-->\n", "0 = FULL, 1 = GRID, 2 = SOLUTION"); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<FileType>%i</FileType>\n", FileType); Xml_Text += buf;
 
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "<Variables";
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
@@ -390,28 +397,28 @@ void TEC_FILE::log_xml()
 
 	if (Auxiliary.size() != 0)
 	{
-		for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+		for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 		Xml_Text += "<Auxiliary>\n";
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			for (int i = 0; i != Xml_Depth + 2; ++i) { Xml_Text += '\t'; }
+			for (int ii = 0; ii != Xml_Depth + 2; ++ii) { Xml_Text += '\t'; }
 			sprintf(buf, "<%s>%s</%s>\n", i->first.c_str(), i->second.c_str(), i->first.c_str()); Xml_Text += buf;
 		}
-		for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+		for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 		Xml_Text += "</Auxiliary>\n";
 	}
 
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "<Zones>\n";
 	for (std::vector<TEC_ZONE>::const_iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
 		i->log_xml_zone(Xml_Text, Xml_Depth);
 		Xml_Text += "\n";
 	}
-	for (int i = 0; i != Xml_Depth + 1; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "</Zones>\n";
 
-	for (int i = 0; i != Xml_Depth; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "</File>";
 }
 
@@ -421,11 +428,19 @@ void TEC_FILE::write_log()
 	{
 		if (Json_File == NULL)
 		{
+# ifdef __linux__
+			Json_File = fopen((FilePath + "/" + FileName + ".json").c_str(), "w");
+			if (Json_File == 0)
+			{
+				throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
+			}
+# else
 			errno_t err = fopen_s(&Json_File, (FilePath + "/" + FileName + ".json").c_str(), "w");
 			if (err != 0)
 			{
 				throw std::runtime_error(std::string("cannot open file ") + (FileName + ".json"));
 			}
+# endif
 			fprintf(Json_File, "%s", Json_Text.c_str());
 			fclose(Json_File);
 			Json_File = NULL;
@@ -440,11 +455,19 @@ void TEC_FILE::write_log()
 	{
 		if (Xml_File == NULL)
 		{
+# ifdef __linux__
+			Xml_File = fopen((FilePath + "/" + FileName + ".xml").c_str(), "w");
+			if (Xml_File == NULL)
+			{
+				throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));
+			}
+# else
 			errno_t err = fopen_s(&Xml_File, (FilePath + "/" + FileName + ".xml").c_str(), "w");
 			if (err != 0)
 			{
 				throw std::runtime_error(std::string("cannot open file ") + (FileName + ".xml"));
 			}
+# endif
 			fprintf(Xml_File, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 			fprintf(Xml_File, "%s", Xml_Text.c_str());
 			fclose(Xml_File);
@@ -834,37 +857,37 @@ void TEC_ZONE::log_json_zone(std::string &Json_Text, int Json_Depth) const
 {
 	char buf[200];
 
-	for (int i = 0; i != Json_Depth + 2; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "{\n";
 
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"ZoneName\" : \"%s\" ,\n", ZoneName.c_str()); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"StrandId\" : %i ,\n", StrandId); Json_Text += buf;
 	if (StrandId != -1)
 	{
-		for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+		for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 		sprintf(buf, "\"SolutionTime\" : %le ,\n", SolutionTime); Json_Text += buf;
 	}
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Max\" : [ %zi, %zi, %zi ] ,\n", IMax, JMax, KMax); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Skip\" : [ %zi, %zi, %zi ] ,\n", ISkip, JSkip, KSkip); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Begin\" : [ %zi, %zi, %zi ] ,\n", IBegin, JBegin, KBegin); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"End\" : [ %zi, %zi, %zi ] ,\n", IEnd, JEnd, KEnd); Json_Text += buf;
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Real_Max\" : [ %i, %i, %i ] ,\n", Real_IMax, Real_JMax, Real_KMax); Json_Text += buf;
 
 	if (Auxiliary.size() != 0)
 	{
-		for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+		for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 		Json_Text += "\"Auxiliary\" : {\n";
 		int j = 0;
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			for (int i = 0; i != Json_Depth + 4; ++i) { Json_Text += '\t'; }
+			for (int ii = 0; ii != Json_Depth + 4; ++ii) { Json_Text += '\t'; }
 			sprintf(buf, "\"%s\" : \"%s\"", i->first.c_str(), i->second.c_str()); Json_Text += buf;
 			if (j != Auxiliary.size() - 1)
 			{
@@ -873,17 +896,17 @@ void TEC_ZONE::log_json_zone(std::string &Json_Text, int Json_Depth) const
 			++j;
 		}
 		Json_Text += "\n";
-		for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+		for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 		Json_Text += "} ,\n";
 	}
 
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"Data_type_comment\" : \"1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit\" ,\n";
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"Data\" : [\n";
 	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
-		for (int i = 0; i != Json_Depth + 4; ++i) { Json_Text += '\t'; }
+		for (int ii = 0; ii != Json_Depth + 4; ++ii) { Json_Text += '\t'; }
 		sprintf(buf, "{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li }", i->type, i->size, i->file_pt); Json_Text += buf;
 		if (Data.end() - i != 1)
 		{
@@ -891,10 +914,10 @@ void TEC_ZONE::log_json_zone(std::string &Json_Text, int Json_Depth) const
 		}
 	}
 	Json_Text += "\n";
-	for (int i = 0; i != Json_Depth + 3; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	Json_Text += "]\n";
 
-	for (int i = 0; i != Json_Depth + 2; ++i) { Json_Text += '\t'; }
+	for (int ii = 0; ii != Json_Depth + 2; ++ii) { Json_Text += '\t'; }
 	Json_Text += "}";
 }
 
@@ -902,57 +925,57 @@ void TEC_ZONE::log_xml_zone(std::string &Xml_Text, int Xml_Depth) const
 {
 	char buf[200];
 
-	for (int i = 0; i != Xml_Depth + 2; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 2; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Zone ZoneName=\"%s\">\n", ZoneName.c_str()); Xml_Text += buf;
 
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<ZoneName>%s</ZoneName>\n", ZoneName.c_str()); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<StrandId>%i</StrandId>\n", StrandId); Xml_Text += buf;
 	if (StrandId != -1)
 	{
-		for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+		for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 		sprintf(buf, "<SolutionTime>%le</SolutionTime>\n", SolutionTime); Xml_Text += buf;
 	}
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Max IMax=\"%zi\" JMax=\"%zi\" KMax=\"%zi\"/>\n", IMax, JMax, KMax); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Skip ISkip=\"%zi\" JSkip=\"%zi\" KSkip=\"%zi\"/>\n", ISkip, JSkip, KSkip); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Begin IBegin=\"%zi\" JBegin=\"%zi\" KBegin=\"%zi\"/>\n", IBegin, JBegin, KBegin); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<End IEnd=\"%zi\" JEnd=\"%zi\" KEnd=\"%zi\"/>\n", IEnd, JEnd, KEnd); Xml_Text += buf;
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Real_Max Real_IMax=\"%i\" Real_JMax=\"%i\" Real_KMax=\"%i\"/>\n", Real_IMax, Real_JMax, Real_KMax); Xml_Text += buf;
 
 	if (Auxiliary.size() != 0)
 	{
-		for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+		for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 		Xml_Text += "<Auxiliary>\n";
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			for (int i = 0; i != Xml_Depth + 4; ++i) { Xml_Text += '\t'; }
+			for (int ii = 0; ii != Xml_Depth + 4; ++ii) { Xml_Text += '\t'; }
 			sprintf(buf, "<%s>%s</%s>\n", i->first.c_str(), i->second.c_str(), i->first.c_str());
 			Xml_Text += buf;
 		}
-		for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+		for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 		Xml_Text += "</Auxiliary>\n";
 	}
 
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "<!--1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit-->\n";
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "<Data>\n";
 	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
-		for (int i = 0; i != Xml_Depth + 4; ++i) { Xml_Text += '\t'; }
+		for (int ii = 0; ii != Xml_Depth + 4; ++ii) { Xml_Text += '\t'; }
 		sprintf(buf, "<data_%zi type=\"%i\" size_i=\"%zi\" file_pt=\"%li\"/>\n", i - Data.begin() + 1, i->type, i->size, i->file_pt);
 		Xml_Text += buf;
 	}
-	for (int i = 0; i != Xml_Depth + 3; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "</Data>\n";
 
-	for (int i = 0; i != Xml_Depth + 2; ++i) { Xml_Text += '\t'; }
+	for (int ii = 0; ii != Xml_Depth + 2; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "</Zone>";
 }
 

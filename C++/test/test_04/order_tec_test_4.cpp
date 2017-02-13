@@ -1,6 +1,7 @@
 # include <iostream>
 # include <cmath>
 # include <sstream>
+# include <stdio.h>
 # include <stdlib.h>
 # include "ordered_tec.h"
 
@@ -15,7 +16,7 @@ int main(int argc,char **argv)
 	DATATYPE *z=new DATATYPE[NI*NJ];
 	
 # ifdef __linux__
-	cout<<"os: Linus"<<endl;
+	std::cout<<"os: Linus"<<std::endl;
 	system("rm -r test_04");
 	system("mkdir test_04");
 # else
@@ -70,17 +71,30 @@ int main(int argc,char **argv)
 	tecfile.set_echo_mode("simple", "none");
 	tecfile.Json_Depth = 1;
 	tecfile.Xml_Depth = 1;
+# ifdef __linux__
+	tecfile.Json_File = fopen("test_04.json", "wb");
+	if (tecfile.Json_File == NULL)
+	{
+		std::cerr << "cannot open file test_04.json" << std::endl;
+	}
+	tecfile.Xml_File = fopen("test_04.xml", "wb");
+	if (tecfile.Xml_File == NULL)
+	{
+		std::cerr << "cannot open file test_04.xml" << std::endl;
+	}
+# else
 	errno_t err;
 	err = fopen_s(&tecfile.Json_File, "test_04.json", "wb");
 	if (err != 0)
 	{
-		std::cerr << "cannot open file test_04.json" << std::endl;;
+		std::cerr << "cannot open file test_04.json" << std::endl;
 	}
 	err = fopen_s(&tecfile.Xml_File, "test_04.xml", "wb");
 	if (err != 0)
 	{
-		std::cerr << "cannot open file test_04.xml" << std::endl;;
+		std::cerr << "cannot open file test_04.xml" << std::endl;
 	}
+# endif
 	fprintf(tecfile.Json_File, "[\n");
 	fprintf(tecfile.Xml_File, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	fprintf(tecfile.Xml_File, "<Files>\n");
@@ -114,10 +128,12 @@ int main(int argc,char **argv)
 		fprintf(tecfile.Json_File, "\n");
 		fprintf(tecfile.Xml_File, "\n");
 	}
-	fprintf(tecfile.Json_File, "]");
-	fprintf(tecfile.Xml_File, "</Files>");
+	fprintf(tecfile.Json_File, "]\n");
+	fprintf(tecfile.Xml_File, "</Files>\n");
 	fclose(tecfile.Json_File);
+	tecfile.Json_File = NULL;
 	fclose(tecfile.Xml_File);
+	tecfile.Xml_File = NULL;
 
 	delete [] x;
 	delete [] y;

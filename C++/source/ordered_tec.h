@@ -14,7 +14,7 @@ namespace ORDERED_TEC
 	typedef float FLOAT32;
 	typedef double FLOAT64;
 
-	typedef signed int longint;
+	typedef signed long int longint;
 	typedef signed short int shortint;
 	typedef signed char byte;
 
@@ -111,7 +111,7 @@ namespace ORDERED_TEC
 		void log_json_zone(std::string &Json_Text, int Json_Depth) const;
 		void log_xml_zone(std::string &Xml_Text, int Xml_Depth) const;
 
-		friend TEC_FILE;
+		friend class TEC_FILE;
 	};
 
 	class DATA_P
@@ -139,7 +139,7 @@ namespace ORDERED_TEC
 		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
 		void write_data(FILE *of, size_t N);
 
-		friend TEC_ZONE;
+		friend class TEC_ZONE;
 	};
 }
 # endif
