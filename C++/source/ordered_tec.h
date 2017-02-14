@@ -48,7 +48,6 @@ namespace ORDERED_TEC
 	protected:
 		std::string Json_Text;
 		std::string Xml_Text;
-
 		std::string Time;
 		double UsingTime;
 	public:

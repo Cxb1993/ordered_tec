@@ -8,22 +8,29 @@
 # define DATATYPE double
 int main(int argc,char **argv)
 {
-	ORDERED_TEC::TEC_FILE tecfile;
-	ORDERED_TEC::TEC_ZONE teczone;
-	size_t NI=1000,NJ=2000;
-	DATATYPE *x=new DATATYPE[NI*NJ];
-	DATATYPE *y=new DATATYPE[NI*NJ];
-	DATATYPE *z=new DATATYPE[NI*NJ];
-	
 # ifdef __linux__
-	std::cout<<"os: Linus"<<std::endl;
+	std::cout << "os: Linus" << std::endl;
 	system("rm -r test_04");
 	system("mkdir test_04");
 # else
-	std::cout<<"os: Windows"<< std::endl;
+	std::cout << "os: Windows" << std::endl;
 	system("rmdir /s /q test_04");
 	system("mkdir test_04");
 # endif
+
+	DATATYPE *x, *y, *z;
+	size_t NI = 1000, NJ = 2000;
+	try
+	{
+		x = new DATATYPE[NI*NJ];
+		y = new DATATYPE[NI*NJ];
+		z = new DATATYPE[NI*NJ];
+	}
+	catch (...)
+	{
+		std::cerr << "runtime_error: out of memery" << std::endl;
+		return 0;
+	}
 
 	for (int j = 0; j != NJ; ++j)
 	{
@@ -33,9 +40,8 @@ int main(int argc,char **argv)
 			y[i + j*NI] = i*0.01;
 		}
 	}
-	tecfile.FilePath = "./test_04";
-	tecfile.FileName="file_g";
-	tecfile.Title="test_04_grid";
+
+	ORDERED_TEC::TEC_FILE tecfile("file_g", "./test_04", "test_04_grid");
 	tecfile.FileType=1;
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
@@ -47,10 +53,7 @@ int main(int argc,char **argv)
 	tecfile.Zones[0].ISkip=10;
 	tecfile.Zones[0].JSkip=10;
 	tecfile.Zones[0].StrandId=-1;
-
 	tecfile.set_echo_mode("simple", "none");
-	tecfile.Json_WriteFile = true;
-	tecfile.Xml_WriteFile = true;
 
 	try
 	{

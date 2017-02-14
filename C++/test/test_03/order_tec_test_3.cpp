@@ -7,12 +7,20 @@ using namespace std;
 # define DATATYPE double
 int main(int argc,char **argv)
 {
-	ORDERED_TEC::TEC_FILE tecfile_grid, tecfile_solution;
-	size_t NI=1000,NJ=2000;
-	DATATYPE *x=new DATATYPE[NI*NJ];
-	DATATYPE *y=new DATATYPE[NI*NJ];
-	DATATYPE *z=new DATATYPE[NI*NJ];
-	DATATYPE *w=new DATATYPE[NI*NJ];
+	DATATYPE *x, *y, *z, *w;
+	size_t NI = 1000, NJ = 2000;
+	try
+	{
+		x = new DATATYPE[NI*NJ];
+		y = new DATATYPE[NI*NJ];
+		z = new DATATYPE[NI*NJ];
+		w = new DATATYPE[NI*NJ];
+	}
+	catch (...)
+	{
+		cerr << "runtime_error: out of memery" << endl;
+		return 0;
+	}
 	for (int j = 0; j != NJ; ++j)
 	{
 		for (int i = 0; i != NI; ++i)
@@ -30,8 +38,7 @@ int main(int argc,char **argv)
 	cout << "please input zone echo leval (default/full/simple/none): " << endl;
 	cin >> echo_zone;
 
-	tecfile_grid.FileName="test_03_g";
-	tecfile_grid.Title="test_03_grid";
+	ORDERED_TEC::TEC_FILE tecfile_grid("test_03_g", ".", "test_03_grid");
 	tecfile_grid.FileType=1;
 	tecfile_grid.Variables.push_back("x");
 	tecfile_grid.Variables.push_back("y");
@@ -46,9 +53,6 @@ int main(int argc,char **argv)
 	tecfile_grid.Zones[0].IEnd=50;
 	tecfile_grid.Zones[0].JBegin=10;
 	tecfile_grid.Zones[0].JEnd=10;
-	tecfile_grid.Json_WriteFile = true;
-	tecfile_grid.Xml_WriteFile = true;
-
 	try
 	{
 		tecfile_grid.set_echo_mode(echo_file, echo_zone);
@@ -57,7 +61,6 @@ int main(int argc,char **argv)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 	}
-
 	try
 	{
 		ofstream log("log.txt");
@@ -69,8 +72,7 @@ int main(int argc,char **argv)
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}
 
-	tecfile_solution.FileName="test_03_s";
-	tecfile_solution.Title="test_03_solution";
+	ORDERED_TEC::TEC_FILE tecfile_solution("test_03_s", ".", "test_03_solution");
 	tecfile_solution.FileType=2;
 	tecfile_solution.Variables.push_back("z");
 	tecfile_solution.Variables.push_back("w");
@@ -79,9 +81,6 @@ int main(int argc,char **argv)
 	tecfile_solution.Zones[0].Data.clear();
 	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile_solution.Json_WriteFile = true;
-	tecfile_solution.Xml_WriteFile = true;
-
 	try
 	{
 		tecfile_solution.set_echo_mode(echo_file, echo_zone);
@@ -90,7 +89,6 @@ int main(int argc,char **argv)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 	}
-
 	try
 	{
 		ostringstream log;

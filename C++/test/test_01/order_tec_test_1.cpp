@@ -1,36 +1,44 @@
 # include <iostream>
+# include <cmath>
 using namespace std;
 # include "ordered_tec.h"
 
 # define DATATYPE double
 int main(int argc,char **argv)
 {
+	DATATYPE *x, *y, *z;
 	size_t NI=1000,NJ=2000;
-	DATATYPE *x=new DATATYPE[NI*NJ];
-	DATATYPE *y=new DATATYPE[NI*NJ];
-	DATATYPE *z=new DATATYPE[NI*NJ];
+	try
+	{
+		x = new DATATYPE[NI*NJ];
+		y = new DATATYPE[NI*NJ];
+		z = new DATATYPE[NI*NJ];
+	}
+	catch (...)
+	{
+		cerr << "runtime_error: out of memery" << endl;
+		return 0;
+	}
 	for (int j = 0; j != NJ; ++j)
 	{
 		for (int i = 0; i != NI; ++i)
 		{
 			x[i + j*NI] = j;
 			y[i + j*NI] = i;
-			z[i + j*NI] = 1 + i / 2 + j;
+			z[i + j*NI] = sin(x[i + j*NI]/500) - cos(y[i + j*NI] /500);
 		}
 	}
 
-	ORDERED_TEC::TEC_FILE tecfile;
+	ORDERED_TEC::TEC_FILE tecfile("simple_test");
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
-	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE());
-	tecfile.Zones[0].IMax=NI;
-	tecfile.Zones[0].JMax=NJ;
+	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("simple_test"));
+	tecfile.Zones[0].IMax = NI;
+	tecfile.Zones[0].JMax = NJ;
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Json_WriteFile = true;
-	tecfile.Xml_WriteFile = true;
 	try
 	{
 		tecfile.write_plt();

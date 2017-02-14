@@ -5,12 +5,20 @@ using namespace std;
 # define DATATYPE double
 int main(int argc,char **argv)
 {
-	ORDERED_TEC::TEC_FILE tecfile;
-	size_t NI=2000,NJ=4000;
-	DATATYPE *x=new DATATYPE[NI*NJ];
-	DATATYPE *y=new DATATYPE[NI*NJ];
-	DATATYPE *z=new DATATYPE[NI*NJ];
-	DATATYPE *w=new DATATYPE[NI*NJ];
+	DATATYPE *x, *y, *z, *w;
+	size_t NI = 2000, NJ = 4000;
+	try
+	{
+		x = new DATATYPE[NI*NJ];
+		y = new DATATYPE[NI*NJ];
+		z = new DATATYPE[NI*NJ];
+		w = new DATATYPE[NI*NJ];
+	}
+	catch (...)
+	{
+		cerr << "runtime_error: out of memery" << endl;
+		return 0;
+	}
 	for (int j = 0; j != NJ; ++j)
 	{
 		for (int i = 0; i != NI; ++i)
@@ -22,8 +30,7 @@ int main(int argc,char **argv)
 		}
 	}
 
-	tecfile.FileName="test_02";
-	tecfile.Title="test_02";
+	ORDERED_TEC::TEC_FILE tecfile("test_02",".", "test_02");
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
@@ -53,8 +60,6 @@ int main(int argc,char **argv)
 	tecfile.Zones[1].add_auxiliary_data("Auxiliary4",3.1415);
 
 	tecfile.set_echo_mode("full", "full");
-	tecfile.Json_WriteFile = true;
-	tecfile.Xml_WriteFile = true;
 
 	try
 	{
