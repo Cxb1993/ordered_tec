@@ -1,4 +1,5 @@
 # include <iostream>
+# include <stdlib.h>
 using namespace std;
 # include "ordered_tec.h"
 
@@ -43,8 +44,6 @@ int main(int argc,char **argv)
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].ISkip=2;
-	tecfile.Zones[0].JSkip=3;
 	tecfile.Zones[0].IBegin=50;
 	tecfile.Zones[0].IEnd=50;
 	tecfile.Zones[0].JBegin=10;
@@ -69,6 +68,15 @@ int main(int argc,char **argv)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}
+
+	system("pause");
+	cout << endl;
+	cout << tecfile.get_log("xml") << endl;
+	cout << tecfile.get_log("json") << endl;
+	cout << tecfile.get_log("time") << endl;
+	cout << tecfile.get_log("usingtime") << endl;
+	cout << tecfile.get_log("wrong code") << endl;
+
 	delete [] x;
 	delete [] y;
 	delete [] z;

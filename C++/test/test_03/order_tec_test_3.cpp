@@ -32,12 +32,6 @@ int main(int argc,char **argv)
 		}
 	}
 
-	string echo_file, echo_zone;
-	cout << "please input file echo leval (default/full/simple/none): " << endl;
-	cin >> echo_file;
-	cout << "please input zone echo leval (default/full/simple/none): " << endl;
-	cin >> echo_zone;
-
 	ORDERED_TEC::TEC_FILE tecfile_grid("test_03_g", ".", "test_03_grid");
 	tecfile_grid.FileType=1;
 	tecfile_grid.Variables.push_back("x");
@@ -53,14 +47,7 @@ int main(int argc,char **argv)
 	tecfile_grid.Zones[0].IEnd=50;
 	tecfile_grid.Zones[0].JBegin=10;
 	tecfile_grid.Zones[0].JEnd=10;
-	try
-	{
-		tecfile_grid.set_echo_mode(echo_file, echo_zone);
-	}
-	catch (std::runtime_error err)
-	{
-		cerr << "runtime_error: " << err.what() << endl;
-	}
+	tecfile_grid.set_echo_mode("full", "full");
 	try
 	{
 		ofstream log("log.txt");
@@ -81,14 +68,7 @@ int main(int argc,char **argv)
 	tecfile_solution.Zones[0].Data.clear();
 	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	try
-	{
-		tecfile_solution.set_echo_mode(echo_file, echo_zone);
-	}
-	catch (std::runtime_error err)
-	{
-		cerr << "runtime_error: " << err.what() << endl;
-	}
+	tecfile_solution.set_echo_mode("full", "full");
 	try
 	{
 		ostringstream log;
