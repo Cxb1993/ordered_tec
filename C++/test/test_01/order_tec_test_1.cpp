@@ -29,11 +29,11 @@ int main(int argc,char **argv)
 		}
 	}
 
-	ORDERED_TEC::TEC_FILE tecfile("simple_test");
+	ORDERED_TEC::TEC_FILE tecfile("test_01");
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
-	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("simple_test"));
+	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("test_01"));
 	tecfile.Zones[0].IMax = NI;
 	tecfile.Zones[0].JMax = NJ;
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));

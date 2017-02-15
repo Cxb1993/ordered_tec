@@ -62,7 +62,7 @@ namespace ORDERED_TEC
 
 		std::string get_log(std::string type) const;
 	protected:
-		void echo_mode(std::string echo = "default");
+		void echo_mode(std::string echo = "brief");
 
 		void wrtie_plt_pre();
 		void write_plt_filehead(FILE *of, std::ostream &echo = std::cout);
@@ -101,7 +101,7 @@ namespace ORDERED_TEC
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
 	protected:
-		void echo_mode(std::string echo = "default");
+		void echo_mode(std::string echo = "brief");
 
 		void gather_real_size();
 		void make_buf();

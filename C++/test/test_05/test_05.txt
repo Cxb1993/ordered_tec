@@ -1,0 +1,323 @@
+0000001
+#### creat file ./test_02.plt ####
+
+0000010
+#### creat file ./test_02.plt ####
+
+0000100
+     VAR: <x> <y> <z> 
+
+0001000
+-------------------------------------
+
+0010000
+     file size: 22.9MB
+
+0100000
+
+1000000
+     using time : 0.02100 s
+
+0100011
+[20170215T160047] #### creat file ./test_02.plt ####
+[20170215T160047] #### creat file ./test_02.plt ####
+
+000000001
+--   write zone 1: A   --
+--   write zone 2: B   --
+
+000000010
+--   write zone 1: A   --
+--   write zone 2: B   --
+
+000000100
+     write variables: <1> <2> <3> 
+     write variables: <1> <2> <3> 
+
+000001000
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Real_IMax=500 Real_JMax=1000 Dim=2
+
+000010000
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+
+000100000
+     ISkip=1 JSkip=1
+     ISkip=1 JSkip=1
+
+001000000
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+
+010000000
+     StrandId=0 SolutionTime=0.000000e+00
+     StrandId=0 SolutionTime=0.000000e+00
+
+100000000
+     zone size: 11.4MB
+     zone size: 11.4MB
+
+_wrong_code_
+runtime_error: Zone(A): echo code wrong
+
+_wrong_code_
+runtime_error: File(test_02): echo code wrong
+
+file: brief
+zones: brief
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: brief
+zones: full
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 1: A   --
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 2: B   --
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: brief
+zones: simple
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+--   write zone 1: A   --
+--   write zone 2: B   --
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: brief
+zones: none
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: brief
+zones: leave
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: full
+zones: brief
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+-------------------------------------
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     file size: 22.9MB
+     using time : 0.02100 s
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: full
+zones: full
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+-------------------------------------
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 1: A   --
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 2: B   --
+     file size: 22.9MB
+     using time : 0.02200 s
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: full
+zones: simple
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+-------------------------------------
+--   write zone 1: A   --
+--   write zone 2: B   --
+     file size: 22.9MB
+     using time : 0.02000 s
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: full
+zones: none
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+-------------------------------------
+     file size: 22.9MB
+     using time : 0.02100 s
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: full
+zones: leave
+[20170215T160048] #### creat file ./test_02.plt ####
+     VAR: <x> <y> <z> 
+-------------------------------------
+     file size: 22.9MB
+     using time : 0.02100 s
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: simple
+zones: brief
+[20170215T160048] #### creat file ./test_02.plt ####
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+
+file: simple
+zones: full
+[20170215T160048] #### creat file ./test_02.plt ####
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 1: A   --
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 2: B   --
+
+file: simple
+zones: simple
+[20170215T160048] #### creat file ./test_02.plt ####
+--   write zone 1: A   --
+--   write zone 2: B   --
+
+file: simple
+zones: none
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: simple
+zones: leave
+[20170215T160048] #### creat file ./test_02.plt ####
+
+file: none
+zones: brief
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+
+file: none
+zones: full
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 1: A   --
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 2: B   --
+
+file: none
+zones: simple
+--   write zone 1: A   --
+--   write zone 2: B   --
+
+file: none
+zones: none
+
+file: none
+zones: leave
+
+file: leave
+zones: brief
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+
+file: leave
+zones: full
+--   write zone 1: A   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 1: A   --
+--   write zone 2: B   --
+     Real_IMax=500 Real_JMax=1000 Dim=2
+     Org_IMax=500 Org_JMax=1000 Org_KMax=1
+     ISkip=1 JSkip=1
+     IBegin=0 IEnd=0
+     JBegin=0 JEnd=0
+     StrandId=0 SolutionTime=0.000000e+00
+     write variables: <1> <2> <3> 
+     zone size: 11.4MB
+--   write zone 2: B   --
+
+file: leave
+zones: simple
+--   write zone 1: A   --
+--   write zone 2: B   --
+
+file: leave
+zones: none
+
+file: leave
+zones: leave
+

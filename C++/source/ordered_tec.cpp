@@ -49,6 +49,15 @@ void W_STRING(const std::string &a, FILE *f)
 	W_INT32(0, f);
 }
 
+std::string get_time(std::string format = "%Y%m%dT%H%M%S")
+{
+	time_t time_c = time(NULL);
+	struct tm *tm_c = localtime(&time_c);
+	char buf[100];
+	strftime(buf, 100, format.c_str(), tm_c);
+	return buf;
+}
+
 TEC_FILE::TEC_FILE(std::string name, std::string path, std::string title)
 {
 	FilePath = path;
@@ -84,35 +93,23 @@ bool TEC_FILE::add_auxiliary_data(std::string name,double value)
 
 void TEC_FILE::set_echo_mode(std::string file, std::string zone)
 {
-	try
+	if (file.compare("leave") != 0)
 	{
-		if (file.compare("leave") != 0)
-		{
-			echo_mode(file);
-		}
-		if (zone.compare("leave") != 0)
-		{
-			for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
-			{
-				i->echo_mode(zone);
-			}
-		}
+		echo_mode(file);
 	}
-	catch (...)
+	if (zone.compare("leave") != 0)
 	{
-		throw std::runtime_error("echo code wrong");
+		for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
+		{
+			i->echo_mode(zone);
+		}
 	}
 }
 
 void TEC_FILE::write_plt(std::ostream &echo)
 {
-	time_t time_begin = time(NULL);
-	struct tm *tm_begin = localtime(&time_begin);
-	char buf[100];
-	strftime(buf, 100, "%Y%m%dT%H%M%S", tm_begin);
-	Time = buf;
-
 	clock_t clock_begin = clock();
+	Time = get_time();
 
 	wrtie_plt_pre();
 
@@ -178,7 +175,7 @@ void TEC_FILE::write_plt(std::ostream &echo)
 	{
 		if (Echo_Mode.test(5))
 		{
-			echo << "[" << Time << "] ";
+			echo << "[" << get_time() << "] ";
 		}
 		echo << "#### creat file " << FilePath + "/" + FileName << ".plt ####" << std::endl;
 	}
@@ -220,7 +217,7 @@ std::string TEC_FILE::get_log(std::string type) const
 
 void TEC_FILE::echo_mode(std::string iecho)
 {
-	if (iecho.compare("default")==0)
+	if (iecho.compare("brief")==0)
 	{
 		iecho = "0100111";
 	}
@@ -236,7 +233,14 @@ void TEC_FILE::echo_mode(std::string iecho)
 	{
 		iecho = "0000000";
 	}
-	Echo_Mode = std::bitset<7>(iecho);
+	try
+	{
+		Echo_Mode = std::bitset<7>(iecho);
+	}
+	catch (...)
+	{
+		throw std::runtime_error("File(" + FileName + "): echo code wrong");
+	}
 }
 
 void TEC_FILE::wrtie_plt_pre()
@@ -589,7 +593,7 @@ bool TEC_ZONE::add_auxiliary_data(std::string name,double value)
 
 void TEC_ZONE::echo_mode(std::string iecho)
 {
-	if (iecho.compare("default")==0)
+	if (iecho.compare("brief")==0)
 	{
 		iecho = "000001001";
 	}
@@ -605,7 +609,14 @@ void TEC_ZONE::echo_mode(std::string iecho)
 	{
 		iecho = "000000000";
 	}
-	Echo_Mode = std::bitset<9>(iecho);
+	try
+	{
+		Echo_Mode = std::bitset<9>(iecho);
+	}
+	catch (...)
+	{
+		throw std::runtime_error("Zone(" + ZoneName + "): echo code wrong");
+	}
 }
 
 void TEC_ZONE::gather_real_size()
@@ -877,7 +888,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, std::ostream &echo)
 
 	if (Echo_Mode.test(2))
 	{
-		echo << "..   write variables: ";
+		echo << "     write variables: ";
 	}
 	for (std::vector<DATA_P>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
@@ -889,7 +900,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, std::ostream &echo)
 	}
 	if (Echo_Mode.test(2))
 	{
-		echo << " .." << std::endl;
+		echo << std::endl;
 	}
 
 	realise_buf();

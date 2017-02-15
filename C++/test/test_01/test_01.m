@@ -4,7 +4,7 @@ close all
 clc
 %%
 try
-    xmlfile = xmlread('simple_test.xml');
+    xmlfile = xmlread('test_01.xml');
 catch
     printf('error');
 end
