@@ -247,29 +247,21 @@ void TEC_FILE::wrtie_plt_pre()
 {
 	if (Variables.size() == 0)
 	{
-		throw std::runtime_error("tec_file.Variables is empty");
+		throw std::runtime_error("File(" + FileName + "): Variables is empty");
 	}
 	if (Zones.size() == 0)
 	{
-		throw std::runtime_error("tec_file.Zones is empty");
+		throw std::runtime_error("File(" + FileName + "): Zones is empty");
 	}
 	for (std::vector<TEC_ZONE>::iterator i = Zones.begin(); i != Zones.end(); ++i)
 	{
-		i->gather_real_size();
-		if (i->Data.size() == 0)
+		try
 		{
-			throw std::runtime_error("one of zone.Data is empty");
+			i->wrtie_plt_pre_zone(*this);
 		}
-		if (i->Data.size() != Variables.size())
+		catch (std::runtime_error err)
 		{
-			throw std::runtime_error("the size of zone.Data is not equal to the size of tec_file.Variables");
-		}
-		for (std::vector<DATA_P>::const_iterator j = i->Data.begin(); j != i->Data.end(); ++j)
-		{
-			if (j->DataP == NULL || j->type == 0 || j->size == 0)
-			{
-				throw std::runtime_error("one of Data is unset");
-			}
+			throw std::runtime_error("File(" + FileName + ")." + err.what());
 		}
 	}
 }
@@ -330,7 +322,7 @@ void TEC_FILE::write_plt_data(FILE *of, std::ostream &echo)
 			echo << buf << std::endl;
 		}
 
-		i->write_plt_zonedata(of, echo);
+		i->write_plt_zonedata(of, *this, echo);
 
 		if (i->Echo_Mode.test(1))
 		{
@@ -572,7 +564,7 @@ INT32 TEC_ZONE::get_real_size(short o)
 	}
 	else
 	{
-		throw std::runtime_error("out of range");
+		throw std::out_of_range("get_real_size : out of range");
 	}
 }
 
@@ -623,7 +615,7 @@ void TEC_ZONE::gather_real_size()
 {
 	if (IMax == 0)
 	{
-		throw std::runtime_error("zone.IMax connot be zeor");
+		throw std::runtime_error("zone.IMax connot be zero");
 	}
 	if (IMax == 1 && (ISkip != 1 || IBegin != 0 || IEnd != 0))
 	{
@@ -637,7 +629,7 @@ void TEC_ZONE::gather_real_size()
 
 	if (JMax == 0)
 	{
-		throw std::runtime_error("zone.JMax connot be zeor");
+		throw std::runtime_error("zone.JMax connot be zero");
 	}
 	if (JMax == 1 && (JSkip != 1 || JBegin != 0 || JEnd != 0))
 	{
@@ -651,7 +643,7 @@ void TEC_ZONE::gather_real_size()
 
 	if (KMax == 0)
 	{
-		throw std::runtime_error("zone.KMax connot be zeor");
+		throw std::runtime_error("zone.KMax connot be zero");
 	}
 	if (KMax == 1 && (KSkip != 1 || KBegin != 0 || KEnd != 0))
 	{
@@ -770,6 +762,26 @@ void TEC_ZONE::realise_buf()
 	}
 }
 
+void TEC_ZONE::wrtie_plt_pre_zone(const TEC_FILE &thisfile)
+{
+	gather_real_size();
+	if (Data.size() == 0)
+	{
+		throw std::runtime_error("Zone(" + ZoneName + "): Data is empty");
+	}
+	if (Data.size() != thisfile.Variables.size())
+	{
+		throw std::runtime_error("Zone(" + ZoneName + "): the size of Data is not equal to the size of tec_file.Variables");
+	}
+	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
+	{
+		if (i->DataP == NULL || i->type == 0 || i->size == 0)
+		{
+			throw std::runtime_error("Zone(" + ZoneName + ").Variable(" + thisfile.Variables[i - Data.begin()] + "): Data is unset");
+		}
+	}
+}
+
 void TEC_ZONE::write_plt_zonehead(FILE *of) const
 {
 	W_FLOAT32(299.0f, of);//Zone marker. Value = 299.0
@@ -795,7 +807,7 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 	W_INT32(0, of);//No more Auxiliary name/value pairs
 }
 
-void TEC_ZONE::write_plt_zonedata(FILE *of, std::ostream &echo)
+void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostream &echo)
 {
 	longint pos = ftell(of);
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
@@ -892,11 +904,12 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, std::ostream &echo)
 	}
 	for (std::vector<DATA_P>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
+		j->file_pt = ftell(of);
+		fwrite((const byte*)(j->buf), j->size, Real_IMax*Real_JMax*Real_KMax, of);//Zone Data. Each variable is in data format as specified above
 		if (Echo_Mode.test(2))
 		{
-			echo << "<" << int(j - Data.begin() + 1) << "> ";
+			echo << "<" << thisfile.Variables[j - Data.begin()] << "> ";
 		}
-		j->write_data(of, Real_IMax*Real_JMax*Real_KMax);//Zone Data. Each variable is in data format as specified above
 	}
 	if (Echo_Mode.test(2))
 	{
@@ -1192,10 +1205,4 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 	}
 	}
 	return ans;
-}
-
-void DATA_P::write_data(FILE *of, size_t N)
-{
-	file_pt = ftell(of);
-	fwrite((const byte*)buf, size, N, of);
 }

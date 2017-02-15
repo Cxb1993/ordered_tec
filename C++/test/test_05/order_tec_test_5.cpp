@@ -1,7 +1,6 @@
 # include <iostream>
 # include <fstream>
 # include <cmath>
-# include <stdlib.h>
 using namespace std;
 # include "ordered_tec.h"
 
@@ -46,12 +45,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ORDERED_TEC::TEC_FILE tecfile("test_02", ".", "test_02");
+	ORDERED_TEC::TEC_FILE tecfile("test_05", ".", "test_05");
 	tecfile.Variables.push_back("x");
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
-	tecfile.add_auxiliary_data("Auxiliary1", "Auxiliary_test_1_ds");
-	tecfile.add_auxiliary_data("Auxiliary2", 3.14);
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("A"));
 	tecfile.Zones[0].IMax = NI;
 	tecfile.Zones[0].JMax = NJ;
@@ -62,7 +59,7 @@ int main(int argc, char **argv)
 	tecfile.Zones.push_back(tecfile.Zones[0]);
 	tecfile.Zones[1].ZoneName = "B";
 	tecfile.Zones[1].Data[2] = ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
-	tecfile.Zones[0].StrandId = 0;
+	tecfile.Zones[1].StrandId = -1;
 	
 	vector<string> echo_mode;
 	echo_mode.push_back("brief");
@@ -134,5 +131,6 @@ int main(int argc, char **argv)
 	delete[] x;
 	delete[] y;
 	delete[] z;
+	delete[] w;
 	return 0;
 }

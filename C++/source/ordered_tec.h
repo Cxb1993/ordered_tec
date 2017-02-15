@@ -107,8 +107,9 @@ namespace ORDERED_TEC
 		void make_buf();
 		void realise_buf();
 
+		void wrtie_plt_pre_zone(const TEC_FILE &thisfile);
 		void write_plt_zonehead(FILE *of) const;
-		void write_plt_zonedata(FILE *of, std::ostream &echo = std::cout);
+		void write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostream &echo = std::cout);
 
 		void log_json_zone(std::string &Json_Text, int Json_Depth) const;
 		void log_xml_zone(std::string &Xml_Text, int Xml_Depth) const;
@@ -139,7 +140,6 @@ namespace ORDERED_TEC
 		DATA_P(void * iDataP, TEC_TYPE itype);
 
 		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
-		void write_data(FILE *of, size_t N);
 
 		friend class TEC_ZONE;
 	};
