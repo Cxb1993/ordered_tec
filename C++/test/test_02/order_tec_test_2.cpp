@@ -44,14 +44,16 @@ int main(int argc,char **argv)
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].IBegin=50;
-	tecfile.Zones[0].IEnd=50;
-	tecfile.Zones[0].JBegin=10;
-	tecfile.Zones[0].JEnd=10;
 	tecfile.Zones[0].add_auxiliary_data("Auxiliary1","Auxiliary_test_1");
 	tecfile.Zones[0].add_auxiliary_data("Auxiliary2",3.14);
 
 	tecfile.Zones.push_back(tecfile.Zones[0]);
+	tecfile.Zones[1].IBegin = 50;
+	tecfile.Zones[1].IEnd = 50;
+	tecfile.Zones[1].JBegin = 10;
+	tecfile.Zones[1].JEnd = 10;
+	tecfile.Zones[1].ISkip = 2;
+	tecfile.Zones[1].JSkip = 4;
 	tecfile.Zones[1].ZoneName="B";
 	tecfile.Zones[1].Data[2]= ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
 	tecfile.Zones[1].Auxiliary.clear();

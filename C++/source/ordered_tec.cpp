@@ -615,11 +615,15 @@ void TEC_ZONE::gather_real_size()
 {
 	if (IMax == 0)
 	{
-		throw std::runtime_error("zone.IMax connot be zero");
+		throw std::runtime_error("Zone(" + ZoneName + "): IMax connot be zero");
 	}
-	if (IMax == 1 && (ISkip != 1 || IBegin != 0 || IEnd != 0))
+	if (ISkip == 0)
 	{
-		throw std::runtime_error("zone.ISkip(or zone.IBegin or zone.IEnd) donnot need to set");
+		throw std::runtime_error("Zone(" + ZoneName + "): ISkip must be positive");
+	}
+	if (IBegin + IEnd >= IMax)
+	{
+		throw std::runtime_error("Zone(" + ZoneName + "): sum of IBegin and IEnd is not smaller than IMax");
 	}
 	Real_IMax = (IMax - IBegin - IEnd) / ISkip;
 	if ((IMax - IBegin - IEnd) % ISkip)
@@ -629,11 +633,15 @@ void TEC_ZONE::gather_real_size()
 
 	if (JMax == 0)
 	{
-		throw std::runtime_error("zone.JMax connot be zero");
+		throw std::runtime_error("Zone(" + ZoneName + "): JMax connot be zero");
 	}
-	if (JMax == 1 && (JSkip != 1 || JBegin != 0 || JEnd != 0))
+	if (JSkip == 0)
 	{
-		throw std::runtime_error("zone.JSkip(or zone.JBegin or zone.JEnd) donnot need to set");
+		throw std::runtime_error("Zone(" + ZoneName + "): JSkip must be positive");
+	}
+	if (JBegin + JEnd >= JMax)
+	{
+		throw std::runtime_error("Zone(" + ZoneName + "): sum of JBegin and JEnd is not smaller than JMax");
 	}
 	Real_JMax = (JMax - JBegin - JEnd) / JSkip;
 	if ((JMax - JBegin - JEnd) % JSkip)
@@ -643,21 +651,20 @@ void TEC_ZONE::gather_real_size()
 
 	if (KMax == 0)
 	{
-		throw std::runtime_error("zone.KMax connot be zero");
+		throw std::runtime_error("Zone(" + ZoneName + "): KMax connot be zero");
 	}
-	if (KMax == 1 && (KSkip != 1 || KBegin != 0 || KEnd != 0))
+	if (KSkip == 0)
 	{
-		throw std::runtime_error("zone.KSkip(or zone.KBegin or zone.KEnd) donnot need to set");
+		throw std::runtime_error("Zone(" + ZoneName + "): KSkip must be positive");
+	}
+	if (KBegin + KEnd >= KMax)
+	{
+		throw std::runtime_error("Zone(" + ZoneName + "): sum of KBegin and KEnd is not smaller than KMax");
 	}
 	Real_KMax = (KMax - KBegin - KEnd) / KSkip;
 	if ((KMax - KBegin - KEnd) % KSkip)
 	{
 		++Real_KMax;
-	}
-
-	if (Real_IMax == 0 || Real_JMax == 0 || Real_KMax == 0)
-	{
-		throw std::runtime_error("zone.Real_IMax(or zone.Real_JMax or zone.Real_KMax) is zero due to unreasonable set of Skip, Being or End");
 	}
 
 	Real_Dim = 3;
