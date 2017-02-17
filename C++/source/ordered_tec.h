@@ -7,6 +7,8 @@
 # include <stdexcept>
 # include <bitset>
 # include <iostream>
+# include <typeinfo>
+# include <cstdio>
 
 namespace ORDERED_TEC
 {
@@ -17,6 +19,12 @@ namespace ORDERED_TEC
 	typedef signed long int longint;
 	typedef signed short int shortint;
 	typedef signed char byte;
+
+	const size_t TEC_FLOAT_S = 4;
+	const size_t TEC_DOUBLE_S = 8;
+	const size_t TEC_LONGINT_S = 4;
+	const size_t TEC_SHORTINT_S = 2;
+	const size_t TEC_BYTE_S = 1;
 
 	class TEC_FILE;
 	class DATA_P;
@@ -137,11 +145,46 @@ namespace ORDERED_TEC
 		longint file_pt;
 	public:
 		DATA_P();
-		DATA_P(void * iDataP, TEC_TYPE itype);
+		template<typename T> explicit DATA_P(T * iDataP);
 
+	protected:
 		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
 
 		friend class TEC_ZONE;
 	};
 }
+
+template<typename T> ORDERED_TEC::DATA_P::DATA_P(T * iDataP)
+{
+	if (typeid(iDataP) == typeid(float *))
+	{
+		type = DATA_P::TEC_FLOAT;
+	}
+	else if (typeid(iDataP) == typeid(double *))
+	{
+		type = DATA_P::TEC_DOUBLE;
+	}
+	else if ((typeid(iDataP) == typeid(longint *) || typeid(iDataP) == typeid(int *)) && sizeof(T) == TEC_LONGINT_S)
+	{
+		type = DATA_P::TEC_LONGINT;
+	}
+	else if ((typeid(iDataP) == typeid(shortint *) || typeid(iDataP) == typeid(int *)) && sizeof(T) == TEC_SHORTINT_S)
+	{
+		type = DATA_P::TEC_SHORTINT;
+	}
+	else if (typeid(iDataP) == typeid(byte *))
+	{
+		type = DATA_P::TEC_BYTE;
+	}
+	else
+	{
+		char err[100];
+		sprintf(err,"type [%s]*%zi is unsupported in Tecplot", typeid(T).name(),sizeof(T));
+		throw(std::runtime_error(err));
+	}
+	DataP = iDataP;
+	buf = NULL;
+	size = sizeof(T);
+}
+
 # endif

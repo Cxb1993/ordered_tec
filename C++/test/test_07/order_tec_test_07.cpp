@@ -58,9 +58,9 @@ int main(int argc, char **argv)
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("A"));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
 
 	ofstream log("test_07.txt");
 	tecfile.Zones[0].IMax = 0;

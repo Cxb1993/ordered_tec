@@ -15,10 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test_01.m" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="order_tec_test_01.cpp">
+    <ClCompile Include="order_tec_test_09.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

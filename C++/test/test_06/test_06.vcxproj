@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="order_tec_test_6.cpp" />
+    <ClCompile Include="order_tec_test_06.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ae1c69cd-e215-4560-a749-deeb7d381d34}</ProjectGuid>

@@ -7,18 +7,12 @@
 # include <stdexcept>
 # include <iostream>
 # include <sstream>
-# include <stdio.h>
+# include <cstdio>
 # include <ctime>
 
 # define S_INT32 4
-# define S_FLOAT32 4
-# define S_FLOAT64 8
-
-# define S_FLOAT 4
-# define S_DOUBLE 8
-# define S_LONGINT 4
-# define S_SHORTINT 2
-# define S_BYTE 1
+# define TEC_FLOAT_S32 4
+# define TEC_FLOAT_S64 8
 
 using namespace ORDERED_TEC;
 
@@ -31,13 +25,13 @@ void W_INT32(const INT32 &a, FILE *f)
 void W_FLOAT32(const FLOAT32 &a, FILE *f)
 {
 	FLOAT32 t = a;
-	fwrite(&t, S_FLOAT32, 1, f);
+	fwrite(&t, TEC_FLOAT_S32, 1, f);
 }
 
 void W_FLOAT64(const FLOAT64 &a, FILE *f)
 {
 	FLOAT64 t = a;
-	fwrite(&t, S_FLOAT64, 1, f);
+	fwrite(&t, TEC_FLOAT_S64, 1, f);
 }
 
 void W_STRING(const std::string &a, FILE *f)
@@ -211,7 +205,7 @@ std::string TEC_FILE::get_log(std::string type) const
 	}
 	else
 	{
-		return "";
+		throw(std::runtime_error("log id wrong"));
 	}
 }
 
@@ -625,12 +619,6 @@ void TEC_ZONE::gather_real_size()
 	{
 		throw std::runtime_error("Zone(" + ZoneName + "): sum of IBegin and IEnd is not smaller than IMax");
 	}
-	Real_IMax = (IMax - IBegin - IEnd) / ISkip;
-	if ((IMax - IBegin - IEnd) % ISkip)
-	{
-		++Real_IMax;
-	}
-
 	if (JMax == 0)
 	{
 		throw std::runtime_error("Zone(" + ZoneName + "): JMax connot be zero");
@@ -643,12 +631,6 @@ void TEC_ZONE::gather_real_size()
 	{
 		throw std::runtime_error("Zone(" + ZoneName + "): sum of JBegin and JEnd is not smaller than JMax");
 	}
-	Real_JMax = (JMax - JBegin - JEnd) / JSkip;
-	if ((JMax - JBegin - JEnd) % JSkip)
-	{
-		++Real_JMax;
-	}
-
 	if (KMax == 0)
 	{
 		throw std::runtime_error("Zone(" + ZoneName + "): KMax connot be zero");
@@ -661,12 +643,22 @@ void TEC_ZONE::gather_real_size()
 	{
 		throw std::runtime_error("Zone(" + ZoneName + "): sum of KBegin and KEnd is not smaller than KMax");
 	}
+
+	Real_IMax = (IMax - IBegin - IEnd) / ISkip;
+	if ((IMax - IBegin - IEnd) % ISkip)
+	{
+		++Real_IMax;
+	}
+	Real_JMax = (JMax - JBegin - JEnd) / JSkip;
+	if ((JMax - JBegin - JEnd) % JSkip)
+	{
+		++Real_JMax;
+	}
 	Real_KMax = (KMax - KBegin - KEnd) / KSkip;
 	if ((KMax - KBegin - KEnd) % KSkip)
 	{
 		++Real_KMax;
 	}
-
 	Real_Dim = 3;
 	if (Real_KMax == 1)
 	{
@@ -1072,43 +1064,8 @@ DATA_P::DATA_P()
 	buf = NULL;
 }
 
-DATA_P::DATA_P(void * iDataP, TEC_TYPE itype)
-{
-	DataP = iDataP;
-	type = itype;
-	switch (itype)
-	{
-	case TEC_FLOAT:
-	{
-		size = S_FLOAT;
-		break;
-	}
-	case TEC_DOUBLE:
-	{
-		size = S_DOUBLE;
-		break;
-	}
-	case TEC_LONGINT:
-	{
-		size = S_LONGINT;
-		break;
-	}
-	case TEC_SHORTINT:
-	{
-		size = S_SHORTINT;
-		break;
-	}
-	case TEC_BYTE:
-	{
-		size = S_BYTE;
-		break;
-	}
-	}
-	buf = NULL;
-}
-
 template<typename T>
-void get_minmax(T *data, size_t N, T &min, T &max)
+void get_minmax(const T *data, size_t N, T &min, T &max)
 {
 	min = data[0];
 	max = data[0];

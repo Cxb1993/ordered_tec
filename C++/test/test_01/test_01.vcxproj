@@ -154,7 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="order_tec_test_1.cpp" />
+    <ClCompile Include="order_tec_test_01.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test_01.m" />

@@ -39,8 +39,8 @@ int main(int argc,char **argv)
 	tecfile_grid.Zones.push_back(ORDERED_TEC::TEC_ZONE("grid"));
 	tecfile_grid.Zones[0].IMax=NI;
 	tecfile_grid.Zones[0].JMax=NJ;
-	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
+	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
 	tecfile_grid.Zones[0].ISkip=2;
 	tecfile_grid.Zones[0].JSkip=3;
 	tecfile_grid.Zones[0].IBegin=50;
@@ -66,8 +66,8 @@ int main(int argc,char **argv)
 	tecfile_solution.Zones.push_back(tecfile_grid.Zones[0]);
 	tecfile_solution.Zones[0].ZoneName="solution";
 	tecfile_solution.Zones[0].Data.clear();
-	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
+	tecfile_solution.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(w));
 	tecfile_solution.set_echo_mode("full", "full");
 	try
 	{

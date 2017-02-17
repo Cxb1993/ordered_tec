@@ -41,9 +41,9 @@ int main(int argc,char **argv)
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("A"));
 	tecfile.Zones[0].IMax=NI;
 	tecfile.Zones[0].JMax=NJ;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
 	tecfile.Zones[0].add_auxiliary_data("Auxiliary1","Auxiliary_test_1");
 	tecfile.Zones[0].add_auxiliary_data("Auxiliary2",3.14);
 
@@ -55,7 +55,7 @@ int main(int argc,char **argv)
 	tecfile.Zones[1].ISkip = 2;
 	tecfile.Zones[1].JSkip = 4;
 	tecfile.Zones[1].ZoneName="B";
-	tecfile.Zones[1].Data[2]= ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
+	tecfile.Zones[1].Data[2]= ORDERED_TEC::DATA_P(w);
 	tecfile.Zones[1].Auxiliary.clear();
 	tecfile.Zones[1].add_auxiliary_data("Auxiliary3","Auxiliary_test_1_2");
 	tecfile.Zones[1].add_auxiliary_data("Auxiliary4",3.1415);
@@ -77,7 +77,14 @@ int main(int argc,char **argv)
 	cout << tecfile.get_log("json") << endl;
 	cout << tecfile.get_log("time") << endl;
 	cout << tecfile.get_log("usingtime") << endl;
-	cout << tecfile.get_log("wrong code") << endl;
+	try
+	{
+		cout << tecfile.get_log("wrong code") << endl;
+	}
+	catch (std::runtime_error err)
+	{
+		cerr << "runtime_error: " << err.what() << endl;
+	}
 
 	delete [] x;
 	delete [] y;

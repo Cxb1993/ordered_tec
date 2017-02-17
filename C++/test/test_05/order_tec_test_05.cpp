@@ -52,13 +52,13 @@ int main(int argc, char **argv)
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("A"));
 	tecfile.Zones[0].IMax = NI;
 	tecfile.Zones[0].JMax = NJ;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y, ORDERED_TEC::DATA_P::TEC_DOUBLE));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z, ORDERED_TEC::DATA_P::TEC_DOUBLE));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
 	tecfile.Zones[0].StrandId = 0;
 	tecfile.Zones.push_back(tecfile.Zones[0]);
 	tecfile.Zones[1].ZoneName = "B";
-	tecfile.Zones[1].Data[2] = ORDERED_TEC::DATA_P(w, ORDERED_TEC::DATA_P::TEC_DOUBLE);
+	tecfile.Zones[1].Data[2] = ORDERED_TEC::DATA_P(w);
 	tecfile.Zones[1].StrandId = -1;
 	
 	vector<string> echo_mode;
