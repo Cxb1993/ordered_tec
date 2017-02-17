@@ -89,23 +89,24 @@ namespace ORDERED_TEC
 		INT32 StrandId;
 		FLOAT64 SolutionTime;
 
-		size_t IMax, JMax, KMax;
+		size_t Max[3];
 		std::vector<DATA_P> Data;
-		size_t ISkip, JSkip, KSkip;
-		size_t IBegin, IEnd, JBegin, JEnd, KBegin, KEnd;
+		size_t Skip[3];
+		size_t Begin[3];
+		size_t End[3];
 
 		std::map<std::string, std::string> Auxiliary;
 
 		//size, stdid & soltime, begin & end, skip, max_org, max_real, variable, zone_end, zone_head
 		std::bitset<9> Echo_Mode;
 	protected:
-		INT32 Real_IMax, Real_JMax, Real_KMax;
+		INT32 Real_Max[3];
 		INT32 Real_Dim;
 		bool noskip, noexc;
 		bool needreal;
 	public:
 		TEC_ZONE(std::string name = "untitled_zone");
-		INT32 get_real_size(short o);
+		const INT32 * get_real_size(std::string name = "realmax");
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
 	protected:

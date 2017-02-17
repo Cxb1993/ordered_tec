@@ -6,8 +6,8 @@ using namespace std;
 template<typename T>
 void set_data(T *data, ORDERED_TEC::TEC_FILE &tecfile)
 {
-	int NI = tecfile.Zones[0].IMax;
-	int NJ = tecfile.Zones[0].JMax;
+	int NI = tecfile.Zones[0].Max[0];
+	int NJ = tecfile.Zones[0].Max[1];
 	for (int j = 0; j != NJ; ++j)
 	{
 		for (int i = 0; i != NI; ++i)
@@ -69,8 +69,8 @@ int main(int argc, char **argv)
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("test_09"));
-	tecfile.Zones[0].IMax = NI;
-	tecfile.Zones[0].JMax = NJ;
+	tecfile.Zones[0].Max[0] = NI;
+	tecfile.Zones[0].Max[1] = NJ;
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
 

@@ -37,16 +37,16 @@ int main(int argc,char **argv)
 	tecfile_grid.Variables.push_back("x");
 	tecfile_grid.Variables.push_back("y");
 	tecfile_grid.Zones.push_back(ORDERED_TEC::TEC_ZONE("grid"));
-	tecfile_grid.Zones[0].IMax=NI;
-	tecfile_grid.Zones[0].JMax=NJ;
+	tecfile_grid.Zones[0].Max[0]=NI;
+	tecfile_grid.Zones[0].Max[1]=NJ;
 	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
 	tecfile_grid.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
-	tecfile_grid.Zones[0].ISkip=2;
-	tecfile_grid.Zones[0].JSkip=3;
-	tecfile_grid.Zones[0].IBegin=50;
-	tecfile_grid.Zones[0].IEnd=50;
-	tecfile_grid.Zones[0].JBegin=10;
-	tecfile_grid.Zones[0].JEnd=10;
+	tecfile_grid.Zones[0].Skip[0]=2;
+	tecfile_grid.Zones[0].Skip[1]=3;
+	tecfile_grid.Zones[0].Begin[0]=50;
+	tecfile_grid.Zones[0].End[0]=50;
+	tecfile_grid.Zones[0].Begin[1]=10;
+	tecfile_grid.Zones[0].End[1]=10;
 	tecfile_grid.set_echo_mode("full", "full");
 	try
 	{

@@ -519,46 +519,38 @@ TEC_ZONE::TEC_ZONE(std::string name)
 	ZoneName = name;
 	StrandId = -1;
 	SolutionTime = 0.0f;
-	IMax = 1;
-	JMax = 1;
-	KMax = 1;
-	ISkip = 1;
-	JSkip = 1;
-	KSkip = 1;
-	IBegin = 0;
-	IEnd = 0;
-	JBegin = 0;
-	JEnd = 0;
-	KBegin = 0;
-	KEnd = 0;
+	Max[0] = 1;
+	Max[1] = 1;
+	Max[2] = 1;
+	Skip[0] = 1;
+	Skip[1] = 1;
+	Skip[2] = 1;
+	Begin[0] = 0;
+	End[0] = 0;
+	Begin[1] = 0;
+	End[1] = 0;
+	Begin[2] = 0;
+	End[2] = 0;
 	noskip = true;
 	noexc = true;
 	needreal = false;
 	echo_mode();
 }
 
-INT32 TEC_ZONE::get_real_size(short o)
+const INT32 * TEC_ZONE::get_real_size(std::string name)
 {
 	gather_real_size();
-	if (o == 0)
+	if (name.compare("realmax") == 0)
 	{
-		return Real_IMax;
+		return Real_Max;
 	}
-	else if (o == 1)
+	else if (name.compare("realdim") == 0)
 	{
-		return Real_JMax;
-	}
-	else if (o == 2)
-	{
-		return Real_KMax;
-	}
-	else if (o == 3)
-	{
-		return Real_Dim;
+		return &Real_Dim;
 	}
 	else
 	{
-		throw std::out_of_range("get_real_size : out of range");
+		throw std::out_of_range("get_real_size : size code wrong");
 	}
 }
 
@@ -607,74 +599,40 @@ void TEC_ZONE::echo_mode(std::string iecho)
 
 void TEC_ZONE::gather_real_size()
 {
-	if (IMax == 0)
+	for (int i = 0; i != 3; ++i)
 	{
-		throw std::runtime_error("Zone(" + ZoneName + "): IMax connot be zero");
-	}
-	if (ISkip == 0)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): ISkip must be positive");
-	}
-	if (IBegin + IEnd >= IMax)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): sum of IBegin and IEnd is not smaller than IMax");
-	}
-	if (JMax == 0)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): JMax connot be zero");
-	}
-	if (JSkip == 0)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): JSkip must be positive");
-	}
-	if (JBegin + JEnd >= JMax)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): sum of JBegin and JEnd is not smaller than JMax");
-	}
-	if (KMax == 0)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): KMax connot be zero");
-	}
-	if (KSkip == 0)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): KSkip must be positive");
-	}
-	if (KBegin + KEnd >= KMax)
-	{
-		throw std::runtime_error("Zone(" + ZoneName + "): sum of KBegin and KEnd is not smaller than KMax");
-	}
-
-	Real_IMax = (IMax - IBegin - IEnd) / ISkip;
-	if ((IMax - IBegin - IEnd) % ISkip)
-	{
-		++Real_IMax;
-	}
-	Real_JMax = (JMax - JBegin - JEnd) / JSkip;
-	if ((JMax - JBegin - JEnd) % JSkip)
-	{
-		++Real_JMax;
-	}
-	Real_KMax = (KMax - KBegin - KEnd) / KSkip;
-	if ((KMax - KBegin - KEnd) % KSkip)
-	{
-		++Real_KMax;
-	}
-	Real_Dim = 3;
-	if (Real_KMax == 1)
-	{
-		--Real_Dim;
-		if (Real_JMax == 1)
+		char index[3] = { 'I','J','K' };
+		if (Max[i] == 0)
 		{
-			--Real_Dim;
-			if (Real_IMax == 1)
-			{
-				--Real_Dim;
-			}
+			throw std::runtime_error("Zone(" + ZoneName + "): " + index[i] + "Max connot be zero");
+		}
+		if (Skip[i] == 0)
+		{
+			throw std::runtime_error("Zone(" + ZoneName + "): " + index[i] + "Skip must be positive");
+		}
+		if (Begin[i] + End[i] >= Max[i])
+		{
+			throw std::runtime_error("Zone(" + ZoneName + "): sum of " + index[i] + "Begin and " + index[i] + "End is not smaller than " + index[i] + "Max");
 		}
 	}
 
-	noskip = ISkip == 1 && JSkip == 1 && KSkip == 1;
-	noexc = IBegin == 0 && IEnd == 0 && JBegin == 0 && JEnd == 0 && KBegin == 0 && KEnd == 0;
+	Real_Dim = 3;
+	noskip = true;
+	noexc = true;
+	for (int i = 2; i != -1; --i)
+	{
+		Real_Max[i] = (Max[i] - Begin[i] - End[i]) / Skip[i];
+		if ((Max[i] - Begin[i] - End[i]) % Skip[i])
+		{
+			++Real_Max[i];
+		}
+		if (Real_Max[i] == 1)
+		{
+			--Real_Dim;
+		}
+		noskip = noskip && Skip[i]==1;
+		noexc = noexc && Begin[i] == 0 && End[i] == 0;
+	}
 }
 
 void TEC_ZONE::make_buf()
@@ -695,18 +653,18 @@ void TEC_ZONE::make_buf()
 			byte * datap=(byte *)i->DataP;
 			try
 			{
-				i->buf = new byte[Real_IMax*Real_JMax*Real_KMax*size];
+				i->buf = new byte[Real_Max[0]*Real_Max[1]*Real_Max[2]*size];
 			}
 			catch (...)
 			{
 				throw std::runtime_error("out of memory");
 			}
-			for(size_t sk=KBegin;sk<KMax-KEnd;sk+=KSkip)
+			for(size_t sk=Begin[2];sk<Max[2]-End[2];sk+=Skip[2])
 			{
-				for(size_t sj=JBegin;sj<JMax-JEnd;sj+=JSkip)
+				for(size_t sj=Begin[1];sj<Max[1]-End[1];sj+=Skip[1])
 				{
-					std::memcpy(i->buf+(Real_IMax*(sj-JBegin)/JSkip+Real_IMax*Real_JMax*(sk-KBegin)/KSkip)*size,
-						        datap+(IBegin+IMax*sj+IMax*JMax*sk)*size, Real_IMax*size);
+					std::memcpy(i->buf+(Real_Max[0]*(sj-Begin[1])/Skip[1]+Real_Max[0]*Real_Max[1]*(sk-Begin[2])/Skip[2])*size,
+						        datap+(Begin[0]+Max[0]*sj+Max[0]*Max[1]*sk)*size, Real_Max[0]*size);
 				}
 			}
 		}
@@ -720,20 +678,20 @@ void TEC_ZONE::make_buf()
 			byte * datap=(byte *)i->DataP;
 			try
 			{
-				i->buf = new byte[Real_IMax*Real_JMax*Real_KMax*size];
+				i->buf = new byte[Real_Max[0]*Real_Max[1]*Real_Max[2]*size];
 			}
 			catch (...)
 			{
 				throw std::runtime_error("out of memory");
 			}
-			for(size_t sk=KBegin;sk<KMax-KEnd;sk+=KSkip)
+			for(size_t sk=Begin[2];sk<Max[2]-End[2];sk+=Skip[2])
 			{
-				for(size_t sj=JBegin;sj<JMax-JEnd;sj+=JSkip)
+				for(size_t sj=Begin[1];sj<Max[1]-End[1];sj+=Skip[1])
 				{
-					for(size_t si=IBegin;si<IMax-IEnd;si+=ISkip)
+					for(size_t si=Begin[0];si<Max[0]-End[0];si+=Skip[0])
 					{
-						std::memcpy(i->buf+((si-IBegin)/ISkip+Real_IMax*(sj-JBegin)/JSkip+Real_IMax*Real_JMax*(sk-KBegin)/KSkip)*size,
-							        datap+(si+IMax*sj+IMax*JMax*sk)*size, size);
+						std::memcpy(i->buf+((si-Begin[0])/Skip[0]+Real_Max[0]*(sj-Begin[1])/Skip[1]+Real_Max[0]*Real_Max[1]*(sk-Begin[2])/Skip[2])*size,
+							        datap+(si+Max[0]*sj+Max[0]*Max[1]*sk)*size, size);
 					}
 				}
 			}
@@ -793,9 +751,9 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 	W_INT32(0, of);//Specify Var Location. 0 = Do not specify, all data is located at the nodes
 	W_INT32(0, of);//Are raw local 1-to-1 face neighbors supplied? (0=FALSE 1=TRUE) ORDERED and FELINESEG zones must specify 0
 	W_INT32(0, of);//Number of miscellaneous user-defined face neighbor connections (value >= 0)
-	W_INT32(Real_IMax, of);//IMax
-	W_INT32(Real_JMax, of);//JMax
-	W_INT32(Real_KMax, of);//KMax
+	W_INT32(Real_Max[0], of);//Max[0]
+	W_INT32(Real_Max[1], of);//Max[1]
+	W_INT32(Real_Max[2], of);//Max[2]
 	for (std::map<std::string, std::string>::const_iterator j = Auxiliary.begin(); j != Auxiliary.end(); ++j)
 	{
 		W_INT32(1, of);//Auxiliary name/value pair to follow
@@ -822,78 +780,58 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 
 	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
-		std::pair<FLOAT64, FLOAT64> mm = j->minmax(Real_IMax*Real_JMax*Real_KMax);
+		std::pair<FLOAT64, FLOAT64> mm = j->minmax(Real_Max[0]*Real_Max[1]*Real_Max[2]);
 		W_FLOAT64(mm.first, of);//Min value
 		W_FLOAT64(mm.second, of);//Max value
 	}
 
 	if (Echo_Mode.test(3))
 	{
-		char buf[100];
-		sprintf(buf, "     Real_IMax=%i", Real_IMax);
-		echo << buf;
-		if (Real_JMax != 1)
+		echo << "     Dim = " << Real_Dim << " Real_Max=[";
+		for (int dd = 0; dd != Real_Dim; ++dd)
 		{
-			char buf[100];
-			sprintf(buf, " Real_JMax=%i", Real_JMax);
-			echo << buf;
-			if (Real_KMax != 1)
-			{
-				char buf[100];
-				sprintf(buf, " Real_KMax=%i", Real_KMax);
-				echo << buf;
-			}
+			echo << " " << Real_Max[dd];
 		}
-		sprintf(buf, " Dim=%i", Real_Dim);
-		echo << buf << std::endl;
+		echo << " ]" << std::endl;
 	}
 	if (Echo_Mode.test(4))
 	{
-		char buf[100];
-		sprintf(buf, "     Org_IMax=%zi Org_JMax=%zi Org_KMax=%zi", IMax, JMax, KMax);
-		echo << buf << std::endl;
+		echo << "     Org_Max = [";
+		for (int dd = 0; dd != 3; ++dd)
+		{
+			echo << " " << Max[dd];
+		}
+		echo << " ]" << std::endl;
 	}
 	if (Echo_Mode.test(5))
 	{
-		char buf[100];
-		sprintf(buf, "     ISkip=%zi", ISkip);
-		echo << buf;
-		if (Real_JMax != 1)
+		echo << "     Skip = [";
+		for (int dd = 0; dd != Real_Dim; ++dd)
 		{
-			char buf[100];
-			sprintf(buf, " JSkip=%zi", JSkip);
-			echo << buf;
-			if (Real_KMax != 1)
-			{
-				char buf[100];
-				sprintf(buf, " KSkip=%zi", KSkip);
-				echo << buf;
-			}
+			echo << " " << Skip[dd];
 		}
-		echo << std::endl;
+		echo << " ]" << std::endl;
 	}
 	if (Echo_Mode.test(6))
 	{
-		char buf[100];
-		sprintf(buf, "     IBegin=%zi IEnd=%zi", IBegin, IEnd);
-		echo << buf << std::endl;
-		if (Real_JMax != 1)
+		echo << "     Begin = [";
+		for (int dd = 0; dd != Real_Dim; ++dd)
 		{
-			char buf[100];
-			sprintf(buf, "     JBegin=%zi JEnd=%zi", JBegin, JEnd);
-			echo << buf << std::endl;
-			if (Real_KMax != 1)
-			{
-				char buf[100];
-				sprintf(buf, "     KBegin=%zi KEnd=%zi", KBegin, KEnd);
-				echo << buf << std::endl;
-			}
+			echo << " " << Begin[dd];
 		}
+		echo << " ]";
+
+		echo << " End = [";
+		for (int dd = 0; dd != Real_Dim; ++dd)
+		{
+			echo << " " << End[dd];
+		}
+		echo << " ]" << std::endl;
 	}
 	if (Echo_Mode.test(7) && StrandId != -1)
 	{
 		char buf[100];
-		sprintf(buf, "     StrandId=%i SolutionTime=%le", StrandId, SolutionTime);
+		sprintf(buf, "     StrandId = %i SolutionTime = %le", StrandId, SolutionTime);
 		echo << buf << std::endl;
 	}
 
@@ -904,7 +842,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 	for (std::vector<DATA_P>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		j->file_pt = ftell(of);
-		fwrite((const byte*)(j->buf), j->size, Real_IMax*Real_JMax*Real_KMax, of);//Zone Data. Each variable is in data format as specified above
+		fwrite((const byte*)(j->buf), j->size, Real_Max[0]*Real_Max[1]*Real_Max[2], of);//Zone Data. Each variable is in data format as specified above
 		if (Echo_Mode.test(2))
 		{
 			echo << "<" << thisfile.Variables[j - Data.begin()] << "> ";
@@ -945,15 +883,15 @@ void TEC_ZONE::log_json_zone(std::string &Json_Text, int Json_Depth) const
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	sprintf(buf, "\"Real_Dim\" : %i ,\n", Real_Dim); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	sprintf(buf, "\"Org_Max\" : [ %zi, %zi, %zi ] ,\n", IMax, JMax, KMax); Json_Text += buf;
+	sprintf(buf, "\"Org_Max\" : [ %zi, %zi, %zi ] ,\n", Max[0], Max[1], Max[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	sprintf(buf, "\"Skip\" : [ %zi, %zi, %zi ] ,\n", ISkip, JSkip, KSkip); Json_Text += buf;
+	sprintf(buf, "\"Skip\" : [ %zi, %zi, %zi ] ,\n", Skip[0], Skip[1], Skip[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	sprintf(buf, "\"Begin\" : [ %zi, %zi, %zi ] ,\n", IBegin, JBegin, KBegin); Json_Text += buf;
+	sprintf(buf, "\"Begin\" : [ %zi, %zi, %zi ] ,\n", Begin[0], Begin[1], Begin[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	sprintf(buf, "\"End\" : [ %zi, %zi, %zi ] ,\n", IEnd, JEnd, KEnd); Json_Text += buf;
+	sprintf(buf, "\"End\" : [ %zi, %zi, %zi ] ,\n", End[0], End[1], End[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	sprintf(buf, "\"Real_Max\" : [ %i, %i, %i ] ,\n", Real_IMax, Real_JMax, Real_KMax); Json_Text += buf;
+	sprintf(buf, "\"Real_Max\" : [ %i, %i, %i ] ,\n", Real_Max[0], Real_Max[1], Real_Max[2]); Json_Text += buf;
 
 	if (Auxiliary.size() != 0)
 	{
@@ -1015,15 +953,15 @@ void TEC_ZONE::log_xml_zone(std::string &Xml_Text, int Xml_Depth) const
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	sprintf(buf, "<Real_Dim>%i</Real_Dim>\n", Real_Dim); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	sprintf(buf, "<Org_Max I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", IMax, JMax, KMax); Xml_Text += buf;
+	sprintf(buf, "<Org_Max I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", Max[0], Max[1], Max[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	sprintf(buf, "<Skip I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", ISkip, JSkip, KSkip); Xml_Text += buf;
+	sprintf(buf, "<Skip I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", Skip[0], Skip[1], Skip[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	sprintf(buf, "<Begin I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", IBegin, JBegin, KBegin); Xml_Text += buf;
+	sprintf(buf, "<Begin I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", Begin[0], Begin[1], Begin[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	sprintf(buf, "<End I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", IEnd, JEnd, KEnd); Xml_Text += buf;
+	sprintf(buf, "<End I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", End[0], End[1], End[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	sprintf(buf, "<Real_Max I=\"%i\" J=\"%i\" K=\"%i\"/>\n", Real_IMax, Real_JMax, Real_KMax); Xml_Text += buf;
+	sprintf(buf, "<Real_Max I=\"%i\" J=\"%i\" K=\"%i\"/>\n", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text += buf;
 
 	if (Auxiliary.size() != 0)
 	{

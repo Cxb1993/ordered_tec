@@ -7,22 +7,22 @@ using namespace std;
 # define DATATYPE double
 void get_size(ORDERED_TEC::TEC_FILE &tecfile, ostream &log)
 {
-	int IMax, JMax, KMax, Dim;
+	int Max[3], Dim;
 	try
 	{
-		IMax = tecfile.Zones[0].get_real_size(0);
-		JMax = tecfile.Zones[0].get_real_size(1);
-		KMax = tecfile.Zones[0].get_real_size(2);
-		Dim = tecfile.Zones[0].get_real_size(3);
+		Max[0] = tecfile.Zones[0].get_real_size()[0];
+		Max[1] = tecfile.Zones[0].get_real_size()[1];
+		Max[2] = tecfile.Zones[0].get_real_size()[2];
+		Dim = *tecfile.Zones[0].get_real_size("realdim");
 	}
 	catch (std::runtime_error err)
 	{
 		log << "runtime_error: " << err.what() << endl;
 		return;
 	}
-	log << "IMax: " << IMax << endl;
-	log << "JMax: " << JMax << endl;
-	log << "KMax: " << KMax << endl;
+	log << "Max[0]: " << Max[0] << endl;
+	log << "Max[1]: " << Max[1] << endl;
+	log << "Max[2]: " << Max[2] << endl;
 	log << "Dim: " << Dim << endl;
 }
 
@@ -63,42 +63,42 @@ int main(int argc, char **argv)
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
 
 	ofstream log("test_07.txt");
-	tecfile.Zones[0].IMax = 0;
-	tecfile.Zones[0].JMax = 0;
-	tecfile.Zones[0].KMax = 0;
-	tecfile.Zones[0].ISkip = 0;
-	tecfile.Zones[0].JSkip = 0;
-	tecfile.Zones[0].KSkip = 0;
-	tecfile.Zones[0].IBegin = 50;
-	tecfile.Zones[0].IEnd = 50;
-	tecfile.Zones[0].JBegin = 101;
-	tecfile.Zones[0].JEnd = 100;
-	tecfile.Zones[0].KBegin = 101;
-	tecfile.Zones[0].KEnd = 50;
+	tecfile.Zones[0].Max[0] = 0;
+	tecfile.Zones[0].Max[1] = 0;
+	tecfile.Zones[0].Max[2] = 0;
+	tecfile.Zones[0].Skip[0] = 0;
+	tecfile.Zones[0].Skip[1] = 0;
+	tecfile.Zones[0].Skip[2] = 0;
+	tecfile.Zones[0].Begin[0] = 50;
+	tecfile.Zones[0].End[0] = 50;
+	tecfile.Zones[0].Begin[1] = 101;
+	tecfile.Zones[0].End[1] = 100;
+	tecfile.Zones[0].Begin[2] = 101;
+	tecfile.Zones[0].End[2] = 50;
 
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].IMax = NI;
+	tecfile.Zones[0].Max[0] = NI;
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].ISkip = 1;
+	tecfile.Zones[0].Skip[0] = 1;
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].IBegin = 49;
-	tecfile.Zones[0].IEnd = 50;
+	tecfile.Zones[0].Begin[0] = 49;
+	tecfile.Zones[0].End[0] = 50;
 	
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].JMax = NJ;
+	tecfile.Zones[0].Max[1] = NJ;
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].JSkip = 2;
+	tecfile.Zones[0].Skip[1] = 2;
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].JBegin = 10;
-	tecfile.Zones[0].JEnd = 10;
+	tecfile.Zones[0].Begin[1] = 10;
+	tecfile.Zones[0].End[1] = 10;
 
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].KMax = 1;
+	tecfile.Zones[0].Max[2] = 1;
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].KSkip = 1;
+	tecfile.Zones[0].Skip[2] = 1;
 	get_size(tecfile, log); log << endl;
-	tecfile.Zones[0].KBegin = 0;
-	tecfile.Zones[0].KEnd = 0;
+	tecfile.Zones[0].Begin[2] = 0;
+	tecfile.Zones[0].End[2] = 0;
 
 	get_size(tecfile, log); log << endl;
 	

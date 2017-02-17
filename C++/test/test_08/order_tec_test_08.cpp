@@ -16,7 +16,7 @@ void write_plt(ORDERED_TEC::TEC_FILE & tecfile, ostream &log)
 		istringstream tr(tecfile.get_log("usingtime"));
 		tr >> ut;
 		log << "speed: " 
-			<< (tecfile.Zones[0].get_real_size(0)*tecfile.Zones[0].get_real_size(1)*tecfile.Zones[0].get_real_size(2)) / ut 
+			<< (tecfile.Zones[0].get_real_size()[0]*tecfile.Zones[0].get_real_size()[1]*tecfile.Zones[0].get_real_size()[2]) / ut 
 			<< " N/s"
 			<< endl;
 	}
@@ -57,8 +57,8 @@ int main(int argc, char **argv)
 	tecfile.Variables.push_back("y");
 	tecfile.Variables.push_back("z");
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("test_08"));
-	tecfile.Zones[0].IMax = NI;
-	tecfile.Zones[0].JMax = NJ;
+	tecfile.Zones[0].Max[0] = NI;
+	tecfile.Zones[0].Max[1] = NJ;
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
@@ -68,18 +68,18 @@ int main(int argc, char **argv)
 
 	write_plt(tecfile,log);
 
-	tecfile.Zones[0].JBegin = 200;
-	tecfile.Zones[0].JEnd = 200;
+	tecfile.Zones[0].Begin[1] = 200;
+	tecfile.Zones[0].End[1] = 200;
 	write_plt(tecfile, log);
 
-	tecfile.Zones[0].IBegin = 100;
-	tecfile.Zones[0].IEnd = 100;
+	tecfile.Zones[0].Begin[0] = 100;
+	tecfile.Zones[0].End[0] = 100;
 	write_plt(tecfile, log);
 
-	tecfile.Zones[0].JSkip = 3;
+	tecfile.Zones[0].Skip[1] = 3;
 	write_plt(tecfile, log);
 
-	tecfile.Zones[0].ISkip = 3;
+	tecfile.Zones[0].Skip[0] = 3;
 	write_plt(tecfile, log);
 
 	log.close();
