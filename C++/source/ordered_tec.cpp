@@ -10,28 +10,28 @@
 # include <cstdio>
 # include <ctime>
 
-# define S_INT32 4
-# define TEC_FLOAT_S32 4
-# define TEC_FLOAT_S64 8
+# define TEC_INT32_S 4
+# define TEC_FLOAT32_S 4
+# define TEC_FLOAT64_S 8
 
 using namespace ORDERED_TEC;
 
 void W_INT32(const INT32 &a, FILE *f)
 {
 	INT32 t = a;
-	fwrite(&t, S_INT32, 1, f);
+	fwrite(&t, TEC_INT32_S, 1, f);
 }
 
 void W_FLOAT32(const FLOAT32 &a, FILE *f)
 {
 	FLOAT32 t = a;
-	fwrite(&t, TEC_FLOAT_S32, 1, f);
+	fwrite(&t, TEC_FLOAT32_S, 1, f);
 }
 
 void W_FLOAT64(const FLOAT64 &a, FILE *f)
 {
 	FLOAT64 t = a;
-	fwrite(&t, TEC_FLOAT_S64, 1, f);
+	fwrite(&t, TEC_FLOAT64_S, 1, f);
 }
 
 void W_STRING(const std::string &a, FILE *f)
