@@ -53,7 +53,7 @@ namespace ORDERED_TEC
 		int Xml_Depth;
 		bool Xml_WriteFile;
 		FILE * Xml_File;
-	protected:
+
 		std::string Json_Text;
 		std::string Xml_Text;
 		std::string Time;
@@ -67,8 +67,6 @@ namespace ORDERED_TEC
 		void set_echo_mode(std::string file, std::string zone);
 
 		void write_plt(std::ostream &echo = std::cout);
-
-		std::string get_log(std::string type) const;
 	protected:
 		void echo_mode(std::string echo = "brief");
 
@@ -141,9 +139,10 @@ namespace ORDERED_TEC
 		const void * DataP;
 		TEC_TYPE type;
 		size_t size;
+
+		long int file_pt;
 	protected:
 		byte * buf;
-		longint file_pt;
 	public:
 		DATA_P();
 		template<typename T> explicit DATA_P(T * iDataP);
@@ -180,7 +179,7 @@ template<typename T> ORDERED_TEC::DATA_P::DATA_P(T * iDataP)
 	else
 	{
 		char err[100];
-		sprintf(err,"type [%s]*%zi is unsupported in Tecplot", typeid(T).name(),sizeof(T));
+		std::sprintf(err,"type [%s]*%zi is unsupported in Tecplot", typeid(T).name(),sizeof(T));
 		throw(std::runtime_error(err));
 	}
 	DataP = iDataP;

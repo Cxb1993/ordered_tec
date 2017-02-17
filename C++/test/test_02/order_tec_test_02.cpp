@@ -73,18 +73,10 @@ int main(int argc,char **argv)
 
 	system("pause");
 	cout << endl;
-	cout << tecfile.get_log("xml") << endl;
-	cout << tecfile.get_log("json") << endl;
-	cout << tecfile.get_log("time") << endl;
-	cout << tecfile.get_log("usingtime") << endl;
-	try
-	{
-		cout << tecfile.get_log("wrong code") << endl;
-	}
-	catch (std::runtime_error err)
-	{
-		cerr << "runtime_error: " << err.what() << endl;
-	}
+	cout << tecfile.Xml_Text << endl;
+	cout << tecfile.Json_Text << endl;
+	cout << tecfile.Time << endl;
+	cout << tecfile.UsingTime << endl;
 
 	delete [] x;
 	delete [] y;

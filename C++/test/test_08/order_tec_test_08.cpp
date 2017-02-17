@@ -12,11 +12,10 @@ void write_plt(ORDERED_TEC::TEC_FILE & tecfile, ostream &log)
 	try
 	{
 		tecfile.write_plt(log);
-		double ut;
-		istringstream tr(tecfile.get_log("usingtime"));
-		tr >> ut;
 		log << "speed: " 
-			<< (tecfile.Zones[0].get_real_size()[0]*tecfile.Zones[0].get_real_size()[1]*tecfile.Zones[0].get_real_size()[2]) / ut 
+			<< (tecfile.Zones[0].get_real_size()[0]
+				*tecfile.Zones[0].get_real_size()[1]
+				*tecfile.Zones[0].get_real_size()[2]) / tecfile.UsingTime 
 			<< " N/s"
 			<< endl;
 	}
