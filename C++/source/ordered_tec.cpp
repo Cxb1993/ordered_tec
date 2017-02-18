@@ -80,8 +80,8 @@ bool TEC_FILE::add_auxiliary_data(std::string name,std::string value)
 
 bool TEC_FILE::add_auxiliary_data(std::string name,double value)
 {
-	std::stringstream ss;
-	ss<<value;
+	std::ostringstream ss;
+	ss << value;
 	return add_auxiliary_data(name,ss.str());
 }
 
@@ -974,6 +974,7 @@ DATA_P::DATA_P()
 	type = TEC_NULL;
 	size = 0;
 	buf = NULL;
+	file_pt = 0;
 }
 
 template<typename T>

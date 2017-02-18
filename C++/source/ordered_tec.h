@@ -7,6 +7,7 @@
 # include <stdexcept>
 # include <bitset>
 # include <iostream>
+# include <sstream>
 # include <typeinfo>
 # include <cstdio>
 
@@ -103,7 +104,7 @@ namespace ORDERED_TEC
 		bool noskip, noexc;
 		bool needreal;
 	public:
-		TEC_ZONE(std::string name = "untitled_zone");
+		explicit TEC_ZONE(std::string name = "untitled_zone");
 		const INT32 * get_real_size(std::string name = "realmax");
 		bool add_auxiliary_data(std::string name, std::string value);
 		bool add_auxiliary_data(std::string name, double value);
@@ -178,9 +179,9 @@ template<typename T> ORDERED_TEC::DATA_P::DATA_P(T * iDataP)
 	}
 	else
 	{
-		char err[100];
-		std::sprintf(err,"type [%s]*%zi is unsupported in Tecplot", typeid(T).name(),sizeof(T));
-		throw(std::runtime_error(err));
+		std::ostringstream err;
+		err << "type [" << typeid(T).name() << "]*" << sizeof(T) << " is unsupported in Tecplot";
+		throw(std::runtime_error(err.str()));
 	}
 	DataP = iDataP;
 	buf = NULL;
