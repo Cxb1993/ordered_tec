@@ -19,7 +19,7 @@ for varnum = 1:datas.getLength
 end
 clear xmlfile zone datas 
 %%
-fid = fopen('simple_test.plt','rb');
+fid = fopen('test_01.plt','rb');
 try
     for k = 1:varnum
         fseek(fid,file_pt(k),'bof');

@@ -46,9 +46,14 @@ void W_STRING(const std::string &a, FILE *f)
 std::string get_time(const std::string &format = "%Y%m%dT%H%M%S")
 {
 	time_t time_c = std::time(NULL);
-	struct tm *tm_c = std::localtime(&time_c);
+	struct tm tm_c;
+# ifdef __linux__
+	localtime_r(&time_c, &tm_c);
+# else
+	localtime_s(&tm_c, &time_c);
+# endif
 	char buf[100];
-	std::strftime(buf, 100, format.c_str(), tm_c);
+	std::strftime(buf, 100, format.c_str(), &tm_c);
 	return buf;
 }
 
@@ -148,7 +153,8 @@ void TEC_FILE::write_plt(std::ostream &echo)
 
 	if (Echo_Mode.test(4))
 	{
-		double s_f = double(ftell(of)) / 1024 / 1024;
+		long int pos = std::ftell(of);
+		double s_f = double(pos) / 1024 / 1024;
 		char buf[100];
 		std::sprintf(buf, "     file size: %.1lfMB", s_f);
 		echo << buf << std::endl;
@@ -742,7 +748,11 @@ void TEC_ZONE::write_plt_zonehead(FILE *of) const
 
 void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostream &echo)
 {
-	longint pos = ftell(of);
+	long int pos_b, pos_e;
+	if (Echo_Mode.test(8))
+	{
+		pos_b = std::ftell(of);
+	}
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
 	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
@@ -833,7 +843,8 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 
 	if (Echo_Mode.test(8))
 	{
-		double s_z = double(ftell(of) - pos) / 1024 / 1024;
+		pos_e = std::ftell(of);
+		double s_z = double(pos_e - pos_b) / 1024 / 1024;
 		char buf[100];
 		std::sprintf(buf, "     zone size: %.1lfMB", s_z);
 		echo << buf << std::endl;
@@ -859,13 +870,13 @@ void TEC_ZONE::log_json_zone(std::string &Json_Text, int Json_Depth) const
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	std::sprintf(buf, "\"Real_Dim\" : %i ,\n", Real_Dim); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	std::sprintf(buf, "\"Org_Max\" : [ %zi, %zi, %zi ] ,\n", Max[0], Max[1], Max[2]); Json_Text += buf;
+	std::sprintf(buf, "\"Org_Max\" : [ %zu, %zu, %zu ] ,\n", Max[0], Max[1], Max[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	std::sprintf(buf, "\"Skip\" : [ %zi, %zi, %zi ] ,\n", Skip[0], Skip[1], Skip[2]); Json_Text += buf;
+	std::sprintf(buf, "\"Skip\" : [ %zu, %zu, %zu ] ,\n", Skip[0], Skip[1], Skip[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	std::sprintf(buf, "\"Begin\" : [ %zi, %zi, %zi ] ,\n", Begin[0], Begin[1], Begin[2]); Json_Text += buf;
+	std::sprintf(buf, "\"Begin\" : [ %zu, %zu, %zu ] ,\n", Begin[0], Begin[1], Begin[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
-	std::sprintf(buf, "\"End\" : [ %zi, %zi, %zi ] ,\n", End[0], End[1], End[2]); Json_Text += buf;
+	std::sprintf(buf, "\"End\" : [ %zu, %zu, %zu ] ,\n", End[0], End[1], End[2]); Json_Text += buf;
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	std::sprintf(buf, "\"Real_Max\" : [ %i, %i, %i ] ,\n", Real_Max[0], Real_Max[1], Real_Max[2]); Json_Text += buf;
 
@@ -929,13 +940,13 @@ void TEC_ZONE::log_xml_zone(std::string &Xml_Text, int Xml_Depth) const
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	std::sprintf(buf, "<Real_Dim>%i</Real_Dim>\n", Real_Dim); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Org_Max I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", Max[0], Max[1], Max[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Org_Max I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", Max[0], Max[1], Max[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Skip I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", Skip[0], Skip[1], Skip[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Skip I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", Skip[0], Skip[1], Skip[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Begin I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", Begin[0], Begin[1], Begin[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Begin I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", Begin[0], Begin[1], Begin[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<End I=\"%zi\" J=\"%zi\" K=\"%zi\"/>\n", End[0], End[1], End[2]); Xml_Text += buf;
+	std::sprintf(buf, "<End I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", End[0], End[1], End[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	std::sprintf(buf, "<Real_Max I=\"%i\" J=\"%i\" K=\"%i\"/>\n", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text += buf;
 
