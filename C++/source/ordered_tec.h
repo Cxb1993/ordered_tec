@@ -60,16 +60,16 @@ namespace ORDERED_TEC
 		std::string Time;
 		double UsingTime;
 	public:
-		TEC_FILE(std::string name = "untitled_file", std::string path = ".", std::string title = "untitled");
+		TEC_FILE(const std::string &name = "untitled_file", const std::string &path = ".", const std::string &title = "untitled");
 
-		bool add_auxiliary_data(std::string name, std::string value);
-		bool add_auxiliary_data(std::string name, double value);
+		bool add_auxiliary_data(const std::string &name, const std::string &value);
+		bool add_auxiliary_data(const std::string &name, const double &value);
 
-		void set_echo_mode(std::string file, std::string zone);
+		void set_echo_mode(const std::string &file, const std::string &zone);
 
 		void write_plt(std::ostream &echo = std::cout);
 	protected:
-		void echo_mode(std::string echo = "brief");
+		void echo_mode(const std::string &echo = "brief");
 
 		void wrtie_plt_pre();
 		void write_plt_filehead(FILE *of, std::ostream &echo = std::cout);
@@ -104,12 +104,12 @@ namespace ORDERED_TEC
 		bool noskip, noexc;
 		bool needreal;
 	public:
-		explicit TEC_ZONE(std::string name = "untitled_zone");
-		const INT32 * get_real_size(std::string name = "realmax");
-		bool add_auxiliary_data(std::string name, std::string value);
-		bool add_auxiliary_data(std::string name, double value);
+		explicit TEC_ZONE(const std::string &name = "untitled_zone");
+		const INT32 * get_real_size(const std::string &name = "realmax");
+		bool add_auxiliary_data(const std::string &name, const std::string &value);
+		bool add_auxiliary_data(const std::string &name, const double &value);
 	protected:
-		void echo_mode(std::string echo = "brief");
+		void echo_mode(const std::string &echo = "brief");
 
 		void gather_real_size();
 		void make_buf();

@@ -43,7 +43,7 @@ void W_STRING(const std::string &a, FILE *f)
 	W_INT32(0, f);
 }
 
-std::string get_time(std::string format = "%Y%m%dT%H%M%S")
+std::string get_time(const std::string &format = "%Y%m%dT%H%M%S")
 {
 	time_t time_c = std::time(NULL);
 	struct tm *tm_c = std::localtime(&time_c);
@@ -52,7 +52,7 @@ std::string get_time(std::string format = "%Y%m%dT%H%M%S")
 	return buf;
 }
 
-TEC_FILE::TEC_FILE(std::string name, std::string path, std::string title)
+TEC_FILE::TEC_FILE(const std::string &name, const std::string &path, const std::string &title)
 {
 	FilePath = path;
 	FileName = name;
@@ -70,7 +70,7 @@ TEC_FILE::TEC_FILE(std::string name, std::string path, std::string title)
 	Xml_File = NULL;
 }
 
-bool TEC_FILE::add_auxiliary_data(std::string name,std::string value)
+bool TEC_FILE::add_auxiliary_data(const std::string &name,const std::string &value)
 {
 	std::pair<std::map<std::string,std::string>::iterator,bool> ans;
 	std::pair<std::string,std::string> temp(name,value);
@@ -78,14 +78,14 @@ bool TEC_FILE::add_auxiliary_data(std::string name,std::string value)
 	return ans.second;
 }
 
-bool TEC_FILE::add_auxiliary_data(std::string name,double value)
+bool TEC_FILE::add_auxiliary_data(const std::string &name,const double &value)
 {
 	std::ostringstream ss;
 	ss << value;
 	return add_auxiliary_data(name,ss.str());
 }
 
-void TEC_FILE::set_echo_mode(std::string file, std::string zone)
+void TEC_FILE::set_echo_mode(const std::string &file, const std::string &zone)
 {
 	if (file.compare("leave") != 0)
 	{
@@ -183,27 +183,28 @@ void TEC_FILE::write_plt(std::ostream &echo)
 	std::ios::sync_with_stdio(true);
 }
 
-void TEC_FILE::echo_mode(std::string iecho)
+void TEC_FILE::echo_mode(const std::string &iecho)
 {
-	if (iecho.compare("brief")==0)
+	std::string e_m = iecho;
+	if (e_m.compare("brief")==0)
 	{
-		iecho = "0100111";
+		e_m = "0100111";
 	}
 	else if (iecho.compare("full")==0)
 	{
-		iecho = "1111111";
+		e_m = "1111111";
 	}
 	else if (iecho.compare("simple")==0)
 	{
-		iecho = "0100001";
+		e_m = "0100001";
 	}
 	else if (iecho.compare("none")==0)
 	{
-		iecho = "0000000";
+		e_m = "0000000";
 	}
 	try
 	{
-		Echo_Mode = std::bitset<7>(iecho);
+		Echo_Mode = std::bitset<7>(e_m);
 	}
 	catch (...)
 	{
@@ -227,7 +228,7 @@ void TEC_FILE::wrtie_plt_pre()
 		{
 			i->wrtie_plt_pre_zone(*this);
 		}
-		catch (std::runtime_error err)
+		catch (std::runtime_error &err)
 		{
 			throw std::runtime_error("File(" + FileName + ")." + err.what());
 		}
@@ -488,7 +489,7 @@ void TEC_FILE::write_log()
 	}
 }
 
-TEC_ZONE::TEC_ZONE(std::string name)
+TEC_ZONE::TEC_ZONE(const std::string &name)
 {
 	ZoneName = name;
 	StrandId = -1;
@@ -511,7 +512,7 @@ TEC_ZONE::TEC_ZONE(std::string name)
 	echo_mode();
 }
 
-const INT32 * TEC_ZONE::get_real_size(std::string name)
+const INT32 * TEC_ZONE::get_real_size(const std::string &name)
 {
 	gather_real_size();
 	if (name.compare("realmax") == 0)
@@ -528,7 +529,7 @@ const INT32 * TEC_ZONE::get_real_size(std::string name)
 	}
 }
 
-bool TEC_ZONE::add_auxiliary_data(std::string name,std::string value)
+bool TEC_ZONE::add_auxiliary_data(const std::string &name, const std::string &value)
 {
 	std::pair<std::map<std::string,std::string>::iterator,bool> ans;
 	std::pair<std::string,std::string> temp(name,value);
@@ -536,34 +537,35 @@ bool TEC_ZONE::add_auxiliary_data(std::string name,std::string value)
 	return ans.second;
 }
 
-bool TEC_ZONE::add_auxiliary_data(std::string name,double value)
+bool TEC_ZONE::add_auxiliary_data(const std::string &name, const double &value)
 {
 	std::stringstream ss;
 	ss<<value;
 	return add_auxiliary_data(name,ss.str());
 }
 
-void TEC_ZONE::echo_mode(std::string iecho)
+void TEC_ZONE::echo_mode(const std::string &iecho)
 {
-	if (iecho.compare("brief")==0)
+	std::string e_m = iecho;
+	if (e_m.compare("brief")==0)
 	{
-		iecho = "000001001";
+		e_m = "000001001";
 	}
-	else if (iecho.compare("full")==0)
+	else if (e_m.compare("full")==0)
 	{
-		iecho = "111111111";
+		e_m = "111111111";
 	}
-	else if (iecho.compare("simple")==0)
+	else if (e_m.compare("simple")==0)
 	{
-		iecho = "000000001";
+		e_m = "000000001";
 	}
-	else if (iecho.compare("none")==0)
+	else if (e_m.compare("none")==0)
 	{
-		iecho = "000000000";
+		e_m = "000000000";
 	}
 	try
 	{
-		Echo_Mode = std::bitset<9>(iecho);
+		Echo_Mode = std::bitset<9>(e_m);
 	}
 	catch (...)
 	{
