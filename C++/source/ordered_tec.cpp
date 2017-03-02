@@ -403,12 +403,12 @@ void TEC_FILE::log_xml()
 	std::sprintf(buf, "<FileType>%i</FileType>\n", FileType); Xml_Text += buf;
 
 	for (int ii = 0; ii != Xml_Depth + 1; ++ii) { Xml_Text += '\t'; }
-	Xml_Text += "<Variables";
+	Xml_Text += "<Variables>";
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
-		std::sprintf(buf, " V%zi=\"%s\"", i - Variables.begin() + 1, i->c_str()); Xml_Text += buf;
+		std::sprintf(buf, " <I>%s</I>", i->c_str()); Xml_Text += buf;
 	}
-	Xml_Text += "/>\n";
+	Xml_Text += " </Variables>\n";
 
 	if (Auxiliary.size() != 0)
 	{
@@ -792,7 +792,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 	if (Echo_Mode.test(5))
 	{
 		echo << "     Skip = [";
-		for (int dd = 0; dd != Real_Dim; ++dd)
+		for (int dd = 0; dd != 3; ++dd)
 		{
 			echo << " " << Skip[dd];
 		}
@@ -801,14 +801,14 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 	if (Echo_Mode.test(6))
 	{
 		echo << "     Begin = [";
-		for (int dd = 0; dd != Real_Dim; ++dd)
+		for (int dd = 0; dd != 3; ++dd)
 		{
 			echo << " " << Begin[dd];
 		}
 		echo << " ]";
 
 		echo << " End = [";
-		for (int dd = 0; dd != Real_Dim; ++dd)
+		for (int dd = 0; dd != 3; ++dd)
 		{
 			echo << " " << End[dd];
 		}
@@ -940,15 +940,15 @@ void TEC_ZONE::log_xml_zone(std::string &Xml_Text, int Xml_Depth) const
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	std::sprintf(buf, "<Real_Dim>%i</Real_Dim>\n", Real_Dim); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Org_Max I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", Max[0], Max[1], Max[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Org_Max> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Org_Max>\n", Max[0], Max[1], Max[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Skip I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", Skip[0], Skip[1], Skip[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Skip> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Skip>\n", Skip[0], Skip[1], Skip[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Begin I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", Begin[0], Begin[1], Begin[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Begin> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Begin>\n", Begin[0], Begin[1], Begin[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<End I=\"%zu\" J=\"%zu\" K=\"%zu\"/>\n", End[0], End[1], End[2]); Xml_Text += buf;
+	std::sprintf(buf, "<End> <I>%zu</I> <I>%zu</I> <I>%zu</I> </End>\n", End[0], End[1], End[2]); Xml_Text += buf;
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
-	std::sprintf(buf, "<Real_Max I=\"%i\" J=\"%i\" K=\"%i\"/>\n", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text += buf;
+	std::sprintf(buf, "<Real_Max> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Real_Max>\n", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text += buf;
 
 	if (Auxiliary.size() != 0)
 	{
