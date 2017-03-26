@@ -56,15 +56,15 @@ int main(int argc, char **argv)
 	tecfile.Zones[0].Max[0] = NI;
 	tecfile.Zones[0].Max[1] = NJ;
 	write(tecfile, log); log << endl;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(y));
 	write(tecfile, log); log << endl;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(z));
 	tecfile.Zones.push_back(tecfile.Zones[0]);
 	tecfile.Zones[1].ZoneName = "B";
-	tecfile.Zones[1].Data[2] = ORDERED_TEC::DATA_P();
+	tecfile.Zones[1].Data[2] = ORDERED_TEC::TEC_DATA();
 	write(tecfile, log); log << endl;
-	tecfile.Zones[1].Data[2] = ORDERED_TEC::DATA_P(w);
+	tecfile.Zones[1].Data[2] = ORDERED_TEC::TEC_DATA(w);
 	write(tecfile, log); log << endl;
 
 	log.close();

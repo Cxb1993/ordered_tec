@@ -9,5 +9,6 @@
 - [x] change log stream
 - [x] profile interface
 - [x] append time information
-- [ ] more test
+- [x] more test
+- [ ] log system
 - [ ] complete comment and document

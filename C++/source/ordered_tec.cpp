@@ -621,7 +621,7 @@ void TEC_ZONE::make_buf()
 {
 	if(noskip && noexc)
 	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
+		for(std::vector<TEC_DATA>::iterator i=Data.begin();i!=Data.end();++i)
 		{
 			i->buf=(byte *)i->DataP;
 		}
@@ -629,7 +629,7 @@ void TEC_ZONE::make_buf()
 	}
 	else if(noskip)
 	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
+		for(std::vector<TEC_DATA>::iterator i=Data.begin();i!=Data.end();++i)
 		{
 			size_t size=i->size;
 			byte * datap=(byte *)i->DataP;
@@ -654,7 +654,7 @@ void TEC_ZONE::make_buf()
 	}
 	else
 	{
-		for(std::vector<DATA_P>::iterator i=Data.begin();i!=Data.end();++i)
+		for(std::vector<TEC_DATA>::iterator i=Data.begin();i!=Data.end();++i)
 		{
 			size_t size=i->size;
 			byte * datap=(byte *)i->DataP;
@@ -686,7 +686,7 @@ void TEC_ZONE::realise_buf()
 {
 	if (needreal)
 	{
-		for (std::vector<DATA_P>::iterator i = Data.begin(); i != Data.end(); ++i)
+		for (std::vector<TEC_DATA>::iterator i = Data.begin(); i != Data.end(); ++i)
 		{
 			delete[] i->buf;
 		}
@@ -694,7 +694,7 @@ void TEC_ZONE::realise_buf()
 	}
 	else
 	{
-		for (std::vector<DATA_P>::iterator i = Data.begin(); i != Data.end(); ++i)
+		for (std::vector<TEC_DATA>::iterator i = Data.begin(); i != Data.end(); ++i)
 		{
 			i->buf = NULL;
 		}
@@ -712,7 +712,7 @@ void TEC_ZONE::wrtie_plt_pre_zone(const TEC_FILE &thisfile)
 	{
 		throw std::runtime_error("Zone(" + ZoneName + "): the size of Data is not equal to the size of tec_file.Variables");
 	}
-	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
+	for (std::vector<TEC_DATA>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
 		if (i->DataP == NULL || i->type == 0 || i->size == 0)
 		{
@@ -754,7 +754,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 		pos_b = std::ftell(of);
 	}
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
-	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
+	for (std::vector<TEC_DATA>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		W_INT32(j->type, of);//Variable data format
 	}
@@ -764,7 +764,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 
 	make_buf();
 
-	for (std::vector<DATA_P>::const_iterator j = Data.begin(); j != Data.end(); ++j)
+	for (std::vector<TEC_DATA>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		std::pair<FLOAT64, FLOAT64> mm = j->minmax(Real_Max[0]*Real_Max[1]*Real_Max[2]);
 		W_FLOAT64(mm.first, of);//Min value
@@ -825,7 +825,7 @@ void TEC_ZONE::write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostre
 	{
 		echo << "     write variables: ";
 	}
-	for (std::vector<DATA_P>::iterator j = Data.begin(); j != Data.end(); ++j)
+	for (std::vector<TEC_DATA>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
 		j->file_pt = std::ftell(of);
 		fwrite((const byte*)(j->buf), j->size, Real_Max[0]*Real_Max[1]*Real_Max[2], of);//Zone Data. Each variable is in data format as specified above
@@ -904,7 +904,7 @@ void TEC_ZONE::log_json_zone(std::string &Json_Text, int Json_Depth) const
 	Json_Text += "\"Data_type_comment\" : \"1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit\" ,\n";
 	for (int ii = 0; ii != Json_Depth + 3; ++ii) { Json_Text += '\t'; }
 	Json_Text += "\"Data\" : [\n";
-	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
+	for (std::vector<TEC_DATA>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
 		for (int ii = 0; ii != Json_Depth + 4; ++ii) { Json_Text += '\t'; }
 		std::sprintf(buf, "{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li }", i->type, i->size, i->file_pt); Json_Text += buf;
@@ -968,7 +968,7 @@ void TEC_ZONE::log_xml_zone(std::string &Xml_Text, int Xml_Depth) const
 	Xml_Text += "<!--1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit-->\n";
 	for (int ii = 0; ii != Xml_Depth + 3; ++ii) { Xml_Text += '\t'; }
 	Xml_Text += "<Datas>\n";
-	for (std::vector<DATA_P>::const_iterator i = Data.begin(); i != Data.end(); ++i)
+	for (std::vector<TEC_DATA>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
 		for (int ii = 0; ii != Xml_Depth + 4; ++ii) { Xml_Text += '\t'; }
 		std::sprintf(buf, "<Data type=\"%i\" size_i=\"%zi\" file_pt=\"%li\"/>\n", i->type, i->size, i->file_pt);
@@ -981,7 +981,7 @@ void TEC_ZONE::log_xml_zone(std::string &Xml_Text, int Xml_Depth) const
 	Xml_Text += "</Zone>";
 }
 
-DATA_P::DATA_P()
+TEC_DATA::TEC_DATA()
 {
 	DataP = NULL;
 	type = TEC_NULL;
@@ -1039,12 +1039,12 @@ void get_minmax(const T *data, size_t N, T &min, T &max)
 	}
 }
 
-std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
+std::pair<FLOAT64, FLOAT64> TEC_DATA::minmax(size_t N) const
 {
 	std::pair<FLOAT64, FLOAT64> ans;
 	switch (type)
 	{
-	case DATA_P::TEC_FLOAT:
+	case TEC_DATA::TEC_FLOAT:
 	{
 		FLOAT32 min, max;
 		FLOAT32 *data = (FLOAT32 *)buf;
@@ -1053,7 +1053,7 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 		ans.second = max;
 		break;
 	}
-	case DATA_P::TEC_DOUBLE:
+	case TEC_DATA::TEC_DOUBLE:
 	{
 		FLOAT64 min, max;
 		FLOAT64 *data = (FLOAT64 *)buf;
@@ -1062,7 +1062,7 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 		ans.second = max;
 		break;
 	}
-	case DATA_P::TEC_LONGINT:
+	case TEC_DATA::TEC_LONGINT:
 	{
 		longint min, max;
 		longint *data = (longint *)buf;
@@ -1071,7 +1071,7 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 		ans.second = max;
 		break;
 	}
-	case DATA_P::TEC_SHORTINT:
+	case TEC_DATA::TEC_SHORTINT:
 	{
 		shortint min, max;
 		shortint *data = (shortint *)buf;
@@ -1080,7 +1080,7 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 		ans.second = max;
 		break;
 	}
-	case DATA_P::TEC_BYTE:
+	case TEC_DATA::TEC_BYTE:
 	{
 		byte min, max;
 		byte *data = (byte *)buf;
@@ -1095,4 +1095,23 @@ std::pair<FLOAT64, FLOAT64> DATA_P::minmax(size_t N) const
 	}
 	}
 	return ans;
+}
+
+TEC_FILE_LOG::TEC_FILE_LOG() {}
+
+TEC_FILE_LOG::TEC_FILE_LOG(const TEC_FILE & file) : TEC_FILE_BASE(file)
+{
+
+}
+
+TEC_ZONE_LOG::TEC_ZONE_LOG() {}
+
+TEC_ZONE_LOG::TEC_ZONE_LOG(const TEC_ZONE & zone) : TEC_ZONE_BASE(zone)
+{
+}
+
+TEC_DATA_LOG::TEC_DATA_LOG() {}
+
+TEC_DATA_LOG::TEC_DATA_LOG(const TEC_DATA & data) : TEC_DATA_BASE(data)
+{
 }

@@ -18,7 +18,7 @@ void set_data(T *data, ORDERED_TEC::TEC_FILE &tecfile)
 	tecfile.Zones.push_back(tecfile.Zones[0]);
 	try
 	{
-		(tecfile.Zones.end() - 1)->Data.push_back(ORDERED_TEC::DATA_P(data));
+		(tecfile.Zones.end() - 1)->Data.push_back(ORDERED_TEC::TEC_DATA(data));
 	}
 	catch (std::runtime_error err)
 	{
@@ -71,8 +71,8 @@ int main(int argc, char **argv)
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("test_09"));
 	tecfile.Zones[0].Max[0] = NI;
 	tecfile.Zones[0].Max[1] = NJ;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(y));
 
 	cout << "signed char" << endl;
 	set_data(p_byte, tecfile);
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(&NI));
+		tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(&NI));
 	}
 	catch (std::runtime_error err)
 	{

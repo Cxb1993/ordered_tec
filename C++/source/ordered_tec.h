@@ -27,11 +27,17 @@ namespace ORDERED_TEC
 	const size_t TEC_SHORTINT_S = 2;
 	const size_t TEC_BYTE_S = 1;
 
+	class TEC_FILE_BASE;
+	class TEC_ZONE_BASE;
+	class TEC_DATA_BASE;
 	class TEC_FILE;
-	class DATA_P;
 	class TEC_ZONE;
+	class TEC_DATA;
+	class TEC_FILE_LOG;
+	class TEC_ZONE_LOG;
+	class TEC_DATA_LOG;
 
-	class TEC_FILE
+	class TEC_FILE_BASE
 	{
 	public:
 		std::string FilePath;
@@ -39,10 +45,47 @@ namespace ORDERED_TEC
 		std::string Title;
 		std::vector<std::string> Variables;
 		INT32 FileType;
-
-		std::vector<TEC_ZONE> Zones;
-
 		std::map<std::string, std::string> Auxiliary;
+	};
+
+	class TEC_ZONE_BASE
+	{
+	public:
+		std::string ZoneName;
+		INT32 StrandId;
+		FLOAT64 SolutionTime;
+		size_t Max[3];
+		INT32 Dim;
+		size_t Skip[3];
+		size_t Begin[3];
+		size_t End[3];
+		INT32 Real_Max[3];
+		INT32 Real_Dim;
+		bool noskip, noexc;
+		std::map<std::string, std::string> Auxiliary;
+	};
+
+	class TEC_DATA_BASE
+	{
+	public:
+		enum TEC_TYPE {
+			TEC_NULL,
+			TEC_FLOAT = 1,
+			TEC_DOUBLE,
+			TEC_LONGINT,
+			TEC_SHORTINT,
+			TEC_BYTE
+		};
+	public:
+		TEC_TYPE type;
+		size_t size;
+		long int file_pt;
+	};
+
+	class TEC_FILE : public TEC_FILE_BASE
+	{
+	public:
+		std::vector<TEC_ZONE> Zones;
 
 		//usingtime, time, size, section, variable, file_end, file_head
 		std::bitset<7> Echo_Mode;
@@ -80,21 +123,10 @@ namespace ORDERED_TEC
 		void write_log();
 	};
 
-	class TEC_ZONE
+	class TEC_ZONE : public TEC_ZONE_BASE
 	{
 	public:
-		std::string ZoneName;
-
-		INT32 StrandId;
-		FLOAT64 SolutionTime;
-
-		size_t Max[3];
-		std::vector<DATA_P> Data;
-		size_t Skip[3];
-		size_t Begin[3];
-		size_t End[3];
-
-		std::map<std::string, std::string> Auxiliary;
+		std::vector<TEC_DATA> Data;
 
 		//size, stdid & soltime, begin & end, skip, max_org, max_real, variable, zone_end, zone_head
 		std::bitset<9> Echo_Mode;
@@ -125,57 +157,82 @@ namespace ORDERED_TEC
 		friend class TEC_FILE;
 	};
 
-	class DATA_P
+	class TEC_DATA : public TEC_DATA_BASE
 	{
 	public:
-		enum TEC_TYPE {
-			TEC_NULL,
-			TEC_FLOAT = 1,
-			TEC_DOUBLE,
-			TEC_LONGINT,
-			TEC_SHORTINT,
-			TEC_BYTE
-		};
-	public:
 		const void * DataP;
-		TEC_TYPE type;
-		size_t size;
-
-		long int file_pt;
 	protected:
 		byte * buf;
 	public:
-		DATA_P();
-		template<typename T> explicit DATA_P(T * iDataP);
+		TEC_DATA();
+		template<typename T> explicit TEC_DATA(T * iDataP);
 
 	protected:
 		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
 
 		friend class TEC_ZONE;
 	};
+
+	class TEC_FILE_LOG : public TEC_FILE_BASE
+	{
+	public:
+		std::vector<TEC_ZONE_LOG> Zones;
+
+		std::string Time_Begin;
+		std::string Time_End;
+		double UsingTime;
+		double Size;
+		std::vector<std::string> Echo_Text;
+		std::vector<std::string> Json_Text;
+		std::vector<std::string> Xml_Text;
+	public:
+		TEC_FILE_LOG();
+		explicit TEC_FILE_LOG(const TEC_FILE &file);
+	};
+
+	class TEC_ZONE_LOG : public TEC_ZONE_BASE
+	{
+	public:
+		std::vector<TEC_DATA_LOG> Data;
+		
+		double Size;
+		std::vector<std::string> Echo_Text;
+		std::vector<std::string> Json_Text;
+		std::vector<std::string> Xml_Text;
+	public:
+		TEC_ZONE_LOG();
+		explicit TEC_ZONE_LOG(const TEC_ZONE &zone);
+	};
+
+	class TEC_DATA_LOG : public TEC_DATA_BASE
+	{
+	public:
+		TEC_DATA_LOG();
+		explicit TEC_DATA_LOG(const TEC_DATA &data);
+	};
 }
 
-template<typename T> ORDERED_TEC::DATA_P::DATA_P(T * iDataP)
+template<typename T> ORDERED_TEC::TEC_DATA::TEC_DATA(T * iDataP)
 {
 	if (typeid(iDataP) == typeid(float *))
 	{
-		type = DATA_P::TEC_FLOAT;
+		type = TEC_DATA::TEC_FLOAT;
 	}
 	else if (typeid(iDataP) == typeid(double *))
 	{
-		type = DATA_P::TEC_DOUBLE;
+		type = TEC_DATA::TEC_DOUBLE;
 	}
 	else if ((typeid(iDataP) == typeid(longint *) || typeid(iDataP) == typeid(int *)) && sizeof(T) == TEC_LONGINT_S)
 	{
-		type = DATA_P::TEC_LONGINT;
+		type = TEC_DATA::TEC_LONGINT;
 	}
 	else if ((typeid(iDataP) == typeid(shortint *) || typeid(iDataP) == typeid(int *)) && sizeof(T) == TEC_SHORTINT_S)
 	{
-		type = DATA_P::TEC_SHORTINT;
+		type = TEC_DATA::TEC_SHORTINT;
 	}
 	else if (typeid(iDataP) == typeid(byte *))
 	{
-		type = DATA_P::TEC_BYTE;
+		type = TEC_DATA::TEC_BYTE;
 	}
 	else
 	{

@@ -41,9 +41,9 @@ int main(int argc,char **argv)
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("A"));
 	tecfile.Zones[0].Max[0]=NI;
 	tecfile.Zones[0].Max[1]=NJ;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(z));
 	tecfile.Zones[0].add_auxiliary_data("Auxiliary1","Auxiliary_test_1");
 	tecfile.Zones[0].add_auxiliary_data("Auxiliary2",3.14);
 
@@ -55,7 +55,7 @@ int main(int argc,char **argv)
 	tecfile.Zones[1].Skip[0] = 2;
 	tecfile.Zones[1].Skip[1] = 4;
 	tecfile.Zones[1].ZoneName="B";
-	tecfile.Zones[1].Data[2]= ORDERED_TEC::DATA_P(w);
+	tecfile.Zones[1].Data[2]= ORDERED_TEC::TEC_DATA(w);
 	tecfile.Zones[1].Auxiliary.clear();
 	tecfile.Zones[1].add_auxiliary_data("Auxiliary3","Auxiliary_test_1_2");
 	tecfile.Zones[1].add_auxiliary_data("Auxiliary4",3.1415);

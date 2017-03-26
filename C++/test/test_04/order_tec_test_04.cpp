@@ -48,8 +48,8 @@ int main(int argc,char **argv)
 	tecfile.Zones.push_back(ORDERED_TEC::TEC_ZONE("grid"));
 	tecfile.Zones[0].Max[0]=NI;
 	tecfile.Zones[0].Max[1]=NJ;
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(x));
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(y));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(x));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(y));
 	tecfile.Zones[0].Skip[0]=10;
 	tecfile.Zones[0].Skip[1]=10;
 	tecfile.Zones[0].StrandId=-1;
@@ -69,7 +69,7 @@ int main(int argc,char **argv)
 	tecfile.Variables.clear();
 	tecfile.Variables.push_back("z");
 	tecfile.Zones[0].Data.clear();
-	tecfile.Zones[0].Data.push_back(ORDERED_TEC::DATA_P(z));
+	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(z));
 	tecfile.Zones[0].StrandId=0;
 	tecfile.set_echo_mode("simple", "none");
 	tecfile.Json_Depth = 1;
