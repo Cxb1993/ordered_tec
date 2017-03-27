@@ -7,6 +7,7 @@
 # include <stdexcept>
 # include <bitset>
 # include <iostream>
+# include <fstream>
 # include <sstream>
 # include <typeinfo>
 # include <cstdio>
@@ -79,11 +80,11 @@ namespace ORDERED_TEC
 	public:
 		TEC_TYPE type;
 		size_t size;
-		long int file_pt;
 	};
 
 	class TEC_FILE_LOG : public TEC_FILE_BASE
 	{
+		friend class TEC_FILE;
 	public:
 		std::vector<TEC_ZONE_LOG> Zones;
 
@@ -91,7 +92,7 @@ namespace ORDERED_TEC
 		std::string Time_End;
 		double UsingTime;
 		double Size;
-		std::vector<std::string> Error;
+		std::string Error;
 		std::vector<std::string> Echo_Text;
 		std::vector<std::string> Json_Text;
 		std::vector<std::string> Xml_Text;
@@ -99,12 +100,17 @@ namespace ORDERED_TEC
 		TEC_FILE_LOG();
 		explicit TEC_FILE_LOG(const TEC_FILE &file);
 
-		void write_json(int depth = 0, FILE *of = NULL);
-		void write_xml(int depth = 0, FILE *of = NULL);
+		void write_echo(std::ofstream &of = std::ofstream());
+		void write_json(int depth = 0, std::ofstream &of = std::ofstream());
+		void write_xml(int depth = 0, std::ofstream &of = std::ofstream());
+	protected:
+		void gen_json();
+		void gen_xml();
 	};
 
 	class TEC_ZONE_LOG : public TEC_ZONE_BASE
 	{
+		friend class TEC_FILE_LOG;
 	public:
 		std::vector<TEC_DATA_LOG> Data;
 
@@ -116,12 +122,18 @@ namespace ORDERED_TEC
 		TEC_ZONE_LOG();
 		explicit TEC_ZONE_LOG(const TEC_ZONE &zone);
 
-		void write_json(int depth = 0, FILE *of = NULL);
-		void write_xml(int depth = 0, FILE *of = NULL);
+		void write_echo(std::ofstream &of = std::ofstream());
+		void write_json(int depth = 0, std::ofstream &of = std::ofstream());
+		void write_xml(int depth = 0, std::ofstream &of = std::ofstream());
+	protected:
+		void gen_json();
+		void gen_xml();
 	};
 
 	class TEC_DATA_LOG : public TEC_DATA_BASE
 	{
+	public:
+		long int file_pt;
 	public:
 		TEC_DATA_LOG();
 		explicit TEC_DATA_LOG(const TEC_DATA &data);
@@ -144,20 +156,18 @@ namespace ORDERED_TEC
 
 		void set_echo_mode(const std::string &file, const std::string &zone);
 
-		void write_plt(std::ostream &echo = std::cout);
+		void write_plt(bool echo = true);
 	protected:
 		void echo_mode(const std::string &echo = "brief");
 
 		void wrtie_plt_pre();
-		void write_plt_filehead(FILE *of, std::ostream &echo = std::cout);
-		void write_plt_data(FILE *of, std::ostream &echo = std::cout);
-
-		void log_json();
-		void log_xml();
+		void write_plt_head(FILE *of, bool echo = true);
+		void write_plt_data(FILE *of, bool echo = true);
 	};
 
 	class TEC_ZONE : public TEC_ZONE_BASE
 	{
+		friend class TEC_FILE;
 	public:
 		std::vector<TEC_DATA> Data;
 
@@ -180,18 +190,14 @@ namespace ORDERED_TEC
 		void make_buf();
 		void realise_buf();
 
-		void wrtie_plt_pre_zone(const TEC_FILE &thisfile, TEC_ZONE_LOG &zone_log);
-		void write_plt_zonehead(FILE *of) const;
-		void write_plt_zonedata(FILE *of, const TEC_FILE &thisfile, std::ostream &echo = std::cout);
-
-		void log_json_zone(TEC_ZONE_LOG &zone_log) const;
-		void log_xml_zone(TEC_ZONE_LOG &zone_log) const;
-
-		friend class TEC_FILE;
+		void wrtie_plt_pre(const TEC_FILE &thisfile, TEC_ZONE_LOG &zone_log);
+		void write_plt_head(FILE *of) const;
+		void write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &zone_log, bool echo = true);
 	};
 
 	class TEC_DATA : public TEC_DATA_BASE
 	{
+		friend class TEC_ZONE;
 	public:
 		const void * DataP;
 	protected:
@@ -202,8 +208,6 @@ namespace ORDERED_TEC
 
 	protected:
 		std::pair<FLOAT64, FLOAT64> minmax(size_t N) const;
-
-		friend class TEC_ZONE;
 	};
 }
 

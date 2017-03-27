@@ -5,12 +5,13 @@ using namespace std;
 # include "ordered_tec.h"
 
 # define DATATYPE double
-void setecho_and_write(ORDERED_TEC::TEC_FILE &tecfile, ostream &log, string echo_file, string echo_zone)
+void setecho_and_write(ORDERED_TEC::TEC_FILE &tecfile, ofstream &log, string echo_file, string echo_zone)
 {
 	try
 	{
 		tecfile.set_echo_mode(echo_file, echo_zone);
-		tecfile.write_plt(log);
+		tecfile.write_plt(false);
+		tecfile.last_log.write_echo(log);
 	}
 	catch (std::runtime_error err)
 	{
@@ -68,8 +69,7 @@ int main(int argc, char **argv)
 	echo_mode.push_back("none");
 	echo_mode.push_back("leave");
 
-	ofstream log("test_05.txt");
-
+	std::ofstream log("test_05.txt");
 	for (int i = 0; i != 7; ++i)
 	{
 		string mode;

@@ -53,11 +53,14 @@ int main(int argc,char **argv)
 	tecfile.Zones[0].Skip[0]=10;
 	tecfile.Zones[0].Skip[1]=10;
 	tecfile.Zones[0].StrandId=-1;
-	tecfile.set_echo_mode("simple", "none");
 
 	try
 	{
+		tecfile.set_echo_mode("simple", "none");
 		tecfile.write_plt();
+		tecfile.last_log.write_echo();
+		tecfile.last_log.write_json();
+		tecfile.last_log.write_xml();
 	}
 	catch(std::runtime_error err)
 	{
@@ -72,35 +75,22 @@ int main(int argc,char **argv)
 	tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(z));
 	tecfile.Zones[0].StrandId=0;
 	tecfile.set_echo_mode("simple", "none");
-	tecfile.Json_Depth = 1;
-	tecfile.Xml_Depth = 1;
-# ifdef __linux__
-	tecfile.Json_File = fopen("test_04.json", "wb");
-	if (tecfile.Json_File == NULL)
+	std::ofstream of_j, of_x;
+	of_j.open("test_04.json");
+	if (!of_j)
 	{
-		std::cerr << "cannot open file test_04.json" << std::endl;
+		std::cerr << "can not open file test_04.json" << std::endl;
+		return 1;
 	}
-	tecfile.Xml_File = fopen("test_04.xml", "wb");
-	if (tecfile.Xml_File == NULL)
+	of_x.open("test_04.xml");
+	if (!of_x)
 	{
-		std::cerr << "cannot open file test_04.xml" << std::endl;
+		std::cerr << "can not open file test_04.xml" << std::endl;
+		return 1;
 	}
-# else
-	errno_t err;
-	err = fopen_s(&tecfile.Json_File, "test_04.json", "wb");
-	if (err != 0)
-	{
-		std::cerr << "cannot open file test_04.json" << std::endl;
-	}
-	err = fopen_s(&tecfile.Xml_File, "test_04.xml", "wb");
-	if (err != 0)
-	{
-		std::cerr << "cannot open file test_04.xml" << std::endl;
-	}
-# endif
-	fprintf(tecfile.Json_File, "[\n");
-	fprintf(tecfile.Xml_File, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	fprintf(tecfile.Xml_File, "<Files>\n");
+	of_j << "[" << std::endl;
+	of_x << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
+	of_x << "<Files>" << std::endl;
 	for(int n=0;n!=30;++n)
 	{
 		for (int j = 0; j != NJ; ++j)
@@ -119,6 +109,8 @@ int main(int argc,char **argv)
 		try
 		{
 			tecfile.write_plt();
+			tecfile.last_log.write_json(1, of_j);
+			tecfile.last_log.write_xml(1, of_x);
 		}
 		catch(std::runtime_error err)
 		{
@@ -126,17 +118,13 @@ int main(int argc,char **argv)
 		}
 		if (n != 30 - 1)
 		{
-			fprintf(tecfile.Json_File, ",");
+			of_j << "\t," << std::endl;
 		}
-		fprintf(tecfile.Json_File, "\n");
-		fprintf(tecfile.Xml_File, "\n");
 	}
-	fprintf(tecfile.Json_File, "]\n");
-	fprintf(tecfile.Xml_File, "</Files>\n");
-	fclose(tecfile.Json_File);
-	tecfile.Json_File = NULL;
-	fclose(tecfile.Xml_File);
-	tecfile.Xml_File = NULL;
+	of_j << "]" << std::endl;
+	of_x << "</Files>" << std::endl;
+	of_j.close();
+	of_x.close();
 
 	delete [] x;
 	delete [] y;

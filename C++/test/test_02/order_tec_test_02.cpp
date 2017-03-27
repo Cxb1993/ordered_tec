@@ -65,8 +65,10 @@ int main(int argc,char **argv)
 	try
 	{
 		tecfile.write_plt();
+		tecfile.last_log.write_echo();
 		tecfile.last_log.write_json();
 		tecfile.last_log.write_xml();
+		tecfile.last_log.Zones[0].write_echo();
 		tecfile.last_log.Zones[0].write_json();
 		tecfile.last_log.Zones[0].write_xml();
 	}

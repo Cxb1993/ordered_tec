@@ -7,15 +7,16 @@ using namespace std;
 
 # define DATATYPE double
 
-void write_plt(ORDERED_TEC::TEC_FILE & tecfile, ostream &log)
+void write_plt(ORDERED_TEC::TEC_FILE & tecfile, ofstream &log)
 {
 	try
 	{
-		tecfile.write_plt(log);
+		tecfile.write_plt(false);
+		tecfile.last_log.write_echo(log);
 		log << "speed: " 
 			<< (tecfile.Zones[0].get_real_size()[0]
 				*tecfile.Zones[0].get_real_size()[1]
-				*tecfile.Zones[0].get_real_size()[2]) / tecfile.UsingTime 
+				*tecfile.Zones[0].get_real_size()[2]) / tecfile.last_log.UsingTime 
 			<< " N/s"
 			<< endl;
 	}

@@ -5,15 +5,17 @@ using namespace std;
 # include "ordered_tec.h"
 
 # define DATATYPE double
-void write(ORDERED_TEC::TEC_FILE &tecfile, ostream &log)
+void write(ORDERED_TEC::TEC_FILE &tecfile, ofstream &log)
 {
 	try
 	{
-		tecfile.write_plt(log);
+		tecfile.write_plt(false);
+		tecfile.last_log.write_echo(log);
 	}
 	catch (std::runtime_error err)
 	{
 		log << "runtime_error: " << err.what() << endl;
+		log << tecfile.last_log.Error << endl;
 	}
 }
 

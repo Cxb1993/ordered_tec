@@ -42,8 +42,6 @@ int main(int argc,char **argv)
 	try
 	{
 		tecfile.write_plt();
-		tecfile.last_log.write_json();
-		tecfile.last_log.write_xml();
 	}
 	catch(std::runtime_error err)
 	{

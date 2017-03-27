@@ -50,9 +50,8 @@ int main(int argc,char **argv)
 	tecfile_grid.set_echo_mode("full", "full");
 	try
 	{
-		ofstream log("log.txt");
-		tecfile_grid.write_plt(log);
-		log.close();
+		tecfile_grid.write_plt(false);
+		tecfile_grid.last_log.write_echo();
 	}
 	catch(std::runtime_error err)
 	{
@@ -71,9 +70,8 @@ int main(int argc,char **argv)
 	tecfile_solution.set_echo_mode("full", "full");
 	try
 	{
-		ostringstream log;
-		tecfile_solution.write_plt(log);
-		cout << log.str();
+		tecfile_solution.write_plt(false);
+		tecfile_solution.last_log.write_echo();
 	}
 	catch(std::runtime_error err)
 	{

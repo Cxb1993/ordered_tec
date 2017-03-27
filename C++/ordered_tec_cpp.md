@@ -10,5 +10,6 @@
 - [x] profile interface
 - [x] append time information
 - [x] more test
-- [ ] log system
+- [x] log system
+- [ ] test for log system
 - [ ] complete comment and document

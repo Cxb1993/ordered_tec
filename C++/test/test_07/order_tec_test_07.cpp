@@ -106,7 +106,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		tecfile.write_plt(log);
+		tecfile.write_plt(false);
+		tecfile.last_log.write_echo(log);
 	}
 	catch (std::runtime_error err)
 	{
