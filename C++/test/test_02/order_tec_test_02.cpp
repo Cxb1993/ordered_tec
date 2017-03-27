@@ -65,18 +65,15 @@ int main(int argc,char **argv)
 	try
 	{
 		tecfile.write_plt();
+		tecfile.last_log.write_json();
+		tecfile.last_log.write_xml();
+		tecfile.last_log.Zones[0].write_json();
+		tecfile.last_log.Zones[0].write_xml();
 	}
 	catch(std::runtime_error err)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}
-
-	system("pause");
-	cout << endl;
-	cout << tecfile.Xml_Text << endl;
-	cout << tecfile.Json_Text << endl;
-	cout << tecfile.Time << endl;
-	cout << tecfile.UsingTime << endl;
 
 	delete [] x;
 	delete [] y;
