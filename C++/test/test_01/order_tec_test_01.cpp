@@ -43,7 +43,7 @@ int main(int argc,char **argv)
 	{
 		tecfile.write_plt();
 	}
-	catch(std::runtime_error err)
+	catch(runtime_error err)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}

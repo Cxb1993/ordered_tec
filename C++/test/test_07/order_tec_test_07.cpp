@@ -15,7 +15,7 @@ void get_size(ORDERED_TEC::TEC_FILE &tecfile, ostream &log)
 		Max[2] = tecfile.Zones[0].get_real_size()[2];
 		Dim = *tecfile.Zones[0].get_real_size("realdim");
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		log << "runtime_error: " << err.what() << endl;
 		return;
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 		tecfile.write_plt(false);
 		tecfile.last_log.write_echo(log);
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 		log.close();

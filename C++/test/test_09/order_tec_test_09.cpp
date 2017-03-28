@@ -20,7 +20,7 @@ void set_data(T *data, ORDERED_TEC::TEC_FILE &tecfile)
 	{
 		(tecfile.Zones.end() - 1)->Data.push_back(ORDERED_TEC::TEC_DATA(data));
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 		tecfile.Zones.pop_back();
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 		tecfile.write_plt();
 		tecfile.last_log.write_xml();
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 	}
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 	{
 		tecfile.Zones[0].Data.push_back(ORDERED_TEC::TEC_DATA(&NI));
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 	}

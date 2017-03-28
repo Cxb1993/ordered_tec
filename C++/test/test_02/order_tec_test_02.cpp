@@ -72,7 +72,7 @@ int main(int argc,char **argv)
 		tecfile.last_log.Zones[0].write_json();
 		tecfile.last_log.Zones[0].write_xml();
 	}
-	catch(std::runtime_error err)
+	catch(runtime_error err)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}

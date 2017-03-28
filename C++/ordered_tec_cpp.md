@@ -11,5 +11,5 @@
 - [x] append time information
 - [x] more test
 - [x] log system
-- [ ] test for log system
+- [x] test for log system
 - [ ] complete comment and document

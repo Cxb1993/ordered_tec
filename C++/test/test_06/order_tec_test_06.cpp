@@ -12,7 +12,7 @@ void write(ORDERED_TEC::TEC_FILE &tecfile, ofstream &log)
 		tecfile.write_plt(false);
 		tecfile.last_log.write_echo(log);
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		log << "runtime_error: " << err.what() << endl;
 		log << tecfile.last_log.Error << endl;

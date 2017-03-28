@@ -78,7 +78,12 @@ FILE * openfile(const std::string &fullname, const char* mode)
 	return of;
 }
 
-TEC_FILE_LOG::TEC_FILE_LOG() {}
+TEC_FILE_LOG::TEC_FILE_LOG()
+{
+	FileType = -1;
+	Size = 0;
+	UsingTime = 0;
+}
 
 TEC_FILE_LOG::TEC_FILE_LOG(const TEC_FILE & file) : TEC_FILE_BASE(file) {}
 
@@ -268,12 +273,13 @@ void TEC_FILE_LOG::gen_xml()
 
 	if (Auxiliary.size() != 0)
 	{
-		Xml_Text.push_back("\t<Auxiliary>");
+		Xml_Text.push_back("\t<Auxiliarys>");
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			std::sprintf(buf, "\t\t<%s>%s</%s>", i->first.c_str(), i->second.c_str(), i->first.c_str()); Xml_Text.push_back(buf);
+			std::sprintf(buf, "\t\t<Auxiliary Name=\"%s\">%s</Auxiliary>", i->first.c_str(), i->second.c_str());
+			Xml_Text.push_back(buf);
 		}
-		Xml_Text.push_back("\t</Auxiliary>");
+		Xml_Text.push_back("\t</Auxiliarys>");
 	}
 
 	Xml_Text.push_back("\t<Zones>");
@@ -439,14 +445,14 @@ void TEC_ZONE_LOG::gen_xml()
 	std::sprintf(buf, "\t<Skip> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Skip>", Skip[0], Skip[1], Skip[2]); Xml_Text.push_back(buf);
 	std::sprintf(buf, "\t<Begin> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Begin>", Begin[0], Begin[1], Begin[2]); Xml_Text.push_back(buf);
 	std::sprintf(buf, "\t<End> <I>%zu</I> <I>%zu</I> <I>%zu</I> </End>", End[0], End[1], End[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Real_Max> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Real_Max>", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Real_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Real_Max>", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text.push_back(buf);
 
 	if (Auxiliary.size() != 0)
 	{
 		Xml_Text.push_back("\t<Auxiliary>");
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			std::sprintf(buf, "\t\t<%s>%s</%s>", i->first.c_str(), i->second.c_str(), i->first.c_str());
+			std::sprintf(buf, "\t\t<Auxiliary Name=\"%s\">%s</Auxiliary>", i->first.c_str(), i->second.c_str());
 			Xml_Text.push_back(buf);
 		}
 		Xml_Text.push_back("\t</Auxiliary>");
@@ -525,7 +531,7 @@ void TEC_FILE::write_plt(bool echo)
 	catch (std::runtime_error &err)
 	{
 		last_log.Error = err.what();
-		throw err;
+		throw std::runtime_error(err);
 	}
 	if (Echo_Mode.test(0))
 	{
@@ -1024,7 +1030,7 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		zone_log.Echo_Text.push_back(buf);
 		for (int dd = 0; dd != Real_Dim; ++dd)
 		{
-			std::sprintf(buf, " %zu", Real_Max[dd]);
+			std::sprintf(buf, " %i", Real_Max[dd]);
 			if (echo) std::printf("%s", buf);
 			*(zone_log.Echo_Text.end() - 1) += buf;
 		}

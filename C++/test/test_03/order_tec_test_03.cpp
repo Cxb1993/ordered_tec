@@ -53,7 +53,7 @@ int main(int argc,char **argv)
 		tecfile_grid.write_plt(false);
 		tecfile_grid.last_log.write_echo();
 	}
-	catch(std::runtime_error err)
+	catch(runtime_error err)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}
@@ -73,7 +73,7 @@ int main(int argc,char **argv)
 		tecfile_solution.write_plt(false);
 		tecfile_solution.last_log.write_echo();
 	}
-	catch(std::runtime_error err)
+	catch(runtime_error err)
 	{
 		cerr<<"runtime_error: "<<err.what()<<endl;
 	}

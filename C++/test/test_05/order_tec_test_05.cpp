@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	echo_mode.push_back("none");
 	echo_mode.push_back("leave");
 
-	std::ofstream log("test_05.txt");
+	ofstream log("test_05.txt");
 	for (int i = 0; i != 7; ++i)
 	{
 		string mode;

@@ -20,7 +20,7 @@ void write_plt(ORDERED_TEC::TEC_FILE & tecfile, ofstream &log)
 			<< " N/s"
 			<< endl;
 	}
-	catch (std::runtime_error err)
+	catch (runtime_error err)
 	{
 		cerr << "runtime_error: " << err.what() << endl;
 	}
