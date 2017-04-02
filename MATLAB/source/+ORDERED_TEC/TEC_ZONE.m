@@ -18,7 +18,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 obj.EEnd = [0,0,0];
             elseif nargin==1
                 if(isa(varargin{1},'numeric') && isscalar(varargin{1}) && mod(varargin{1},1)==0)
-                        obj(varargin{1}) = ORDERED_TEC.TEC_ZONE;
+                    obj(varargin{1}) = ORDERED_TEC.TEC_ZONE;
                 else
                     ME = MException('TEC_ZONE:TypeWrong', 'constructor type wrong');
                     throw(ME);

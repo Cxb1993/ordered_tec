@@ -17,7 +17,7 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 obj.FileType = 0;
             elseif nargin==1
                 if(isa(varargin{1},'numeric') && isscalar(varargin{1}) && mod(varargin{1},1)==0)
-                        obj(varargin{1}) = ORDERED_TEC.TEC_FILE;
+                    obj(varargin{1}) = ORDERED_TEC.TEC_FILE;
                 else
                     ME = MException('TEC_FILE:TypeWrong', 'constructor type wrong');
                     throw(ME);
