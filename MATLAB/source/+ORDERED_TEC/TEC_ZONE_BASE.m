@@ -4,12 +4,12 @@ classdef TEC_ZONE_BASE
     
     properties
         ZoneName;
-		StrandId;
-		SolutionTime;
-		Skip;
-		Begin;
-		EEnd;
-		Auxiliary;
+        StrandId;
+        SolutionTime;
+        Skip;
+        Begin;
+        EEnd;
+        Auxiliary;
     end
     
     methods

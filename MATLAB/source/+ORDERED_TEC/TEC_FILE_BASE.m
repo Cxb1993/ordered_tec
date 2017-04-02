@@ -4,11 +4,11 @@ classdef TEC_FILE_BASE
     
     properties
         FilePath;
-		FileName;
-		Title;
-		Variables;
-		FileType;
-		Auxiliary;
+        FileName;
+        Title;
+        Variables;
+        FileType;
+        Auxiliary;
     end
     
     methods

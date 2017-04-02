@@ -4,16 +4,16 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
     
     properties
         Max;
-		Dim;
+        Dim;
         Real_Max;
-		Real_Dim;
+        Real_Dim;
         noskip;
         noexc;
         
         Size;
-		Echo_Text;
-		Json_Text;
-		Xml_Text;
+        Echo_Text;
+        Json_Text;
+        Xml_Text;
         
         Data
     end
