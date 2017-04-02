@@ -391,10 +391,10 @@ void TEC_ZONE_LOG::gen_json()
 		std::sprintf(buf, "\t\"SolutionTime\" : %le ,", SolutionTime); Json_Text.push_back(buf);
 	}
 	std::sprintf(buf, "\t\"Real_Dim\" : %i ,", Real_Dim); Json_Text.push_back(buf);
-	std::sprintf(buf, "\t\"Org_Max\" : [ %zu, %zu, %zu ] ,", Max[0], Max[1], Max[2]); Json_Text.push_back(buf);
-	std::sprintf(buf, "\t\"Skip\" : [ %zu, %zu, %zu ] ,", Skip[0], Skip[1], Skip[2]); Json_Text.push_back(buf);
-	std::sprintf(buf, "\t\"Begin\" : [ %zu, %zu, %zu ] ,", Begin[0], Begin[1], Begin[2]); Json_Text.push_back(buf);
-	std::sprintf(buf, "\t\"End\" : [ %zu, %zu, %zu ] ,", End[0], End[1], End[2]); Json_Text.push_back(buf);
+	std::sprintf(buf, "\t\"Org_Max\" : [ %i, %i, %i ] ,", Max[0], Max[1], Max[2]); Json_Text.push_back(buf);
+	std::sprintf(buf, "\t\"Skip\" : [ %i, %i, %i ] ,", Skip[0], Skip[1], Skip[2]); Json_Text.push_back(buf);
+	std::sprintf(buf, "\t\"Begin\" : [ %i, %i, %i ] ,", Begin[0], Begin[1], Begin[2]); Json_Text.push_back(buf);
+	std::sprintf(buf, "\t\"End\" : [ %i, %i, %i ] ,", End[0], End[1], End[2]); Json_Text.push_back(buf);
 	std::sprintf(buf, "\t\"Real_Max\" : [ %i, %i, %i ] ,", Real_Max[0], Real_Max[1], Real_Max[2]); Json_Text.push_back(buf);
 
 	if (Auxiliary.size() != 0)
@@ -441,10 +441,10 @@ void TEC_ZONE_LOG::gen_xml()
 		std::sprintf(buf, "\t<SolutionTime>%le</SolutionTime>", SolutionTime); Xml_Text.push_back(buf);
 	}
 	std::sprintf(buf, "\t<Real_Dim>%i</Real_Dim>", Real_Dim); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Org_Max> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Org_Max>", Max[0], Max[1], Max[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Skip> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Skip>", Skip[0], Skip[1], Skip[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Begin> <I>%zu</I> <I>%zu</I> <I>%zu</I> </Begin>", Begin[0], Begin[1], Begin[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<End> <I>%zu</I> <I>%zu</I> <I>%zu</I> </End>", End[0], End[1], End[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Org_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Org_Max>", Max[0], Max[1], Max[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Skip> <I>%i</I> <I>%i</I> <I>%i</I> </Skip>", Skip[0], Skip[1], Skip[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Begin> <I>%i</I> <I>%i</I> <I>%i</I> </Begin>", Begin[0], Begin[1], Begin[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<End> <I>%i</I> <I>%i</I> <I>%i</I> </End>", End[0], End[1], End[2]); Xml_Text.push_back(buf);
 	std::sprintf(buf, "\t<Real_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Real_Max>", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text.push_back(buf);
 
 	if (Auxiliary.size() != 0)
@@ -841,6 +841,15 @@ void TEC_ZONE::gather_real_size()
 		}
 	}
 
+	Dim = 3;
+	for (int i = 2; i != -1; --i)
+	{
+		if (Max[i] == 1)
+		{
+			--Dim;
+		}
+	}
+
 	Real_Dim = 3;
 	noskip = true;
 	noexc = true;
@@ -884,9 +893,9 @@ void TEC_ZONE::make_buf()
 			{
 				throw std::runtime_error("out of memory");
 			}
-			for(size_t sk=Begin[2];sk<Max[2]-End[2];sk+=Skip[2])
+			for(INT32 sk=Begin[2];sk<Max[2]-End[2];sk+=Skip[2])
 			{
-				for(size_t sj=Begin[1];sj<Max[1]-End[1];sj+=Skip[1])
+				for(INT32 sj=Begin[1];sj<Max[1]-End[1];sj+=Skip[1])
 				{
 					std::memcpy(i->buf+(Real_Max[0]*(sj-Begin[1])/Skip[1]+Real_Max[0]*Real_Max[1]*(sk-Begin[2])/Skip[2])*size,
 						        datap+(Begin[0]+Max[0]*sj+Max[0]*Max[1]*sk)*size, Real_Max[0]*size);
@@ -909,11 +918,11 @@ void TEC_ZONE::make_buf()
 			{
 				throw std::runtime_error("out of memory");
 			}
-			for(size_t sk=Begin[2];sk<Max[2]-End[2];sk+=Skip[2])
+			for(INT32 sk=Begin[2];sk<Max[2]-End[2];sk+=Skip[2])
 			{
-				for(size_t sj=Begin[1];sj<Max[1]-End[1];sj+=Skip[1])
+				for(INT32 sj=Begin[1];sj<Max[1]-End[1];sj+=Skip[1])
 				{
-					for(size_t si=Begin[0];si<Max[0]-End[0];si+=Skip[0])
+					for(INT32 si=Begin[0];si<Max[0]-End[0];si+=Skip[0])
 					{
 						std::memcpy(i->buf+((si-Begin[0])/Skip[0]+Real_Max[0]*(sj-Begin[1])/Skip[1]+Real_Max[0]*Real_Max[1]*(sk-Begin[2])/Skip[2])*size,
 							        datap+(si+Max[0]*sj+Max[0]*Max[1]*sk)*size, size);
@@ -947,6 +956,7 @@ void TEC_ZONE::realise_buf()
 void TEC_ZONE::wrtie_plt_pre(const TEC_FILE &thisfile, TEC_ZONE_LOG &zone_log)
 {
 	gather_real_size();
+	zone_log.Dim = Dim;
 	zone_log.Real_Dim = Real_Dim;
 	zone_log.Real_Max[0] = Real_Max[0];
 	zone_log.Real_Max[1] = Real_Max[1];
@@ -1044,7 +1054,7 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		zone_log.Echo_Text.push_back("     Org_Max = [");
 		for (int dd = 0; dd != 3; ++dd)
 		{
-			std::sprintf(buf, " %zu", Max[dd]);
+			std::sprintf(buf, " %i", Max[dd]);
 			if (echo) std::printf("%s", buf);
 			*(zone_log.Echo_Text.end() - 1) += buf;
 		}
@@ -1058,7 +1068,7 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		zone_log.Echo_Text.push_back("     Skip = [");
 		for (int dd = 0; dd != 3; ++dd)
 		{
-			std::sprintf(buf, " %zu", Skip[dd]);
+			std::sprintf(buf, " %i", Skip[dd]);
 			if (echo) std::printf("%s", buf);
 			*(zone_log.Echo_Text.end() - 1) += buf;
 		}
@@ -1072,7 +1082,7 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		zone_log.Echo_Text.push_back("     Begin = [");
 		for (int dd = 0; dd != 3; ++dd)
 		{
-			std::sprintf(buf, " %zu", Begin[dd]);
+			std::sprintf(buf, " %i", Begin[dd]);
 			if (echo) std::printf("%s", buf);
 			*(zone_log.Echo_Text.end() - 1) += buf;
 		}
@@ -1083,7 +1093,7 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		*(zone_log.Echo_Text.end() - 1) += " End = [";
 		for (int dd = 0; dd != 3; ++dd)
 		{
-			std::sprintf(buf, " %zu", End[dd]);
+			std::sprintf(buf, " %i", End[dd]);
 			if (echo) std::printf("%s", buf);
 			*(zone_log.Echo_Text.end() - 1) += buf;
 		}

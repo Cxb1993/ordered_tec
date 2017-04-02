@@ -86,6 +86,8 @@ int main(int argc, char **argv)
 		tecfile.last_log.Zones[0].write_echo();
 		tecfile.last_log.Zones[0].write_json();
 		tecfile.last_log.Zones[0].write_xml();
+		cout << tecfile.last_log.Zones[0].Dim << endl;
+		cout << tecfile.last_log.Zones[0].Real_Dim << endl;
 	}
 	catch (runtime_error err)
 	{

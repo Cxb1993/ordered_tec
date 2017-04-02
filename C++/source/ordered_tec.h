@@ -55,11 +55,11 @@ namespace ORDERED_TEC
 		std::string ZoneName;
 		INT32 StrandId;
 		FLOAT64 SolutionTime;
-		size_t Max[3];
+		INT32 Max[3];
 		INT32 Dim;
-		size_t Skip[3];
-		size_t Begin[3];
-		size_t End[3];
+		INT32 Skip[3];
+		INT32 Begin[3];
+		INT32 End[3];
 		INT32 Real_Max[3];
 		INT32 Real_Dim;
 		bool noskip, noexc;
