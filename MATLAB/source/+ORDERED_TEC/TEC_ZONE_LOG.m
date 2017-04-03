@@ -22,8 +22,8 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
         function obj = TEC_ZONE_LOG(varargin)
             if nargin==0
             elseif nargin==1
-                if(isa(varargin{1},'ORDERED_TEC.TEC_ZONE'))
-                    if(isscalar(varargin{1}))
+                if isa(varargin{1},'ORDERED_TEC.TEC_ZONE')
+                    if isscalar(varargin{1})
                         tec_zone = varargin{1};
                         obj.ZoneName = tec_zone.ZoneName;
                         obj.StrandId = tec_zone.StrandId;
@@ -34,12 +34,9 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                         obj.Auxiliary = tec_zone.Auxiliary;
                     else
                         tec_zone_m = varargin{1};
-                        [m,n] = size(tec_zone_m);
-                        obj(m,n) = ORDERED_TEC.TEC_ZONE_LOG;
-                        for mm = 1:m
-                            for nn = 1:n
-                                obj(mm,nn) = ORDERED_TEC.TEC_ZONE_LOG(tec_zone_m(mm,nn));
-                            end
+                        obj = repmat(ORDERED_TEC.TEC_ZONE_LOG,size(tec_zone_m));
+                        for kk = 1:numel(tec_zone_m)
+                            obj(kk) = ORDERED_TEC.TEC_ZONE_LOG(tec_zone_m(kk));
                         end
                     end
                 elseif(isa(varargin{1},'numeric') && isscalar(varargin{1}) && mod(varargin{1},1)==0)
