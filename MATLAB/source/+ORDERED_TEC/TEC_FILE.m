@@ -65,9 +65,112 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 throw(ME);
             end
         end
+        
+        function obj = write_plt(obj)
+            tic
+            obj.last_log = ORDERED_TEC.TEC_FILE_LOG(obj);
+            obj.last_log.Time_Begin = datestr(now,30);
+            
+            obj = obj.wrtie_plt_pre();
+            
+            %             if echo>1
+            %                 fprintf('#### creat file %s.plt ####\n',tec_file.FileName);
+            %             end
+            fid = fopen([obj.FileName,'.plt'],'wb');
+            if fid==-1
+                ME = MException('TEC_FILE:FileError', 'can not open file %s.plt',obj.FileName);
+                throw(ME);
+            end
+            try
+                % I    HEADER SECTION
+                obj = obj.write_plt_head(fid);
+                
+                % EOHMARKER, value=357.0
+                fwrite(fid,357.0,'float32');
+                
+                % II   DATA SECTION
+                obj = obj.write_plt_data(fid);
+                
+                fclose(fid);
+            catch ME
+                fclose(fid);
+                delete([obj.FileName,'.plt']);
+                rethrow(ME)
+            end
+            
+            obj.last_log.Time_End = datestr(now,30);
+            obj.last_log.UsingTime = toc;
+        end
     end
     
-    methods (Access = protected)
+    methods (Hidden = true)
+        function obj = wrtie_plt_pre(obj)
+            if isempty(obj.Variables)
+                ME = MException('ORDERTEC:RuntimeError', ...
+                    'file [%s]: tec_file.Variables is unset',obj.FileName);
+                throw(ME);
+            end
+            if isempty(obj.Zones)
+                ME = MException('ORDERTEC:RuntimeError', ...
+                    'file [%s]: tec_file.Zones is unset',obj.FileName);
+                throw(ME);
+            end
+            obj.last_log.Zones = ORDERED_TEC.TEC_ZONE_LOG(obj.Zones);
+            for kk = 1:numel(obj.Zones)
+                [obj.Zones(kk),obj.last_log.Zones(kk)] = obj.Zones(kk).wrtie_plt_pre(obj,obj.last_log.Zones(kk));
+            end
+        end
+        
+        function obj = write_plt_head(obj,fid)
+            % I    HEADER SECTION
+            % i    Magic number, Version number
+            fwrite(fid,'#!TDV112','char*1');% 8 Bytes, exact characters "#!TDV112". Version number follows the "V" and consumes the next 3 characters (for example: "V75", "V101")
+            % ii   Integer value of 1
+            fwrite(fid,1,'int32');% This is used to determine the byte order of the reader, relative to the writer
+            % iii  Title and variable names
+            fwrite(fid,obj.FileType,'int32');% FileType 0 = FULL, 1 = GRID, 2 = SOLUTION
+            fwrite(fid,ORDERED_TEC.s2i(obj.Title),'int32');% The TITLE
+            fwrite(fid,length(obj.Variables),'int32');% Number of variables (NumVar) in the datafile
+            fwrite(fid,ORDERED_TEC.s2i(obj.Variables),'int32');% Variable names
+            % iv   Zones
+            for zone = obj.Zones
+                zone.write_plt_head(fid);
+            end
+            % ix Dataset Auxiliary data
+            if ~isempty(obj.Auxiliary)
+                for au = obj.Auxiliary
+                    fwrite(fid,799.0,'float32');% DataSetAux Marker
+                    fwrite(fid,ORDERED_TEC.s2i(au{1}{1}),'int32');% Text for Auxiliary "Name"
+                    fwrite(fid,0,'int32');% Auxiliary Value Format (Currently only allow 0=AuxDataType_String)
+                    fwrite(fid,ORDERED_TEC.s2i(au{1}{2}),'int32');% Text for Auxiliary "Value"
+                end
+            end
+        end
+        
+        function obj = write_plt_data(obj,fid)
+            % II   DATA SECTION
+            % i    For both ordered and fe zones
+            zone_n = 0;
+            for zone = obj.Zones
+                zone_n = zone_n + 1;
+                %                 if echo>2
+                %                     fprintf('--   write zone %i: %s   --\n',zone_n,zone.ZoneName);
+                %                 end
+                
+                obj.last_log.Zones(zone_n) = zone.write_plt_data(fid,obj,obj.last_log.Zones(zone_n));
+                
+                %                 if echo>1
+                %                     fprintf('--   write zone %i: %s   --\n',zone_n,zone.ZoneName);
+                %                 end
+            end
+            %             if echo>4
+            %                 fprintf('     file size: %.2fMB\n',s_f);
+            %             end
+            %             if echo>0
+            %                 fprintf('#### creat file %s.plt ####\n',tec_file.FileName);
+            %             end
+        end
+        
     end
     
 end

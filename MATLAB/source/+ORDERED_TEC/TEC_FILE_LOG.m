@@ -7,7 +7,6 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
         Time_End;
         UsingTime;
         Size;
-        Error;
         Echo_Text;
         Json_Text;
         Xml_Text;
