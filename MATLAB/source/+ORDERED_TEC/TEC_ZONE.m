@@ -4,7 +4,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
     
     properties
         Data;
-        Echo_Mode;
+        Echo_Mode; %zone_head, zone_end, variable, max_real, max_org, skip, begin & end, stdid & soltime, size
     end
     
     methods
@@ -35,11 +35,11 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 obj.Echo_Mode = zone_mode;
             elseif ischar(zone_mode)
                 if strcmp(zone_mode,'brief')
-                    obj.Echo_Mode = logical([0,0,0,0,0,1,0,0,1]);
+                    obj.Echo_Mode = logical([1,0,0,1,0,0,0,0,0]);
                 elseif strcmp(zone_mode,'full')
                     obj.Echo_Mode = true(1,9);
                 elseif strcmp(zone_mode,'simple')
-                    obj.Echo_Mode = logical([0,0,0,0,0,0,0,0,1]);
+                    obj.Echo_Mode = logical([1,0,0,0,0,0,0,0,0]);
                 elseif strcmp(zone_mode,'none')
                     obj.Echo_Mode = false(1,9);
                 elseif strcmp(zone_mode,'leave')
@@ -123,6 +123,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
         end
         
         function zone_log = write_plt_data(obj,fid,file,zone_log)
+            pos_b = ftell(fid);
             fwrite(fid,299.0,'float32');% Zone marker. Value = 299.0
             val_n =0;
             for val = obj.Data
@@ -144,58 +145,82 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 fwrite(fid,min_buf,'float64');% Min value
                 fwrite(fid,max_buf,'float64');% Max value
             end
-            %             if echo>2
-            %                 fprintf('..   write variables: ');
-            %             end
+            
+            if obj.Echo_Mode(4)
+                echobuf = sprintf('     Dim = %i   Real_Max = [',zone_log.Real_Dim);
+                for dd = 1:zone_log.Real_Dim
+                    echobuf = [echobuf,' ',num2str(zone_log.Real_Max(dd))];
+                end
+                echobuf = [echobuf,' ]'];
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('%s\n',echobuf);
+            end
+            if obj.Echo_Mode(5)
+                echobuf = sprintf('     Org_Dim = %i   Org_Max = [',zone_log.Dim);
+                for dd = 1:zone_log.Dim
+                    echobuf = [echobuf,' ',num2str(zone_log.Max(dd))];
+                end
+                echobuf = [echobuf,' ]'];
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('%s\n',echobuf);
+            end
+            if obj.Echo_Mode(6)
+                echobuf = '     Skip = [';
+                for dd = 1:3
+                    echobuf = [echobuf,' ',num2str(zone_log.Skip(dd))];
+                end
+                echobuf = [echobuf,' ]'];
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('%s\n',echobuf);
+            end
+            if obj.Echo_Mode(7)
+                echobuf = '     Begin = [';
+                for dd = 1:3
+                    echobuf = [echobuf,' ',num2str(zone_log.Begin(dd))];
+                end
+                echobuf = [echobuf,' ]'];
+                echobuf = [echobuf,'   EEnd = ['];
+                for dd = 1:3
+                    echobuf = [echobuf,' ',num2str(zone_log.EEnd(dd))];
+                end
+                echobuf = [echobuf,' ]'];
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('%s\n',echobuf);
+            end
+            if obj.Echo_Mode(8) && obj.StrandId~=-1
+                echobuf = sprintf('     StrandId = %i SolutionTime = %e',obj.StrandId,obj.SolutionTime);
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('%s\n',echobuf);
+            end
+            
+            if obj.Echo_Mode(3)
+                echobuf = '     write variables:';
+                fprintf('%s',echobuf);
+            end
             val_n =0;
             for val = buf
                 val_n = val_n +1;
                 v = val{1};
-                %                 if echo>2
-                %                     fprintf('%s ',file.Variables{val_n});
-                %                 end
+                if obj.Echo_Mode(3)
+                    echobuf = [echobuf,' <',file.Variables{val_n},'>'];
+                    fprintf(' <%s>',file.Variables{val_n});
+                end
+                zone_log.Data(val_n).file_pt = ftell(fid);
                 fwrite(fid,v,class(v));% Zone Data. Each variable is in data format as specified above
             end
-            %                 if echo>2
-            %                     fprintf('  ..\n');
-            %                 end
-            %                 data_dim = ndims(zone.Data{1});
-            %                 data_size = size(zone.Data{1});
-            %                 if echo>4
-            %                     fprintf('     zone size: %.2fMB\n',s_z);
-            %                 end
-            %                 if echo>3
-            %                     fprintf('     IMax=%i',data_size(1));
-            %                     if data_dim>1
-            %                         fprintf(' JMax=%i',data_size(2));
-            %                         if data_dim>2
-            %                             fprintf(' KMax=%i',data_size(3));
-            %                         end
-            %                     end
-            %                     fprintf('\n');
-            %                 end
-            %                 if echo>5
-            %                     fprintf('     ISkip=%i',zone.Skip(1));
-            %                     if data_dim>1
-            %                         fprintf(' JSkip=%i',zone.Skip(2));
-            %                         if data_dim>2
-            %                             fprintf(' KSkip=%i',zone.Skip(3));
-            %                         end
-            %                     end
-            %                     fprintf('\n');
-            %                 end
-            %                 if echo>6
-            %                     fprintf('     IBegin=%i IEnd=%i\n',zone.Begin(1),zone.EEnd(1));
-            %                     if data_dim>1
-            %                         fprintf('     JBegin=%i JEnd=%i\n',zone.Begin(2),zone.EEnd(2));
-            %                         if data_dim>2
-            %                             fprintf('     KBegin=%i KEnd=%i\n',zone.Begin(3),zone.EEnd(3));
-            %                         end
-            %                     end
-            %                 end
-            %                 if echo>3 && zone.StrandId~=-1
-            %                     fprintf('     StrandId=%i SolutionTime=%f\n',zone.StrandId,zone.SolutionTime);
-            %                 end
+            if obj.Echo_Mode(3)
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('\n');
+            end
+            
+            pos_e = ftell(fid);
+            zone_log.Size = (pos_e-pos_b)/1024/1024;
         end
         
     end
@@ -231,7 +256,7 @@ end
 end
 
 function [ty,si] = gettype(data)
-% get the type of the data and its number
+% get the data type (number) and its size
 
 t=class(data);
 switch t

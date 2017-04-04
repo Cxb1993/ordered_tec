@@ -4,7 +4,7 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
     
     properties
         Zones;
-        Echo_Mode;
+        Echo_Mode; %file_head, file_end, variable, section, size, time, usingtime
         last_log;
     end
     
@@ -34,11 +34,11 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 obj.Echo_Mode = file_mode;
             elseif ischar(file_mode)
                 if strcmp(file_mode,'brief')
-                    obj.Echo_Mode = logical([0,1,0,0,1,1,1]);
+                    obj.Echo_Mode = logical([1,1,1,0,0,1,0]);
                 elseif strcmp(file_mode,'full')
                     obj.Echo_Mode = true(1,7);
                 elseif strcmp(file_mode,'simple')
-                    obj.Echo_Mode = logical([0,1,0,0,0,0,1]);
+                    obj.Echo_Mode = logical([1,0,0,0,0,1,0]);
                 elseif strcmp(file_mode,'none')
                     obj.Echo_Mode = false(1,7);
                 elseif strcmp(file_mode,'leave')
@@ -53,16 +53,19 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
         end
         
         function obj = set_echo_mode(obj, file_mode, zone_mode)
-            if nargin == 2
-                obj.Echo_Mode = file_mode;
+            if nargin == 1
+                file_mode = 'leave';
+                zone_mode = 'leave';
+            elseif nargin == 2
+                zone_mode = 'leave';
             elseif nargin == 3
-                obj.set_echo_mode(file_mode);
-                for kk=1:numel(obj.Zones)
-                    obj.Zones(kk).Echo_Mode = zone_mode;
-                end
             else
                 ME = MException('TEC_FILE:NArgInWrong', 'too many or too few input arguments');
                 throw(ME);
+            end
+            obj.Echo_Mode = file_mode;
+            for kk=1:numel(obj.Zones)
+                obj.Zones(kk).Echo_Mode = zone_mode;
             end
         end
         
@@ -73,9 +76,23 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
             
             obj = obj.wrtie_plt_pre();
             
-            %             if echo>1
-            %                 fprintf('#### creat file %s.plt ####\n',tec_file.FileName);
-            %             end
+            if obj.Echo_Mode(1)
+                if obj.Echo_Mode(6)
+                    buf = sprintf('[%s]',obj.last_log.Time_Begin);
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s',buf);
+                end
+                buf = sprintf('#### creat file %s/%s.plt ####', obj.FilePath, obj.FileName);
+                if obj.Echo_Mode(6)
+                    obj.last_log.Echo_Text{e_l} = [obj.last_log.Echo_Text{e_l},buf];
+                    fprintf('%s\n',buf);
+                else
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s\n',buf);
+                end
+            end
             fid = fopen([obj.FileName,'.plt'],'wb');
             if fid==-1
                 ME = MException('TEC_FILE:FileError', 'can not open file %s.plt',obj.FileName);
@@ -87,9 +104,24 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 
                 % EOHMARKER, value=357.0
                 fwrite(fid,357.0,'float32');
+                if obj.Echo_Mode(4)
+                    buf = '-------------------------------------';
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s\n',buf);
+                end
                 
                 % II   DATA SECTION
                 obj = obj.write_plt_data(fid);
+                
+                pos = ftell(fid);
+                obj.last_log.Size = pos/1024/1024;
+                if obj.Echo_Mode(5)
+                    buf = sprintf('     file size: %.1f MB',obj.last_log.Size);
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s\n',buf);
+                end
                 
                 fclose(fid);
             catch ME
@@ -98,9 +130,38 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 rethrow(ME)
             end
             
-            obj.last_log.Time_End = datestr(now,30);
             obj.last_log.UsingTime = toc;
+            if obj.Echo_Mode(7)
+                buf = sprintf('     using time : %.5f s',obj.last_log.UsingTime);
+                e_l = length(obj.last_log.Echo_Text)+1;
+                obj.last_log.Echo_Text{e_l} = buf;
+                fprintf('%s\n',buf);
+            end
+            
+            obj.last_log.Time_End = datestr(now,30);
+            if obj.Echo_Mode(2)
+                if obj.Echo_Mode(6)
+                    buf = sprintf('[%s]',obj.last_log.Time_End);
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s',buf);
+                end
+                buf = sprintf('#### creat file %s/%s.plt ####', obj.FilePath, obj.FileName);
+                if obj.Echo_Mode(6)
+                    e_l = length(obj.last_log.Echo_Text);
+                    obj.last_log.Echo_Text{e_l} = [obj.last_log.Echo_Text{e_l},buf];
+                    fprintf('%s\n',buf);
+                else
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s\n',buf);
+                end
+            end
+            
+            % obj.last_log = obj.last_log.gen_json();
+            % obj.last_log = obj.last_log.gen_xml();
         end
+        
     end
     
     methods (Hidden = true)
@@ -132,6 +193,15 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
             fwrite(fid,ORDERED_TEC.s2i(obj.Title),'int32');% The TITLE
             fwrite(fid,length(obj.Variables),'int32');% Number of variables (NumVar) in the datafile
             fwrite(fid,ORDERED_TEC.s2i(obj.Variables),'int32');% Variable names
+            if obj.Echo_Mode(3)
+                buf = '     VAR:';
+                for kk = obj.Variables
+                    buf = [buf,' <',kk{1},'>'];
+                end
+                e_l = length(obj.last_log.Echo_Text)+1;
+                obj.last_log.Echo_Text{e_l} = buf;
+                fprintf('%s\n',buf);
+            end
             % iv   Zones
             for zone = obj.Zones
                 zone.write_plt_head(fid);
@@ -153,25 +223,26 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
             zone_n = 0;
             for zone = obj.Zones
                 zone_n = zone_n + 1;
-                %                 if echo>2
-                %                     fprintf('--   write zone %i: %s   --\n',zone_n,zone.ZoneName);
-                %                 end
+                if zone.Echo_Mode(1)
+                    buf = sprintf('--   write zone %i: %s   --',zone_n,zone.ZoneName);
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s\n',buf);
+                end
                 
                 obj.last_log.Zones(zone_n) = zone.write_plt_data(fid,obj,obj.last_log.Zones(zone_n));
+                e_l = length(obj.last_log.Echo_Text)+1;
+                obj.last_log.Echo_Text{e_l} = '#ZONE#';
                 
-                %                 if echo>1
-                %                     fprintf('--   write zone %i: %s   --\n',zone_n,zone.ZoneName);
-                %                 end
+                if zone.Echo_Mode(2)
+                    buf = sprintf('--   write zone %i: %s   --',zone_n,zone.ZoneName);
+                    e_l = length(obj.last_log.Echo_Text)+1;
+                    obj.last_log.Echo_Text{e_l} = buf;
+                    fprintf('%s\n',buf);
+                end
             end
-            %             if echo>4
-            %                 fprintf('     file size: %.2fMB\n',s_f);
-            %             end
-            %             if echo>0
-            %                 fprintf('#### creat file %s.plt ####\n',tec_file.FileName);
-            %             end
         end
         
     end
     
 end
-

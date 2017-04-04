@@ -571,7 +571,7 @@ void TEC_FILE::write_plt(bool echo)
 	if (Echo_Mode.test(4))
 	{
 		char buf[100];
-		std::sprintf(buf, "     file size: %.1lfMB", s_f);
+		std::sprintf(buf, "     file size: %.1lf MB", s_f);
 		if (echo) std::printf("%s\n", buf);
 		last_log.Echo_Text.push_back(buf);
 	}
@@ -679,8 +679,8 @@ void TEC_FILE::write_plt_head(FILE *of, bool echo)
 	W_INT32(Variables.size(), of);//Number of variables (NumVar) in the datafile
 	if (Echo_Mode.test(2))
 	{
-		if (echo) std::printf("     VAR: ");
-		last_log.Echo_Text.push_back("     VAR: ");
+		if (echo) std::printf("     VAR:");
+		last_log.Echo_Text.push_back("     VAR:");
 	}
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
@@ -688,8 +688,8 @@ void TEC_FILE::write_plt_head(FILE *of, bool echo)
 
 		if (Echo_Mode.test(2))
 		{
-			if (echo) std::printf("<%s> ", i->c_str());
-			*(last_log.Echo_Text.end() - 1) += "<" + *i + "> ";
+			if (echo) std::printf(" <%s>", i->c_str());
+			*(last_log.Echo_Text.end() - 1) += " <" + *i + ">";
 		}
 	}
 	if (Echo_Mode.test(2))
@@ -1010,10 +1010,7 @@ void TEC_ZONE::write_plt_head(FILE *of) const
 void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &zone_log, bool echo)
 {
 	long int pos_b, pos_e;
-	if (Echo_Mode.test(8))
-	{
-		pos_b = std::ftell(of);
-	}
+	pos_b = std::ftell(of);
 	W_FLOAT32(299.0f, of);//Zone marker Value = 299.0
 	for (std::vector<TEC_DATA>::const_iterator j = Data.begin(); j != Data.end(); ++j)
 	{
@@ -1035,7 +1032,7 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 	if (Echo_Mode.test(3))
 	{
 		char buf[100];
-		std::sprintf(buf, "     Dim = %i   Real_Max=[", Real_Dim);
+		std::sprintf(buf, "     Dim = %i   Real_Max = [", Real_Dim);
 		if (echo) std::printf("%s", buf);
 		zone_log.Echo_Text.push_back(buf);
 		for (int dd = 0; dd != Real_Dim; ++dd)
@@ -1110,8 +1107,8 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 
 	if (Echo_Mode.test(2))
 	{
-		if (echo) std::printf("     write variables: ");
-		zone_log.Echo_Text.push_back("     write variables: ");
+		if (echo) std::printf("     write variables:");
+		zone_log.Echo_Text.push_back("     write variables:");
 	}
 	for (std::vector<TEC_DATA>::iterator j = Data.begin(); j != Data.end(); ++j)
 	{
@@ -1119,8 +1116,8 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		fwrite((const byte*)(j->buf), j->size, Real_Max[0]*Real_Max[1]*Real_Max[2], of);//Zone Data. Each variable is in data format as specified above
 		if (Echo_Mode.test(2))
 		{
-			if (echo) std::printf("<%s> ", thisfile.Variables[j - Data.begin()].c_str());
-			*(zone_log.Echo_Text.end() - 1) += ("<" + thisfile.Variables[j - Data.begin()] + "> ");
+			if (echo) std::printf(" <%s>", thisfile.Variables[j - Data.begin()].c_str());
+			*(zone_log.Echo_Text.end() - 1) += (" <" + thisfile.Variables[j - Data.begin()] + ">");
 		}
 	}
 	if (Echo_Mode.test(2))
