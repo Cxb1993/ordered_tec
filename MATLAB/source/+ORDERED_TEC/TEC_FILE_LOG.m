@@ -44,6 +44,26 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
                 throw(ME);
             end
         end
+        
+        function write_echo(obj,fid)
+            if nargin==1
+                fid = fopen(fullfile(obj.FilePath,[obj.FileName,'.txt']),'w');
+                if fid==-1
+                    ME = MException('TEC_FILE_LOG:FileError', 'can not open file %s.txt',obj.FileName);
+                    throw(ME);
+                end
+            end
+            zone_n = 0;
+            for ss = obj.Echo_Text
+                if strcmp(ss{1},'#ZONE#')
+                    zone_n = zone_n + 1;
+                    obj.Zones(zone_n).write_echo(fid);
+                else
+                    fprintf(fid,'%s\n',ss{1});
+                end
+            end
+        end
+        
     end
     
     methods (Access = protected)

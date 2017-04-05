@@ -27,3 +27,4 @@ for nn = 1:N
 end
 %%
 tec_file = tec_file.write_plt();
+tec_file.last_log.write_echo();
