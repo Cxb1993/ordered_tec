@@ -62,13 +62,13 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                     'file [%s]: zone [%s]: zone.Data is empty', file.FileName, obj.ZoneName);
                 throw(ME);
             end
-            if length(obj.Data)~=length(file.Variables)
+            if ~isequal(size(obj.Data),size(file.Variables))
                 ME = MException('ORDERTEC:RuntimeError', ...
                     'file [%s]: zone [%s]: zone.Data is not correspond to tec_file.Variables', file.FileName, obj.ZoneName);
                 throw(ME);
             end
             data_size = size(obj.Data{1});
-            for kk = 1:length(obj.Data)
+            for kk = 1:numel(obj.Data)
                 da = obj.Data{kk};
                 if ~isequal(size(da),data_size)
                     ME = MException('ORDERTEC:RuntimeError', ...
@@ -84,6 +84,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 end
                 [zone_log.Data(kk).type,zone_log.Data(kk).size_i] = gettype(da);
             end
+            zone_log.Data = reshape(zone_log.Data,size(obj.Data));
             rijk = real_ijk(size(obj.Data{1}),obj.Skip,obj.Begin,obj.EEnd);
             if any(rijk <= 0)
                 ME = MException('ORDERTEC:RuntimeError', ...
@@ -125,11 +126,9 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
         function zone_log = write_plt_data(obj,fid,file,zone_log)
             pos_b = ftell(fid);
             fwrite(fid,299.0,'float32');% Zone marker. Value = 299.0
-            val_n =0;
-            for val = obj.Data
-                val_n = val_n + 1;
+            for val_n = 1:numel(obj.Data)
                 try
-                    fwrite(fid,gettype(val{1}),'int32');% Variable data format
+                    fwrite(fid,zone_log.Data(val_n).type,'int32');% Variable data format
                 catch t
                     ME = MException('OT:TypeError','zone [%s] var[%s]: class %s is not support',zone.ZoneName,tec_file.Variables{val_n},t.message);
                     throw(ME);
@@ -139,9 +138,10 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
             fwrite(fid,0,'int32');% Has variable sharing 0 = no
             fwrite(fid,-1,'int32');% Zero based zone number to share connectivity list with (-1 = no sharing)
             buf = cellfun(@(x)makebuf(x,obj.Skip,obj.Begin,obj.EEnd), obj.Data,'UniformOutput',false);
-            for val = buf
-                min_buf=min(val{1}(:));
-                max_buf=max(val{1}(:));
+            for kk = 1:numel(buf)
+                val = buf{kk};
+                min_buf=min(val(:));
+                max_buf=max(val(:));
                 fwrite(fid,min_buf,'float64');% Min value
                 fwrite(fid,max_buf,'float64');% Max value
             end
@@ -202,16 +202,14 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 echobuf = '     write variables:';
                 fprintf('%s',echobuf);
             end
-            val_n =0;
-            for val = buf
-                val_n = val_n +1;
-                v = val{1};
+            for val_n = 1:numel(buf)
+                val = buf{val_n};
                 if obj.Echo_Mode(3)
                     echobuf = [echobuf,' <',file.Variables{val_n},'>'];
                     fprintf(' <%s>',file.Variables{val_n});
                 end
                 zone_log.Data(val_n).file_pt = ftell(fid);
-                fwrite(fid,v,class(v));% Zone Data. Each variable is in data format as specified above
+                fwrite(fid,val,class(val));% Zone Data. Each variable is in data format as specified above
             end
             if obj.Echo_Mode(3)
                 e_l = length(zone_log.Echo_Text)+1;
@@ -221,6 +219,12 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
             
             pos_e = ftell(fid);
             zone_log.Size = (pos_e-pos_b)/1024/1024;
+            if obj.Echo_Mode(9)
+                echobuf = sprintf('     zone size: %.1f MB',zone_log.Size);
+                e_l = length(zone_log.Echo_Text)+1;
+                zone_log.Echo_Text{e_l} = echobuf;
+                fprintf('%s\n',echobuf);
+            end
         end
         
     end

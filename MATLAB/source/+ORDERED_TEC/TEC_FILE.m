@@ -191,20 +191,20 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
             % iii  Title and variable names
             fwrite(fid,obj.FileType,'int32');% FileType 0 = FULL, 1 = GRID, 2 = SOLUTION
             fwrite(fid,ORDERED_TEC.s2i(obj.Title),'int32');% The TITLE
-            fwrite(fid,length(obj.Variables),'int32');% Number of variables (NumVar) in the datafile
+            fwrite(fid,numel(obj.Variables),'int32');% Number of variables (NumVar) in the datafile
             fwrite(fid,ORDERED_TEC.s2i(obj.Variables),'int32');% Variable names
             if obj.Echo_Mode(3)
                 buf = '     VAR:';
-                for kk = obj.Variables
-                    buf = [buf,' <',kk{1},'>'];
+                for kk = 1:numel(obj.Variables)
+                    buf = [buf,' <',obj.Variables{kk},'>'];
                 end
                 e_l = length(obj.last_log.Echo_Text)+1;
                 obj.last_log.Echo_Text{e_l} = buf;
                 fprintf('%s\n',buf);
             end
             % iv   Zones
-            for zone = obj.Zones
-                zone.write_plt_head(fid);
+            for kk = 1:numel(obj.Zones)
+                obj.Zones(kk).write_plt_head(fid);
             end
             % ix Dataset Auxiliary data
             if ~isempty(obj.Auxiliary)
@@ -220,9 +220,8 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
         function obj = write_plt_data(obj,fid)
             % II   DATA SECTION
             % i    For both ordered and fe zones
-            zone_n = 0;
-            for zone = obj.Zones
-                zone_n = zone_n + 1;
+            for zone_n = 1:numel(obj.Zones)
+                zone = obj.Zones(zone_n);
                 if zone.Echo_Mode(1)
                     buf = sprintf('--   write zone %i: %s   --',zone_n,zone.ZoneName);
                     e_l = length(obj.last_log.Echo_Text)+1;
