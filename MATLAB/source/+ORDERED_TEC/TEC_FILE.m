@@ -158,8 +158,8 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 end
             end
             
-            % obj.last_log = obj.last_log.gen_json();
-            % obj.last_log = obj.last_log.gen_xml();
+            obj.last_log = obj.last_log.gen_json();
+            obj.last_log = obj.last_log.gen_xml();
         end
         
     end

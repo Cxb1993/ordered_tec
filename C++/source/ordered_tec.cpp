@@ -204,7 +204,7 @@ void TEC_FILE_LOG::gen_json()
 	std::sprintf(buf, "\t\"FileName\" : \"%s\" ,", (FileName + ".plt").c_str()); Json_Text.push_back(buf);
 	std::sprintf(buf, "\t\"FilePath\" : \"%s\" ,", FilePath.c_str()); Json_Text.push_back(buf);
 	std::sprintf(buf, "\t\"Time\" : \"%s\" ,", Time_Begin.c_str()); Json_Text.push_back(buf);
-	std::sprintf(buf, "\t\"UsingTime\" : \"%.5lf\" ,", UsingTime); Json_Text.push_back(buf);
+	std::sprintf(buf, "\t\"UsingTime\" : %.5lf ,", UsingTime); Json_Text.push_back(buf);
 	std::sprintf(buf, "\t\"Title\" : \"%s\" ,", Title.c_str()); Json_Text.push_back(buf);
 	Json_Text.push_back("\t\"FileType_comment\" : \"0 = FULL, 1 = GRID, 2 = SOLUTION\" ,");
 	std::sprintf(buf, "\t\"FileType\" : %i ,", FileType); Json_Text.push_back(buf);
