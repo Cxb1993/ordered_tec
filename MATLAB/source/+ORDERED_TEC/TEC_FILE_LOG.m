@@ -93,6 +93,33 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
             end
         end
         
+        function write_xml(obj,depth,fid)
+            if nargin==1
+                depth = 0;
+                obj.write_xml(depth);
+            elseif nargin==2
+                fid = fopen(fullfile(obj.FilePath,[obj.FileName,'.xml']),'w');
+                if fid==-1
+                    ME = MException('TEC_FILE_LOG:FileError', 'can not open file %s.xml',obj.FileName);
+                    throw(ME);
+                end
+                fprintf(fid,'<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n');
+                obj.write_xml(depth,fid);
+                fclose(fid);
+            elseif nargin==3
+                zone_n = 0;
+                for ss = obj.Xml_Text
+                    fprintf(fid,repmat('\t',1,depth));
+                    if strcmp(ss{1},'#ZONE#')
+                        zone_n = zone_n + 1;
+                        obj.Zones(zone_n).write_xml(depth+2,fid);
+                    else
+                        fprintf(fid,'%s\n',ss{1});
+                    end
+                end
+            end
+        end
+        
     end
     
     methods (Hidden = true)
@@ -137,10 +164,46 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
                 end
             end
             buf = sprintf('\t]'); obj.Json_Text{end+1} = buf;
+            
             buf = sprintf('}'); obj.Json_Text{end+1} = buf;
         end
         
         function obj = gen_xml(obj)
+            obj.Xml_Text = [];
+            buf = sprintf('<File FileName="%s">',obj.FileName); obj.Xml_Text{end+1} = buf;
+            
+            buf = sprintf('\t<FileName>%s</FileName>', [obj.FileName,'.plt']); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<FilePath>%s</FilePath>', obj.FilePath); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Time>%s</Time>', obj.Time_Begin); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<UsingTime>%.5f</UsingTime>', obj.UsingTime); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Title>%s</Title>', obj.Title); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<!--%s-->', '0 = FULL, 1 = GRID, 2 = SOLUTION'); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<FileType>%i</FileType>', obj.FileType); obj.Xml_Text{end+1} = buf;
+            
+            buf = sprintf('\t<Variables>'); obj.Xml_Text{end+1} = buf;
+            for v_n = 1:numel(obj.Variables)
+                buf = sprintf(' <I>%s</I>',obj.Variables{v_n});
+                obj.Xml_Text{end} = [obj.Xml_Text{end},buf];
+            end
+            obj.Xml_Text{end} = [obj.Xml_Text{end},' </Variables>'];
+            
+            if ~isempty(obj.Auxiliary)
+                buf  = sprintf('\t<Auxiliarys>'); obj.Xml_Text{end+1} = buf;
+                for kk = 1:length(obj.Auxiliary)
+                    buf = sprintf('\t\t<Auxiliary Name="%s">%s</Auxiliary>',obj.Auxiliary{kk}{1},obj.Auxiliary{kk}{2});
+                    obj.Xml_Text{end+1} = buf;
+                end
+                buf  = sprintf('\t</Auxiliarys>'); obj.Xml_Text{end+1} = buf;
+            end
+            
+            buf = sprintf('\t<Zones>'); obj.Xml_Text{end+1} = buf;
+            for z_n = 1:numel(obj.Zones)
+                obj.Zones(z_n) = obj.Zones(z_n).gen_xml();
+                obj.Xml_Text{end+1} = '#ZONE#';
+            end
+            buf = sprintf('\t</Zones>'); obj.Xml_Text{end+1} = buf;
+            
+            buf = sprintf('</File>'); obj.Xml_Text{end+1} = buf;
         end
         
     end

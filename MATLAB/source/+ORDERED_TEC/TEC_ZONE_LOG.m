@@ -87,6 +87,27 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
             end
         end
         
+        function write_xml(obj,depth,fid)
+            if nargin==1
+                depth = 0;
+                obj.write_xml(depth);
+            elseif nargin==2
+                fid = fopen([obj.ZoneName,'.xml'],'w');
+                if fid==-1
+                    ME = MException('TEC_ZONE_LOG:FileError', 'can not open file %s.xml',obj.ZoneName);
+                    throw(ME);
+                end
+                fprintf(fid,'<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n');
+                obj.write_xml(depth,fid);
+                fclose(fid);
+            elseif nargin==3
+                for ss = obj.Xml_Text
+                    fprintf(fid,repmat('\t',1,depth));
+                    fprintf(fid,'%s\n',ss{1});
+                end
+            end
+        end
+        
     end
    
     methods (Hidden = true)
@@ -132,6 +153,38 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
         end
         
         function obj = gen_xml(obj)
+            obj.Xml_Text = [];
+            buf = sprintf('<Zone ZoneName="%s">', obj.ZoneName); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<ZoneName>%s</ZoneName>', obj.ZoneName); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<StrandId>%i</StrandId>', obj.StrandId); obj.Xml_Text{end+1} = buf;
+            if obj.StrandId ~= -1
+                buf = sprintf('\t<SolutionTime>%le</SolutionTime>', obj.SolutionTime); obj.Xml_Text{end+1} = buf;
+            end
+            buf = sprintf('\t<Real_Dim>%i</Real_Dim>', obj.Real_Dim); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Org_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Org_Max>', obj.Max(1), obj.Max(2), obj.Max(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Skip> <I>%i</I> <I>%i</I> <I>%i</I> </Skip>', obj.Skip(1), obj.Skip(2), obj.Skip(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Begin> <I>%i</I> <I>%i</I> <I>%i</I> </Begin>', obj.Begin(1), obj.Begin(2), obj.Begin(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<End> <I>%i</I> <I>%i</I> <I>%i</I> </End>', obj.EEnd(1), obj.EEnd(2), obj.EEnd(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Real_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Real_Max>', obj.Real_Max(1), obj.Real_Max(2), obj.Real_Max(3)); obj.Xml_Text{end+1} = buf;
+            
+            if ~isempty(obj.Auxiliary)
+                buf  = sprintf('\t<Auxiliary>'); obj.Xml_Text{end+1} = buf;
+                for kk = 1:length(obj.Auxiliary)
+                    buf = sprintf('\t\t<Auxiliary Name="%s">%s</Auxiliary>',obj.Auxiliary{kk}{1},obj.Auxiliary{kk}{2});
+                    obj.Xml_Text{end+1} = buf;
+                end
+                buf  = sprintf('\t</Auxiliary>'); obj.Xml_Text{end+1} = buf;
+            end
+            
+            buf = sprintf('\t<!--1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit-->'); obj.Xml_Text{end+1} = buf;
+            buf  = sprintf('\t<Datas>'); obj.Xml_Text{end+1} = buf;
+            for kk = 1:numel(obj.Data)
+                buf = sprintf('\t\t<Data type="%i" size_i="%i" file_pt="%i"/>',obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt);
+                obj.Xml_Text{end+1} = buf;
+            end
+            buf  = sprintf('\t</Datas>'); obj.Xml_Text{end+1} = buf;
+            
+            buf  = sprintf('</Zone>'); obj.Xml_Text{end+1} = buf;
         end
         
     end
