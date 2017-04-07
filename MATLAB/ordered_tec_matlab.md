@@ -4,5 +4,9 @@
 - [x] modify the echo mode
 - [x] add some log file in case of reading the raw data
 - [x] combine with the xml file
-- [ ] more test
+- [ ] test for real_max
+- [ ] test for construction
+- [ ] test for echo mode set
+- [ ] test for echo mode
+- [ ] test for type
 - [ ] document
