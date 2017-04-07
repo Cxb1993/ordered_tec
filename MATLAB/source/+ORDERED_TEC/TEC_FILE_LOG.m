@@ -33,8 +33,8 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
                             obj(kk) = ORDERED_TEC.TEC_FILE_LOG(tec_file_m(kk));
                         end
                     end
-                elseif(isa(varargin{1},'numeric') && isscalar(varargin{1}) && mod(varargin{1},1)==0)
-                    obj(varargin{1}) = ORDERED_TEC.TEC_FILE_LOG;
+                elseif isa(varargin{1},'numeric') && isequal(mod(varargin{1},1),zeros(size(varargin{1})))
+                    obj = repmat(ORDERED_TEC.TEC_FILE_LOG,varargin{1});
                 else
                     ME = MException('TEC_FILE_LOG:TypeWrong', 'constructor type wrong');
                     throw(ME);
@@ -64,6 +64,9 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
                         fprintf(fid,'%s\n',ss{1});
                     end
                 end
+            else
+                ME = MException('TEC_FILE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
             end
         end
         
@@ -90,6 +93,9 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
                         fprintf(fid,'%s\n',ss{1});
                     end
                 end
+            else
+                ME = MException('TEC_FILE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
             end
         end
         
@@ -117,6 +123,9 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
                         fprintf(fid,'%s\n',ss{1});
                     end
                 end
+            else
+                ME = MException('TEC_FILE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
             end
         end
         

@@ -16,5 +16,3 @@ tec_file.Zones = TEC_ZONE;
 tec_file.Zones.Data = {x,y,w};
 %%
 tec_file = tec_file.write_plt();
-disp(tec_file.last_log)
-disp(tec_file.last_log.Zones)

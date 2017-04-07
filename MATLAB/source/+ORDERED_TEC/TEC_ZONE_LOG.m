@@ -39,8 +39,8 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                             obj(kk) = ORDERED_TEC.TEC_ZONE_LOG(tec_zone_m(kk));
                         end
                     end
-                elseif(isa(varargin{1},'numeric') && isscalar(varargin{1}) && mod(varargin{1},1)==0)
-                    obj(varargin{1}) = ORDERED_TEC.TEC_ZONE_LOG;
+                elseif isa(varargin{1},'numeric') && isequal(mod(varargin{1},1),zeros(size(varargin{1})))
+                    obj = repmat(ORDERED_TEC.TEC_ZONE_LOG,varargin{1});
                 else
                     ME = MException('TEC_ZONE_LOG:TypeWrong', 'constructor type wrong');
                     throw(ME);
@@ -64,6 +64,9 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                 for ss = obj.Echo_Text
                     fprintf(fid,'%s\n',ss{1});
                 end
+            else
+                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
             end
         end
         
@@ -84,6 +87,9 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                     fprintf(fid,repmat('\t',1,depth));
                     fprintf(fid,'%s\n',ss{1});
                 end
+            else
+                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
             end
         end
         
@@ -105,6 +111,9 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                     fprintf(fid,repmat('\t',1,depth));
                     fprintf(fid,'%s\n',ss{1});
                 end
+            else
+                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
             end
         end
         

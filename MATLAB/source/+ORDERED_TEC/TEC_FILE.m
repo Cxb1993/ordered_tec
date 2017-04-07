@@ -93,7 +93,7 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                     fprintf('%s\n',buf);
                 end
             end
-            fid = fopen([obj.FileName,'.plt'],'wb');
+            fid = fopen([obj.FilePath,'/',obj.FileName,'.plt'],'wb');
             if fid==-1
                 ME = MException('TEC_FILE:FileError', 'can not open file %s.plt',obj.FileName);
                 throw(ME);

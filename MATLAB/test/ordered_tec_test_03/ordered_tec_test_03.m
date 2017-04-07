@@ -6,7 +6,7 @@ clc
 addpath('../../source')
 import ORDERED_TEC.*
 %%
-x = 0:0.5:2*pi;
+x = 0:0.05:2*pi;
 [x,y] = meshgrid(x);
 M = 2;
 N = 3;
