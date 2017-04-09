@@ -140,7 +140,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 unvalid = any(unvalid(:));
                 if unvalid
                     ME = MException('TEC_ZONE:RuntimeError', ...
-                        'FILE[%s]--ZONE[%s]: data[%s] is not valid (has nan or inf)', file.FileName, obj.ZoneName,file.Variables{kk});
+                        'FILE[%s]--ZONE[%s]: data[%s] is not valid (has nan or inf)', file.FileName, obj.ZoneName, file.Variables{kk});
                     throw(ME);
                 end
                 if ~isequal(size(da),data_size)
@@ -148,7 +148,13 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                         'FILE[%s]--ZONE[%s]: data size is not equal', file.FileName, obj.ZoneName);
                     throw(ME);
                 end
-                [zone_log.Data(kk).type,zone_log.Data(kk).size_i] = gettype(da);
+                try
+                    [zone_log.Data(kk).type,zone_log.Data(kk).size_i] = gettype(da);
+                catch ME
+                    ME = MException('TEC_ZONE:RuntimeError', ...
+                        'FILE[%s]--ZONE[%s]: Data[%s] %s', file.FileName, obj.ZoneName, file.Variables{kk}, ME.message);
+                    throw(ME);
+                end
             end
             zone_log.Data = reshape(zone_log.Data,size(obj.Data));
             
@@ -344,7 +350,7 @@ switch t
         ty = 5;
         si = 1;
     otherwise
-        ME = MException('TEC_ZONE:TypeError',t);
+        ME = MException('TEC_ZONE:TypeError','class(%s) do not supported',t);
         throw(ME);
 end
 end

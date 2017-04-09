@@ -8,5 +8,5 @@
 - [x] test for construction
 - [x] test for echo mode set
 - [x] test for echo mode
-- [ ] test for type
+- [x] test for type
 - [ ] document
