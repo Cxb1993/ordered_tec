@@ -5,7 +5,7 @@
 - [x] add some log file in case of reading the raw data
 - [x] combine with the xml file
 - [x] test for wrtie_plt_pre andreal_max
-- [ ] test for construction
+- [x] test for construction
 - [ ] test for echo mode set
 - [ ] test for echo mode
 - [ ] test for type

@@ -17,14 +17,23 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                 obj.FileType = 0;
                 obj.Echo_Mode = 'brief';
             elseif nargin == 1
-                if isa(varargin{1},'numeric') && isequal(mod(varargin{1},1),zeros(size(varargin{1})))
-                    obj = repmat(ORDERED_TEC.TEC_FILE,varargin{1});
+                if isempty(varargin{1})
+                    ME = MException('TEC_FILE:TypeWrong', 'input of TEC_FILE constructor is empty');
+                    throw(ME);
+                end
+                if isa(varargin{1},'numeric')
+                    if isequal(mod(varargin{1},1),zeros(size(varargin{1})))
+                        obj = repmat(ORDERED_TEC.TEC_FILE,varargin{1});
+                    else
+                        ME = MException('TEC_FILE:TypeWrong', 'input of TEC_FILE constructor must be a positive integer');
+                        throw(ME);
+                    end
                 else
-                    ME = MException('TEC_FILE:TypeWrong', 'constructor type wrong');
+                    ME = MException('TEC_FILE:TypeWrong', 'TEC_FILE constructor type wrong (%s)',class(varargin{1}));
                     throw(ME);
                 end
             else
-                ME = MException('TEC_FILE:NArgInWrong', 'too many input arguments');
+                ME = MException('TEC_FILE:NArgInWrong', 'TEC_FILE constructor too many input arguments');
                 throw(ME);
             end
         end
@@ -167,12 +176,12 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
     methods (Hidden = true)
         function obj = wrtie_plt_pre(obj)
             if isempty(obj.Variables)
-                ME = MException('ORDERTEC:RuntimeError', ...
+                ME = MException('TEC_FILE:RuntimeError', ...
                     'FILE[%s]: TEC_FILE.Variables is empty',obj.FileName);
                 throw(ME);
             end
             if isempty(obj.Zones)
-                ME = MException('ORDERTEC:RuntimeError', ...
+                ME = MException('TEC_FILE:RuntimeError', ...
                     'FILE[%s]: TEC_FILE.Zones is empty',obj.FileName);
                 throw(ME);
             end

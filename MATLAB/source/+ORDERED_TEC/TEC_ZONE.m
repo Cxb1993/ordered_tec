@@ -18,14 +18,23 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 obj.EEnd = [0,0,0];
                 obj.Echo_Mode = 'brief';
             elseif nargin==1
-                if isa(varargin{1},'numeric') && isequal(mod(varargin{1},1),zeros(size(varargin{1})))
-                    obj = repmat(ORDERED_TEC.TEC_ZONE,varargin{1});
+                if isempty(varargin{1})
+                    ME = MException('TEC_ZONE:TypeWrong', 'input of TEC_ZONE constructor is empty');
+                    throw(ME);
+                end
+                if isa(varargin{1},'numeric')
+                    if isequal(mod(varargin{1},1),zeros(size(varargin{1})))
+                        obj = repmat(ORDERED_TEC.TEC_ZONE,varargin{1});
+                    else
+                        ME = MException('TEC_ZONE:TypeWrong', 'input of TEC_ZONE constructor must be a positive integer');
+                        throw(ME);
+                    end
                 else
-                    ME = MException('TEC_ZONE:TypeWrong', 'constructor type wrong');
+                    ME = MException('TEC_ZONE:TypeWrong', 'TEC_ZONE constructor type wrong (%s)',class(varargin{1}));
                     throw(ME);
                 end
             else
-                ME = MException('TEC_ZONE:NArgInWrong', 'too many input arguments');
+                ME = MException('TEC_ZONE:NArgInWrong', 'TEC_ZONE constructor too many input arguments');
                 throw(ME);
             end
         end
@@ -58,28 +67,28 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 [Real_Max,Real_Dim,noskip,noexc] = obj.gather_real_size(1);
             elseif nargin==2
                 if numel(obj.Data)<n
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'numel(obj.Data):%i < n:%i',numel(obj.Data),n);
                     throw(ME);
                 end
                 if any(obj.Skip<=0 | mod(obj.Skip,1)~=0)
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'the Skip of zone is not possitive integer:[%s]',num2str(obj.Skip));
                     throw(ME);
                 end
                 if any(obj.Begin<=0 | mod(obj.Begin,1)~=0)
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'the Begin of zone is not possitive integer:[%s]',num2str(obj.Begin));
                     throw(ME);
                 end
                 if any(obj.EEnd<0 | mod(obj.EEnd,1)~=0)
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'the EEnd of zone is not possitive integer:[%s]',num2str(obj.EEnd));
                     throw(ME);
                 end
                 Real_Max = real_ijk(size(obj.Data{n}),obj.Skip,obj.Begin,obj.EEnd);
                 if any(Real_Max<=0)
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'sum of Begin and EEnd is not smaller than Max:[%s]+[%s]>=[%s]', ...
                         num2str(obj.Begin-1),num2str(obj.EEnd),num2str(real_ijk(size(obj.Data{n}),[1,1,1],[1,1,1],[0,0,0])));
                     throw(ME);
@@ -88,7 +97,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 noskip = isequal(obj.Skip,[1,1,1]);
                 noexc = isequal(obj.Begin,[1,1,1]) && isequal(obj.EEnd,[0,0,0]);
             else
-                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'too many input arguments');
+                ME = MException('TEC_ZONE:NArgInWrong', 'too many input arguments');
                 throw(ME);
             end
         end
@@ -98,12 +107,12 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
     methods (Hidden = true)
         function [obj,zone_log] = wrtie_plt_pre(obj,file,zone_log)
             if isempty(obj.Data)
-                ME = MException('ORDERTEC:RuntimeError', ...
+                ME = MException('TEC_ZONE:RuntimeError', ...
                     'FILE[%s]--ZONE[%s]: TEC_ZONE.Data is empty', file.FileName, obj.ZoneName);
                 throw(ME);
             end
             if ~isequal(size(obj.Data),size(file.Variables))
-                ME = MException('ORDERTEC:RuntimeError', ...
+                ME = MException('TEC_ZONE:RuntimeError', ...
                     'FILE[%s]--ZONE[%s]: TEC_ZONE.Data is not correspond to TEC_FILE.Variables', file.FileName, obj.ZoneName);
                 throw(ME);
             end
@@ -111,24 +120,24 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
             for kk = 1:numel(obj.Data)
                 da = obj.Data{kk};
                 if isempty(da)
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'FILE[%s]--ZONE[%s]: data[%s] is empty', file.FileName, obj.ZoneName,file.Variables{kk});
                     throw(ME);
                 end
                 if ndims(da)>3
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'FILE[%s]--ZONE[%s]: the dimension of data[%s] is bigger than 3', file.FileName, obj.ZoneName,file.Variables{kk});
                     throw(ME);
                 end
                 unvalid = isinf(da) | isnan(da);
                 unvalid = any(unvalid(:));
                 if unvalid
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'FILE[%s]--ZONE[%s]: data[%s] is not valid (has nan or inf)', file.FileName, obj.ZoneName,file.Variables{kk});
                     throw(ME);
                 end
                 if ~isequal(size(da),data_size)
-                    ME = MException('ORDERTEC:RuntimeError', ...
+                    ME = MException('TEC_ZONE:RuntimeError', ...
                         'FILE[%s]--ZONE[%s]: data size is not equal', file.FileName, obj.ZoneName);
                     throw(ME);
                 end
@@ -141,7 +150,7 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
             try
                 [zone_log.Real_Max,zone_log.Real_Dim,zone_log.noskip,zone_log.noexc] = obj.gather_real_size();
             catch ME_
-                ME = MException('ORDERTEC:RuntimeError', ...
+                ME = MException('TEC_ZONE:RuntimeError', ...
                         'FILE[%s]--ZONE[%s]: %s', file.FileName, obj.ZoneName, ME_.message);
                 throw(ME);
             end
@@ -302,7 +311,7 @@ else
         begin(3):skip(3):end-eend(3));
 end
 if isempty(buf)
-    ME = MException('ORDERTEC:ErrorVariable','one of Skip or Begin or EEnd is error');
+    ME = MException('TEC_ZONE:ErrorVariable','one of Skip or Begin or EEnd is error');
     throw(ME);
 end
 end
@@ -328,7 +337,7 @@ switch t
         ty = 5;
         si = 1;
     otherwise
-        ME = MException('OT:TypeError',t);
+        ME = MException('TEC_ZONE:TypeError',t);
         throw(ME);
 end
 end

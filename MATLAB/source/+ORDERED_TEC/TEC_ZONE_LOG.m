@@ -22,6 +22,10 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
         function obj = TEC_ZONE_LOG(varargin)
             if nargin==0
             elseif nargin==1
+                if isempty(varargin{1})
+                    ME = MException('TEC_ZONE_LOG:TypeWrong', 'input of TEC_ZONE_LOG constructor is empty');
+                    throw(ME);
+                end
                 if isa(varargin{1},'ORDERED_TEC.TEC_ZONE')
                     if isscalar(varargin{1})
                         tec_zone = varargin{1};
@@ -40,13 +44,18 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                         end
                     end
                 elseif isa(varargin{1},'numeric') && isequal(mod(varargin{1},1),zeros(size(varargin{1})))
-                    obj = repmat(ORDERED_TEC.TEC_ZONE_LOG,varargin{1});
+                    if isequal(mod(varargin{1},1),zeros(size(varargin{1})))
+                        obj = repmat(ORDERED_TEC.TEC_ZONE_LOG,varargin{1});
+                    else
+                        ME = MException('TEC_ZONE_LOG:TypeWrong', 'input of TEC_ZONE_LOG constructor must be a positive integer');
+                        throw(ME);
+                    end
                 else
-                    ME = MException('TEC_ZONE_LOG:TypeWrong', 'constructor type wrong');
+                    ME = MException('TEC_ZONE_LOG:TypeWrong', 'TEC_ZONE_LOG constructor type wrong (%s)',class(varargin{1}));
                     throw(ME);
                 end
             else
-                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'too many input arguments');
+                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'TEC_ZONE_LOG constructor too many input arguments');
                 throw(ME);
             end
         end
