@@ -39,8 +39,15 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
         end
         
         function obj = set.Echo_Mode(obj, file_mode)
-            if islogical(file_mode) && ( isequal(size(file_mode),[1,7]) || isequal(size(file_mode),[7,1]) )
-                obj.Echo_Mode = file_mode;
+            if islogical(file_mode)
+                if isequal(size(file_mode),[1,7])
+                    obj.Echo_Mode = file_mode;
+                elseif isequal(size(file_mode),[7,1])
+                    obj.Echo_Mode = file_mode';
+                else
+                    ME = MException('TEC_FILE:InputWrong', 'echo_mode code size wrong');
+                    throw(ME);
+                end
             elseif ischar(file_mode)
                 if strcmp(file_mode,'brief')
                     obj.Echo_Mode = logical([1,1,1,0,0,1,0]);
@@ -52,29 +59,28 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
                     obj.Echo_Mode = false(1,7);
                 elseif strcmp(file_mode,'leave')
                 else
-                    ME = MException('TEC_FILE:InputWrong', 'echo_mode code string wrong');
+                    ME = MException('TEC_FILE:InputWrong', 'echo_mode code string wrong ("%s")',file_mode);
                     throw(ME);
                 end
             else
-                ME = MException('TEC_FILE:TypeWrong', 'echo_mode type wrong');
+                ME = MException('TEC_FILE:TypeWrong', 'echo_mode type wrong (%s)',class(file_mode));
                 throw(ME);
             end
         end
         
         function obj = set_echo_mode(obj, file_mode, zone_mode)
             if nargin == 1
-                file_mode = 'leave';
-                zone_mode = 'leave';
+                obj = obj.set_echo_mode('leave','leave');
             elseif nargin == 2
-                zone_mode = 'leave';
+                obj = obj.set_echo_mode(file_mode,'leave');
             elseif nargin == 3
+                obj.Echo_Mode = file_mode;
+                for kk=1:numel(obj.Zones)
+                    obj.Zones(kk).Echo_Mode = zone_mode;
+                end
             else
-                ME = MException('TEC_FILE:NArgInWrong', 'too many or too few input arguments');
+                ME = MException('TEC_FILE:NArgInWrong', 'set_echo_mode too many or too few input arguments');
                 throw(ME);
-            end
-            obj.Echo_Mode = file_mode;
-            for kk=1:numel(obj.Zones)
-                obj.Zones(kk).Echo_Mode = zone_mode;
             end
         end
         

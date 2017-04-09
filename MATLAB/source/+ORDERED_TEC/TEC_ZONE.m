@@ -40,8 +40,15 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
         end
         
         function obj = set.Echo_Mode(obj, zone_mode)
-            if islogical(zone_mode) && ( isequal(size(zone_mode),[1,9]) || isequal(size(zone_mode),[9,1]) )
-                obj.Echo_Mode = zone_mode;
+            if islogical(zone_mode)
+                if isequal(size(zone_mode),[1,9])
+                    obj.Echo_Mode = zone_mode;
+                elseif isequal(size(zone_mode),[9,1])
+                    obj.Echo_Mode = zone_mode';
+                else
+                    ME = MException('TEC_ZONE:InputWrong', 'echo_mode code size wrong');
+                    throw(ME);
+                end
             elseif ischar(zone_mode)
                 if strcmp(zone_mode,'brief')
                     obj.Echo_Mode = logical([1,0,0,1,0,0,0,0,0]);
@@ -53,11 +60,11 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                     obj.Echo_Mode = false(1,9);
                 elseif strcmp(zone_mode,'leave')
                 else
-                    ME = MException('TEC_ZONE:InputWrong', 'echo_mode code string wrong');
+                    ME = MException('TEC_ZONE:InputWrong', 'echo_mode code string wrong ("%s")',zone_mode);
                     throw(ME);
                 end
             else
-                ME = MException('TEC_ZONE:TypeWrong', 'echo_mode type wrong');
+                ME = MException('TEC_ZONE:TypeWrong', 'echo_mode type wrong (%s)',class(zone_mode));
                 throw(ME);
             end
         end
