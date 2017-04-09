@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="order_tec_test_03.cpp" />
+    <ClCompile Include="order_tec_test_09.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{175d2abe-7121-4383-b2ac-426cec045f14}</ProjectGuid>
+    <ProjectGuid>{1477c00f-3e6f-4de8-bca7-473f3b00c627}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>test_03</RootNamespace>
+    <RootNamespace>test_09</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

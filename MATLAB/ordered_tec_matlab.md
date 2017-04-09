@@ -1,0 +1,12 @@
+# TODO
+- [x] reconstruct the data structure
+- [x] refine the function
+- [x] modify the echo mode
+- [x] add some log file in case of reading the raw data
+- [x] combine with the xml file
+- [x] test for wrtie_plt_pre andreal_max
+- [x] test for construction
+- [x] test for echo mode set
+- [x] test for echo mode
+- [x] test for type
+- [ ] document
