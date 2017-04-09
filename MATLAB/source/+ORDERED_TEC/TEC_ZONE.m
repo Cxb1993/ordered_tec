@@ -53,50 +53,98 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
             end
         end
         
+        function [Real_Max,Real_Dim,noskip,noexc] = gather_real_size(obj,n)
+            if nargin==1
+                [Real_Max,Real_Dim,noskip,noexc] = obj.gather_real_size(1);
+            elseif nargin==2
+                if numel(obj.Data)<n
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'numel(obj.Data):%i < n:%i',numel(obj.Data),n);
+                    throw(ME);
+                end
+                if any(obj.Skip<=0 | mod(obj.Skip,1)~=0)
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'the Skip of zone is not possitive integer:[%s]',num2str(obj.Skip));
+                    throw(ME);
+                end
+                if any(obj.Begin<=0 | mod(obj.Begin,1)~=0)
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'the Begin of zone is not possitive integer:[%s]',num2str(obj.Begin));
+                    throw(ME);
+                end
+                if any(obj.EEnd<0 | mod(obj.EEnd,1)~=0)
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'the EEnd of zone is not possitive integer:[%s]',num2str(obj.EEnd));
+                    throw(ME);
+                end
+                Real_Max = real_ijk(size(obj.Data{n}),obj.Skip,obj.Begin,obj.EEnd);
+                if any(Real_Max<=0)
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'sum of Begin and EEnd is not smaller than Max:[%s]+[%s]>=[%s]', ...
+                        num2str(obj.Begin-1),num2str(obj.EEnd),num2str(real_ijk(size(obj.Data{n}),[1,1,1],[1,1,1],[0,0,0])));
+                    throw(ME);
+                end
+                Real_Dim = find(Real_Max~=1,1,'last');
+                noskip = isequal(obj.Skip,[1,1,1]);
+                noexc = isequal(obj.Begin,[1,1,1]) && isequal(obj.EEnd,[0,0,0]);
+            else
+                ME = MException('TEC_ZONE_LOG:NArgInWrong', 'too many input arguments');
+                throw(ME);
+            end
+        end
+        
     end
     
     methods (Hidden = true)
         function [obj,zone_log] = wrtie_plt_pre(obj,file,zone_log)
             if isempty(obj.Data)
                 ME = MException('ORDERTEC:RuntimeError', ...
-                    'file [%s]: zone [%s]: zone.Data is empty', file.FileName, obj.ZoneName);
+                    'FILE[%s]--ZONE[%s]: TEC_ZONE.Data is empty', file.FileName, obj.ZoneName);
                 throw(ME);
             end
             if ~isequal(size(obj.Data),size(file.Variables))
                 ME = MException('ORDERTEC:RuntimeError', ...
-                    'file [%s]: zone [%s]: zone.Data is not correspond to tec_file.Variables', file.FileName, obj.ZoneName);
+                    'FILE[%s]--ZONE[%s]: TEC_ZONE.Data is not correspond to TEC_FILE.Variables', file.FileName, obj.ZoneName);
                 throw(ME);
             end
             data_size = size(obj.Data{1});
             for kk = 1:numel(obj.Data)
                 da = obj.Data{kk};
-                if ~isequal(size(da),data_size)
+                if isempty(da)
                     ME = MException('ORDERTEC:RuntimeError', ...
-                        'file [%s]: zone [%s]: data size is not equal', file.FileName, obj.ZoneName);
+                        'FILE[%s]--ZONE[%s]: data[%s] is empty', file.FileName, obj.ZoneName,file.Variables{kk});
+                    throw(ME);
+                end
+                if ndims(da)>3
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'FILE[%s]--ZONE[%s]: the dimension of data[%s] is bigger than 3', file.FileName, obj.ZoneName,file.Variables{kk});
                     throw(ME);
                 end
                 unvalid = isinf(da) | isnan(da);
                 unvalid = any(unvalid(:));
                 if unvalid
                     ME = MException('ORDERTEC:RuntimeError', ...
-                        'file [%s]: zone [%s]: data is not valid (has nan or inf)', file.FileName, obj.ZoneName);
+                        'FILE[%s]--ZONE[%s]: data[%s] is not valid (has nan or inf)', file.FileName, obj.ZoneName,file.Variables{kk});
+                    throw(ME);
+                end
+                if ~isequal(size(da),data_size)
+                    ME = MException('ORDERTEC:RuntimeError', ...
+                        'FILE[%s]--ZONE[%s]: data size is not equal', file.FileName, obj.ZoneName);
                     throw(ME);
                 end
                 [zone_log.Data(kk).type,zone_log.Data(kk).size_i] = gettype(da);
             end
             zone_log.Data = reshape(zone_log.Data,size(obj.Data));
-            rijk = real_ijk(size(obj.Data{1}),obj.Skip,obj.Begin,obj.EEnd);
-            if any(rijk <= 0)
-                ME = MException('ORDERTEC:RuntimeError', ...
-                    'file [%s]: zone [%s]: sum of Begin and End is not smaller than Max', file.FileName, obj.ZoneName);
-                throw(ME);
-            end
+            
             zone_log.Max = real_ijk(size(obj.Data{1}),[1,1,1],[1,1,1],[0,0,0]);
             zone_log.Dim = find(zone_log.Max~=1,1,'last');
-            zone_log.Real_Max = rijk;
-            zone_log.Real_Dim = find(rijk~=1,1,'last');
-            zone_log.noskip = isequal(obj.Skip,[1,1,1]);
-            zone_log.noexc = isequal(obj.Begin,[1,1,1]) && isequal(obj.EEnd,[0,0,0]);
+            try
+                [zone_log.Real_Max,zone_log.Real_Dim,zone_log.noskip,zone_log.noexc] = obj.gather_real_size();
+            catch ME_
+                ME = MException('ORDERTEC:RuntimeError', ...
+                        'FILE[%s]--ZONE[%s]: %s', file.FileName, obj.ZoneName, ME_.message);
+                throw(ME);
+            end
         end
         
         function write_plt_head(obj,fid)

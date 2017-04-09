@@ -168,12 +168,12 @@ classdef TEC_FILE < ORDERED_TEC.TEC_FILE_BASE
         function obj = wrtie_plt_pre(obj)
             if isempty(obj.Variables)
                 ME = MException('ORDERTEC:RuntimeError', ...
-                    'file [%s]: tec_file.Variables is unset',obj.FileName);
+                    'FILE[%s]: TEC_FILE.Variables is empty',obj.FileName);
                 throw(ME);
             end
             if isempty(obj.Zones)
                 ME = MException('ORDERTEC:RuntimeError', ...
-                    'file [%s]: tec_file.Zones is unset',obj.FileName);
+                    'FILE[%s]: TEC_FILE.Zones is empty',obj.FileName);
                 throw(ME);
             end
             obj.last_log.Zones = ORDERED_TEC.TEC_ZONE_LOG(obj.Zones);
