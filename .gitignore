@@ -10,7 +10,6 @@
 *.lib
 *.log
 *.json
-*.xml
 *.opendb
 C++/test/.vs/
 C++/test/test.VC.db
