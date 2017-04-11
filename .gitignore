@@ -36,3 +36,4 @@ MATLAB/test/ordered_tec_test_05/test_05/test_05_grid.txt
 MATLAB/test/ordered_tec_test_09/test_09.txt
 C++/doc/chs/
 C++/doc/eng/
+*.html
