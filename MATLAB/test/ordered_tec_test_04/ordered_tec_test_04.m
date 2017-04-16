@@ -15,6 +15,7 @@ tec_file_g = TEC_FILE;
 tec_file_g.FileName = 'test_04_g';
 tec_file_g.FileType = 1;
 tec_file_g.Variables = {'x','y'};
+tec_file_g.Auxiliary = {{'a1','1'},{'a2','2'}};
 tec_file_g.Zones = TEC_ZONE;
 tec_file_g.Zones.Data = {x,y};
 %%

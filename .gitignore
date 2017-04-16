@@ -37,3 +37,5 @@ MATLAB/test/ordered_tec_test_09/test_09.txt
 C++/doc/chs/
 C++/doc/eng/
 *.html
+MATLAB/test/ordered_tec_test_04/test_04_g.xml
+MATLAB/test/ordered_tec_test_04/test_04_s.xml
