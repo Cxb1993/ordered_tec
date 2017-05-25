@@ -134,6 +134,8 @@ namespace ORDERED_TEC
 	{
 	public:
 		long int file_pt;
+		double min;
+		double max;
 	public:
 		TEC_DATA_LOG();
 		explicit TEC_DATA_LOG(const TEC_DATA &data);

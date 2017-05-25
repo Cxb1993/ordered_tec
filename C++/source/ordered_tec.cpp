@@ -417,7 +417,9 @@ void TEC_ZONE_LOG::gen_json()
 	Json_Text.push_back("\t\"Data\" : [");
 	for (std::vector<TEC_DATA_LOG>::const_iterator i = Data.begin(); i != Data.end(); ++i)
 	{
-		std::sprintf(buf, "\t\t{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li }", i->type, i->size, Data[i - Data.begin()].file_pt); Json_Text.push_back(buf);
+		std::sprintf(buf, "\t\t{ \"type\":%i, \"size_i\":%zi, \"file_pt\":%li, \"min\":%lf, \"max\":%lf }",
+			i->type, i->size, Data[i - Data.begin()].file_pt, Data[i - Data.begin()].min, Data[i - Data.begin()].max);
+		Json_Text.push_back(buf);
 		if (Data.end() - i != 1)
 		{
 			*(Json_Text.end() - 1) += ",";
@@ -462,7 +464,8 @@ void TEC_ZONE_LOG::gen_xml()
 	Xml_Text.push_back("\t<Datas>");
 	for (std::vector<TEC_DATA_LOG>::iterator i = Data.begin(); i != Data.end(); ++i)
 	{
-		std::sprintf(buf, "\t\t<Data type=\"%i\" size_i=\"%zi\" file_pt=\"%li\"/>", i->type, i->size, Data[i - Data.begin()].file_pt);
+		std::sprintf(buf, "\t\t<Data type=\"%i\" size_i=\"%zi\" file_pt=\"%li\" min=\"%lf\" max=\"%lf\"/>",
+			i->type, i->size, Data[i - Data.begin()].file_pt, Data[i - Data.begin()].min, Data[i - Data.begin()].max);
 		Xml_Text.push_back(buf);
 	}
 	Xml_Text.push_back("\t</Datas>");
@@ -1027,6 +1030,8 @@ void TEC_ZONE::write_plt_data(FILE *of, const TEC_FILE &thisfile, TEC_ZONE_LOG &
 		std::pair<FLOAT64, FLOAT64> mm = j->minmax(Real_Max[0]*Real_Max[1]*Real_Max[2]);
 		W_FLOAT64(mm.first, of);//Min value
 		W_FLOAT64(mm.second, of);//Max value
+		zone_log.Data[j - Data.begin()].min = mm.first;
+		zone_log.Data[j - Data.begin()].max = mm.second;
 	}
 
 	if (Echo_Mode.test(3))

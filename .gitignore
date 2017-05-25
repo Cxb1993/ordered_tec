@@ -39,3 +39,5 @@ C++/doc/eng/
 *.html
 MATLAB/test/ordered_tec_test_04/test_04_g.xml
 MATLAB/test/ordered_tec_test_04/test_04_s.xml
+C++/test/test_02/Zone_A.xml
+C++/test/test_02/test_02.xml
