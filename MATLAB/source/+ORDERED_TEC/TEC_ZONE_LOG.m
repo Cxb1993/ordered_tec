@@ -15,7 +15,7 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
         Json_Text;
         Xml_Text;
         
-        Data
+        Data;
     end
     
     methods
@@ -127,7 +127,7 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
         end
         
     end
-   
+    
     methods (Hidden = true)
         function obj = gen_json(obj)
             obj.Json_Text = [];
@@ -159,7 +159,8 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
             buf = sprintf('\t"Data_type_comment" : "1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit" ,'); obj.Json_Text{end+1} = buf;
             buf  = sprintf('\t"Data" : ['); obj.Json_Text{end+1} = buf;
             for kk = 1:numel(obj.Data)
-                buf = sprintf('\t\t{ "type":%i, "size_i":%i, "file_pt":%i }',obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt);
+                buf = sprintf('\t\t{ "type":%i, "size_i":%i, "file_pt":%i "min":%f "max":%f }', ...
+                    obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt,double(obj.Data(kk).min),double(obj.Data(kk).max));
                 obj.Json_Text{end+1} = buf;
                 if kk~=numel(obj.Data)
                     obj.Json_Text{end} = [obj.Json_Text{end},','];
@@ -197,7 +198,8 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
             buf = sprintf('\t<!--1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit-->'); obj.Xml_Text{end+1} = buf;
             buf  = sprintf('\t<Datas>'); obj.Xml_Text{end+1} = buf;
             for kk = 1:numel(obj.Data)
-                buf = sprintf('\t\t<Data type="%i" size_i="%i" file_pt="%i"/>',obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt);
+                buf = sprintf('\t\t<Data type="%i" size_i="%i" file_pt="%i" min="%f" max="%f"/>', ...
+                    obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt,double(obj.Data(kk).min),double(obj.Data(kk).max));
                 obj.Xml_Text{end+1} = buf;
             end
             buf  = sprintf('\t</Datas>'); obj.Xml_Text{end+1} = buf;

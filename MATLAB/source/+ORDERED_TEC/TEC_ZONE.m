@@ -214,6 +214,8 @@ classdef TEC_ZONE < ORDERED_TEC.TEC_ZONE_BASE
                 max_buf=max(val(:));
                 fwrite(fid,min_buf,'float64');% Min value
                 fwrite(fid,max_buf,'float64');% Max value
+                zone_log.Data(kk).min = min_buf;
+                zone_log.Data(kk).max = max_buf;
             end
             
             if obj.Echo_Mode(4)
