@@ -267,7 +267,8 @@ void TEC_FILE_LOG::gen_xml()
 	Xml_Text.push_back("\t<Variables>");
 	for (std::vector<std::string>::const_iterator i = Variables.begin(); i != Variables.end(); ++i)
 	{
-		std::sprintf(buf, " <I>%s</I>", i->c_str()); *(Xml_Text.end() - 1) += buf;
+		std::sprintf(buf, " <%s i=\"%zi\"/>", i->c_str(), i - Variables.begin());
+		*(Xml_Text.end() - 1) += buf;
 	}
 	*(Xml_Text.end() - 1) += " </Variables>";
 
@@ -276,7 +277,7 @@ void TEC_FILE_LOG::gen_xml()
 		Xml_Text.push_back("\t<Auxiliarys>");
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			std::sprintf(buf, "\t\t<Auxiliary Name=\"%s\">%s</Auxiliary>", i->first.c_str(), i->second.c_str());
+			std::sprintf(buf, "\t\t<%s>%s</%s>", i->first.c_str(), i->second.c_str(), i->first.c_str());
 			Xml_Text.push_back(buf);
 		}
 		Xml_Text.push_back("\t</Auxiliarys>");
@@ -443,18 +444,18 @@ void TEC_ZONE_LOG::gen_xml()
 		std::sprintf(buf, "\t<SolutionTime>%le</SolutionTime>", SolutionTime); Xml_Text.push_back(buf);
 	}
 	std::sprintf(buf, "\t<Real_Dim>%i</Real_Dim>", Real_Dim); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Org_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Org_Max>", Max[0], Max[1], Max[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Skip> <I>%i</I> <I>%i</I> <I>%i</I> </Skip>", Skip[0], Skip[1], Skip[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Begin> <I>%i</I> <I>%i</I> <I>%i</I> </Begin>", Begin[0], Begin[1], Begin[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<End> <I>%i</I> <I>%i</I> <I>%i</I> </End>", End[0], End[1], End[2]); Xml_Text.push_back(buf);
-	std::sprintf(buf, "\t<Real_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Real_Max>", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Org_Max> <I>%i</I> <J>%i</J> <K>%i</K> </Org_Max>", Max[0], Max[1], Max[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Skip> <I>%i</I> <J>%i</J> <K>%i</K> </Skip>", Skip[0], Skip[1], Skip[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Begin> <I>%i</I> <J>%i</J> <K>%i</K> </Begin>", Begin[0], Begin[1], Begin[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<End> <I>%i</I> <J>%i</J> <K>%i</K> </End>", End[0], End[1], End[2]); Xml_Text.push_back(buf);
+	std::sprintf(buf, "\t<Real_Max> <I>%i</I> <J>%i</J> <K>%i</K> </Real_Max>", Real_Max[0], Real_Max[1], Real_Max[2]); Xml_Text.push_back(buf);
 
 	if (Auxiliary.size() != 0)
 	{
 		Xml_Text.push_back("\t<Auxiliary>");
 		for (std::map<std::string, std::string>::const_iterator i = Auxiliary.begin(); i != Auxiliary.end(); ++i)
 		{
-			std::sprintf(buf, "\t\t<Auxiliary Name=\"%s\">%s</Auxiliary>", i->first.c_str(), i->second.c_str());
+			std::sprintf(buf, "\t\t<%s>%s</%s>", i->first.c_str(), i->second.c_str(), i->first.c_str());
 			Xml_Text.push_back(buf);
 		}
 		Xml_Text.push_back("\t</Auxiliary>");
@@ -464,8 +465,8 @@ void TEC_ZONE_LOG::gen_xml()
 	Xml_Text.push_back("\t<Datas>");
 	for (std::vector<TEC_DATA_LOG>::iterator i = Data.begin(); i != Data.end(); ++i)
 	{
-		std::sprintf(buf, "\t\t<Data type=\"%i\" size_i=\"%zi\" file_pt=\"%li\" min=\"%lf\" max=\"%lf\"/>",
-			i->type, i->size, Data[i - Data.begin()].file_pt, Data[i - Data.begin()].min, Data[i - Data.begin()].max);
+		std::sprintf(buf, "\t\t<Data_%zi type=\"%i\" size_i=\"%zi\" file_pt=\"%li\" min=\"%lf\" max=\"%lf\"/>",
+			i - Data.begin(), i->type, i->size, Data[i - Data.begin()].file_pt, Data[i - Data.begin()].min, Data[i - Data.begin()].max);
 		Xml_Text.push_back(buf);
 	}
 	Xml_Text.push_back("\t</Datas>");
