@@ -200,7 +200,7 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
             
             buf = sprintf('\t<Variables>'); obj.Xml_Text{end+1} = buf;
             for v_n = 1:numel(obj.Variables)
-                buf = sprintf(' <I>%s</I>',obj.Variables{v_n});
+                buf = sprintf(' <%s i="%i"/>',obj.Variables{v_n},v_n-1);
                 obj.Xml_Text{end} = [obj.Xml_Text{end},buf];
             end
             obj.Xml_Text{end} = [obj.Xml_Text{end},' </Variables>'];
@@ -208,7 +208,7 @@ classdef TEC_FILE_LOG < ORDERED_TEC.TEC_FILE_BASE
             if ~isempty(obj.Auxiliary)
                 buf  = sprintf('\t<Auxiliarys>'); obj.Xml_Text{end+1} = buf;
                 for kk = 1:length(obj.Auxiliary)
-                    buf = sprintf('\t\t<Auxiliary Name="%s">%s</Auxiliary>',obj.Auxiliary{kk}{1},obj.Auxiliary{kk}{2});
+                    buf = sprintf('\t\t<%s>%s</%s>',obj.Auxiliary{kk}{1},obj.Auxiliary{kk}{2},obj.Auxiliary{kk}{1});
                     obj.Xml_Text{end+1} = buf;
                 end
                 buf  = sprintf('\t</Auxiliarys>'); obj.Xml_Text{end+1} = buf;

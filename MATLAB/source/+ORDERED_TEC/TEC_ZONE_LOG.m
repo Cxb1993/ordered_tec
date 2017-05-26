@@ -180,16 +180,16 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
                 buf = sprintf('\t<SolutionTime>%le</SolutionTime>', obj.SolutionTime); obj.Xml_Text{end+1} = buf;
             end
             buf = sprintf('\t<Real_Dim>%i</Real_Dim>', obj.Real_Dim); obj.Xml_Text{end+1} = buf;
-            buf = sprintf('\t<Org_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Org_Max>', obj.Max(1), obj.Max(2), obj.Max(3)); obj.Xml_Text{end+1} = buf;
-            buf = sprintf('\t<Skip> <I>%i</I> <I>%i</I> <I>%i</I> </Skip>', obj.Skip(1), obj.Skip(2), obj.Skip(3)); obj.Xml_Text{end+1} = buf;
-            buf = sprintf('\t<Begin> <I>%i</I> <I>%i</I> <I>%i</I> </Begin>', obj.Begin(1), obj.Begin(2), obj.Begin(3)); obj.Xml_Text{end+1} = buf;
-            buf = sprintf('\t<End> <I>%i</I> <I>%i</I> <I>%i</I> </End>', obj.EEnd(1), obj.EEnd(2), obj.EEnd(3)); obj.Xml_Text{end+1} = buf;
-            buf = sprintf('\t<Real_Max> <I>%i</I> <I>%i</I> <I>%i</I> </Real_Max>', obj.Real_Max(1), obj.Real_Max(2), obj.Real_Max(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Org_Max> <I>%i</I> <J>%i</J> <K>%i</K> </Org_Max>', obj.Max(1), obj.Max(2), obj.Max(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Skip> <I>%i</I> <J>%i</J> <K>%i</K> </Skip>', obj.Skip(1), obj.Skip(2), obj.Skip(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Begin> <I>%i</I> <J>%i</J> <K>%i</K> </Begin>', obj.Begin(1), obj.Begin(2), obj.Begin(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<End> <I>%i</I> <J>%i</J> <K>%i</K> </End>', obj.EEnd(1), obj.EEnd(2), obj.EEnd(3)); obj.Xml_Text{end+1} = buf;
+            buf = sprintf('\t<Real_Max> <I>%i</I> <J>%i</J> <K>%i</K> </Real_Max>', obj.Real_Max(1), obj.Real_Max(2), obj.Real_Max(3)); obj.Xml_Text{end+1} = buf;
             
             if ~isempty(obj.Auxiliary)
                 buf  = sprintf('\t<Auxiliary>'); obj.Xml_Text{end+1} = buf;
                 for kk = 1:length(obj.Auxiliary)
-                    buf = sprintf('\t\t<Auxiliary Name="%s">%s</Auxiliary>',obj.Auxiliary{kk}{1},obj.Auxiliary{kk}{2});
+                    buf = sprintf('\t\t<%s>%s</%s>',obj.Auxiliary{kk}{1},obj.Auxiliary{kk}{2},obj.Auxiliary{kk}{1});
                     obj.Xml_Text{end+1} = buf;
                 end
                 buf  = sprintf('\t</Auxiliary>'); obj.Xml_Text{end+1} = buf;
@@ -198,8 +198,8 @@ classdef TEC_ZONE_LOG < ORDERED_TEC.TEC_ZONE_BASE
             buf = sprintf('\t<!--1=Float, 2=Double, 3=LongInt, 4=ShortInt, 5=Byte, 6=Bit-->'); obj.Xml_Text{end+1} = buf;
             buf  = sprintf('\t<Datas>'); obj.Xml_Text{end+1} = buf;
             for kk = 1:numel(obj.Data)
-                buf = sprintf('\t\t<Data type="%i" size_i="%i" file_pt="%i" min="%f" max="%f"/>', ...
-                    obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt,double(obj.Data(kk).min),double(obj.Data(kk).max));
+                buf = sprintf('\t\t<Data_%i type="%i" size_i="%i" file_pt="%i" min="%f" max="%f"/>', ...
+                    kk-1,obj.Data(kk).type,obj.Data(kk).size_i,obj.Data(kk).file_pt,double(obj.Data(kk).min),double(obj.Data(kk).max));
                 obj.Xml_Text{end+1} = buf;
             end
             buf  = sprintf('\t</Datas>'); obj.Xml_Text{end+1} = buf;
